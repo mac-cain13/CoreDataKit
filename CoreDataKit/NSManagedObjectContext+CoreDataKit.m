@@ -10,6 +10,8 @@
 
 @implementation NSManagedObjectContext (CoreDataKit)
 
+#pragma mark Context creation
+
 + (NSManagedObjectContext *)CDK_contextWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator
 {
     NSAssert(persistentStoreCoordinator, @"Persistent store coordinator is mandatory");
@@ -31,6 +33,18 @@
 #warning Should make sure we always obtain permanent IDs when saving
 
     return managedObjectContext;
+}
+
+#pragma mark Saving
+
+- (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion
+{
+#warning Incomplete implementation
+}
+
+- (void)CDK_saveToParentContext:(CDKCompletionBlock)completion
+{
+#warning Incomplete implementation
 }
 
 @end

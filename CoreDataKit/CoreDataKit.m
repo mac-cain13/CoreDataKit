@@ -87,7 +87,25 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 
 - (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion
 {
-#warning Unimplemented method
+    NSManagedObjectContext *managedObjectContext = [self.rootContext CDK_childContextWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    [managedObjectContext performBlock:^{
+        // Perform save block
+        if (saveBlock) {
+            saveBlock(managedObjectContext);
+        }
+
+        // Save
+        NSError *error = nil;
+        [managedObjectContext save:&error];
+
+        // Perform completion block
+        if (completion)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(error);
+            });
+        }
+    }];
 }
 
 @end

@@ -1,5 +1,5 @@
 //
-//  Types.h
+//  CDKTypes.h
 //  CoreDataKit
 //
 //  Created by Mathijs Kadijk on 16-05-14.

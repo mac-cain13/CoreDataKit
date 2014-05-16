@@ -49,7 +49,7 @@
 /* Begin PBXFileReference section */
 		49BDB0AD49684E8D82ACA165 /* Pods-CoreDataKitTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreDataKitTests.xcconfig"; path = "Pods/Pods-CoreDataKitTests.xcconfig"; sourceTree = "<group>"; };
 		74F11B0299C844CAB13B53C9 /* libPods-CoreDataKitTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-CoreDataKitTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		D50965DD1925E0A40047E050 /* Types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Types.h; sourceTree = "<group>"; };
+		D50965DD1925E0A40047E050 /* CDKTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDKTypes.h; sourceTree = "<group>"; };
 		D50965DF1925EBC70047E050 /* Warnings.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
 		D50965E519269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPersistentStoreCoordinator+CoreDataKit.h"; sourceTree = "<group>"; };
 		D50965E619269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPersistentStoreCoordinator+CoreDataKit.m"; sourceTree = "<group>"; };
@@ -149,7 +149,7 @@
 		D5FF1660192527EF0015663B /* CoreDataKit */ = {
 			isa = PBXGroup;
 			children = (
-				D50965DD1925E0A40047E050 /* Types.h */,
+				D50965DD1925E0A40047E050 /* CDKTypes.h */,
 				D50965E419269F5C0047E050 /* Categories */,
 				D5FF1663192527EF0015663B /* CoreDataKit.h */,
 				D5FF1665192527EF0015663B /* CoreDataKit.m */,

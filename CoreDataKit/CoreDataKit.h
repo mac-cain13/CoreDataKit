@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
-#import "Types.h"
+#import "CDKTypes.h"
 
 /**
  `CoreDataKit` helps with setup of the CoreData stack and provides some high level convenience methods.
@@ -77,7 +77,7 @@
 + (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion;
 
 /**
- Performs the given `CDKSaveBlock` on a background thread and persists changes performed on the `NSManagedObjectContext` given to the `CDKSaveBlock` to the persistent store. After saving the `CDKCompletionBlock` block is called and passed a `NSError` object when an error occured or nil when successfull. The `CDKCompletionBlock` will be called on the originating thread.
+ Performs the given `CDKSaveBlock` on a background thread and persists changes performed on the `NSManagedObjectContext` given to the `CDKSaveBlock` to the persistent store. After saving the `CDKCompletionBlock` block is called and passed a `NSError` object when an error occured or nil when successfull. The `CDKCompletionBlock` will always be called on the main thread.
  
  @discussion It is advised to **never** nest save operations, this will prevent hairpulling, since the given `NSManagedObjectContext`s are not nested it will bite you in the but some time.
  
