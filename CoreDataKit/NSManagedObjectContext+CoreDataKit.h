@@ -40,7 +40,7 @@
 /**
  Asynchronously saves the context all the way up to the persistent store.
 
- @param completion Will be performed after save and is passed the error of the save action if any
+ @param completion Will be performed on the main thread after save and is passed the error of the save action if any
 
  @see -CDK_saveToParentContext:
  */
@@ -49,7 +49,7 @@
 /**
  Asynchronously saves the context to it's parent context.
 
- @param completion Will be performed after save and is passed the error of the save action if any
+ @param completion Will be performed on the main thread after save and is passed the error of the save action if any
  
  @see -CDK_saveToPersistentStore:
  */

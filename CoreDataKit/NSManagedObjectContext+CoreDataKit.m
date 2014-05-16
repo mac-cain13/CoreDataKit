@@ -37,14 +37,47 @@
 
 #pragma mark Saving
 
+#warning Untested
 - (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion
 {
-#warning Incomplete implementation
+    [self performBlock:^{
+        // Perform save
+        NSError *error = nil;
+        [self save:&error];
+
+        if (error || !self.parentContext)
+        {
+            // If error or no more parent contexts call completion handler
+            if (completion)
+            {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    completion(error);
+                });
+            }
+        }
+        else
+        {
+            // Continue to save one level up
+            [self.parentContext CDK_saveToPersistentStore:completion];
+        }
+    }];
 }
 
+#warning Untested
 - (void)CDK_saveToParentContext:(CDKCompletionBlock)completion
 {
-#warning Incomplete implementation
+    [self performBlock:^{
+        // Perform save
+        NSError *error = nil;
+        [self save:&error];
+
+        // Call completion handler
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(error);
+            });
+        }
+    }];
 }
 
 @end

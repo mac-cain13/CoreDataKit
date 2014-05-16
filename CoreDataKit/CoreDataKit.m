@@ -85,6 +85,7 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
     [[self sharedKit] save:saveBlock completion:completion];
 }
 
+#warning Untested
 - (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion
 {
     NSManagedObjectContext *managedObjectContext = [self.rootContext CDK_childContextWithConcurrencyType:NSPrivateQueueConcurrencyType];
@@ -94,17 +95,8 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
             saveBlock(managedObjectContext);
         }
 
-        // Save
-        NSError *error = nil;
-        [managedObjectContext save:&error];
-
-        // Perform completion block
-        if (completion)
-        {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                completion(error);
-            });
-        }
+        // Save the changes
+        [managedObjectContext CDK_saveToPersistentStore:completion];
     }];
 }
 
