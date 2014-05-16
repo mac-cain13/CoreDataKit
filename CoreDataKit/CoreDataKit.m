@@ -56,4 +56,13 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKitStore";
 #warning Unimplemented method
 }
 
+#pragma mark Accessors
+
+- (void)setStoreName:(NSString *)storeName
+{
+    assert(storeName);
+
+    _storeName = storeName;
+}
+
 @end

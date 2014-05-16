@@ -7,8 +7,11 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "CoreDataKit.h"
 
 @interface CoreDataKitTests : XCTestCase
+
+@property (nonatomic, strong) CoreDataKit *coreDataKit;
 
 @end
 
@@ -17,18 +20,39 @@
 - (void)setUp
 {
     [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
+    self.coreDataKit = [[CoreDataKit alloc] init];
 }
 
 - (void)tearDown
 {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    self.coreDataKit = nil;
     [super tearDown];
 }
 
-- (void)testExample
+#pragma mark Singleton
+
+- (void)testSingletonNotNil
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+    XCTAssertNotNil([CoreDataKit sharedKit], @"sharedKit shouldn't be nil");
+}
+
+- (void)testSingletonReturnsSameObject
+{
+    XCTAssertEqual([CoreDataKit sharedKit], [CoreDataKit sharedKit], @"sharedKit should return same instance twice");
+}
+
+#pragma mark StoreName
+
+- (void)testStoreNameNotNil
+{
+    XCTAssertNotNil(self.coreDataKit.storeName, @"Store name shouldn't be nil by default");
+}
+
+- (void)testSetStoreNameToNilResetsToDefault
+{
+    NSString *defaultStoreName = self.coreDataKit.storeName;
+    self.coreDataKit.storeName = nil;
+    XCTAssertEqualObjects(self.coreDataKit.storeName, defaultStoreName, @"Setting store name to nil should not change name");
 }
 
 @end

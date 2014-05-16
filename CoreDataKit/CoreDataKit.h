@@ -9,8 +9,7 @@
 #import <Foundation/Foundation.h>
 @import CoreData;
 
-typedef void (^CDKSaveBlock) (NSManagedObjectContext *context);
-typedef void (^CDKCompletionBlock) (NSError *error);
+#import "Types.h"
 
 @interface CoreDataKit : NSObject
 
@@ -25,6 +24,8 @@ typedef void (^CDKCompletionBlock) (NSError *error);
 - (void)setupCoreDataStackInMemory;
 
 #pragma mark Saving
+
++ (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion;
 
 - (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion;
 
