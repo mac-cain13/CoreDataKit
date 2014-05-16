@@ -7,23 +7,21 @@
 Pod::Spec.new do |s|
   s.name             = "CoreDataKit"
   s.version          = "0.1.0"
-  s.summary          = "A short description of CoreDataKit."
+  s.summary          = "CoreDataKit makes common operations on objects and importing into CoreData a breeze."
   s.description      = <<-DESC
-                       An optional longer description of CoreDataKit
+                       CoreDataKit makes common operations on objects and importing into CoreData a breeze.
 
-                       * Markdown format.
-                       * Don't worry about the indent, we strip it!
+                       * Easy CRUD operations, finding data and fetched results controllers
+                       * Import data from NSDictionaries/NSArrays
+                       * Still be able to customize and dive into CoreData when necessary
                        DESC
-  s.homepage         = "http://EXAMPLE/NAME"
-  s.screenshots      = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
+  s.homepage         = "http://github.com/mac-cain13/CoreDataKit"
   s.license          = 'MIT'
   s.author           = { "Mathijs Kadijk" => "mkadijk@gmail.com" }
-  s.source           = { :git => "http://EXAMPLE/NAME.git", :tag => s.version.to_s }
-  s.social_media_url = 'https://twitter.com/EXAMPLE'
+  s.source           = { :git => "http://github.com/mac-cain13/CoreDataKit.git", :tag => s.version.to_s }
 
-  # s.platform     = :ios, '5.0'
-  # s.ios.deployment_target = '5.0'
-  # s.osx.deployment_target = '10.7'
+  s.platform     = :ios, '7.0'
+  s.ios.deployment_target = '7.0'
   s.requires_arc = true
 
   s.source_files = 'Classes'
@@ -31,7 +29,6 @@ Pod::Spec.new do |s|
 
   s.ios.exclude_files = 'Classes/osx'
   s.osx.exclude_files = 'Classes/ios'
-  # s.public_header_files = 'Classes/**/*.h'
-  # s.frameworks = 'SomeFramework', 'AnotherFramework'
-  # s.dependency 'JSONKit', '~> 1.4'
+  s.public_header_files = 'Classes/**/*.h'
+  s.frameworks = 'CoreData'
 end
