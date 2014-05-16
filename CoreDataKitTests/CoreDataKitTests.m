@@ -29,7 +29,7 @@
     [super tearDown];
 }
 
-#pragma mark Singleton
+#pragma mark - Singleton
 
 - (void)testSingletonNotNil
 {
@@ -41,18 +41,92 @@
     XCTAssertEqual([CoreDataKit sharedKit], [CoreDataKit sharedKit], @"sharedKit should return same instance twice");
 }
 
-#pragma mark StoreName
+#pragma mark - Setup
 
-- (void)testStoreNameNotNil
+#pragma mark SQLite setup
+
+- (void)testSetupAutomigratingCoreDataStackTwice
 {
-    XCTAssertNotNil(self.coreDataKit.storeName, @"Store name shouldn't be nil by default");
+    [self.coreDataKit setupAutomigratingCoreDataStack];
+
+    @try {
+        [self.coreDataKit setupAutomigratingCoreDataStack];
+    }
+    @catch (id assertion) {
+        XCTAssertEqualObjects([assertion description], @"Root context is already available", @"Setup CoreData stack twice hit wrong assertion");
+        return;
+    }
+
+    XCTFail(@"Setup CoreData stack twice should hit assertion");
 }
 
-- (void)testSetStoreNameToNilResetsToDefault
+- (void)testSetupAutomigratingCoreDataStackCreatesCoordinator
 {
-    NSString *defaultStoreName = self.coreDataKit.storeName;
-    self.coreDataKit.storeName = nil;
-    XCTAssertEqualObjects(self.coreDataKit.storeName, defaultStoreName, @"Setting store name to nil should not change name");
+    [self.coreDataKit setupAutomigratingCoreDataStack];
+
+    XCTAssertNotNil(self.coreDataKit.persistentStoreCoordinator, @"Persistent store coordinator should be available after setup");
+    XCTAssertEqual(self.coreDataKit.persistentStoreCoordinator.persistentStores.count, 1, @"Persistent store coordinator should have one persistent store");
+}
+
+- (void)testSetupAutomigratingCoreDataStackCreatesRootContext
+{
+    [self.coreDataKit setupAutomigratingCoreDataStack];
+
+    XCTAssertNotNil(self.coreDataKit.rootContext, @"Root context should be available after setup");
+    XCTAssertEqualObjects(self.coreDataKit.rootContext.persistentStoreCoordinator, self.coreDataKit.persistentStoreCoordinator, @"Root context should associated with the persistent store coordinator");
+    XCTAssertNil(self.coreDataKit.rootContext.parentContext, @"Root context must not have a parent context");
+}
+
+- (void)testSetupAutomigratingCoreDataStackCreatesMainThreadContext
+{
+    [self.coreDataKit setupAutomigratingCoreDataStack];
+
+    XCTAssertNotNil(self.coreDataKit.mainThreadContext, @"Main thread context should be available after setup");
+    XCTAssertEqualObjects(self.coreDataKit.mainThreadContext.parentContext, self.coreDataKit.rootContext, @"Main thread context should have root context as parent");
+    XCTAssertEqualObjects(self.coreDataKit.mainThreadContext.persistentStoreCoordinator, self.coreDataKit.persistentStoreCoordinator, @"Main thread context should have same persistent store coordinator as root context");
+}
+
+#pragma mark In memory setup
+
+- (void)testSetupCoreDataStackInMemoryTwice
+{
+    [self.coreDataKit setupCoreDataStackInMemory];
+
+    @try {
+        [self.coreDataKit setupCoreDataStackInMemory];
+    }
+    @catch (id assertion) {
+        XCTAssertEqualObjects([assertion description], @"Root context is already available", @"Setup CoreData stack twice hit wrong assertion");
+        return;
+    }
+
+    XCTFail(@"Setup CoreData stack twice should hit assertion");
+}
+
+- (void)testSetupCoreDataStackInMemoryCreatesCoordinator
+{
+    [self.coreDataKit setupCoreDataStackInMemory];
+
+    XCTAssertNotNil(self.coreDataKit.persistentStoreCoordinator, @"Persistent store coordinator should be available after setup");
+    XCTAssertEqual(self.coreDataKit.persistentStoreCoordinator.persistentStores.count, 1, @"Persistent store coordinator should have one persistent store");
+}
+
+- (void)testSetupCoreDataStackInMemoryCreatesRootContext
+{
+    [self.coreDataKit setupCoreDataStackInMemory];
+
+    XCTAssertNotNil(self.coreDataKit.rootContext, @"Root context should be available after setup");
+    XCTAssertEqualObjects(self.coreDataKit.rootContext.persistentStoreCoordinator, self.coreDataKit.persistentStoreCoordinator, @"Root context should associated with the persistent store coordinator");
+    XCTAssertNil(self.coreDataKit.rootContext.parentContext, @"Root context must not have a parent context");
+}
+
+- (void)testSetupCoreDataStackInMemoryCreatesMainThreadContext
+{
+    [self.coreDataKit setupCoreDataStackInMemory];
+
+    XCTAssertNotNil(self.coreDataKit.mainThreadContext, @"Main thread context should be available after setup");
+    XCTAssertEqualObjects(self.coreDataKit.mainThreadContext.parentContext, self.coreDataKit.rootContext, @"Main thread context should have root context as parent");
+    XCTAssertEqualObjects(self.coreDataKit.mainThreadContext.persistentStoreCoordinator, self.coreDataKit.persistentStoreCoordinator, @"Main thread context should have same persistent store coordinator as root context");
 }
 
 @end
