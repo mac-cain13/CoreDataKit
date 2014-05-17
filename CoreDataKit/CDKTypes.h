@@ -29,28 +29,21 @@ typedef NS_ENUM(NSUInteger, CDKDebuggerLogLevel) {
     /**
      Level to indicate that no logs should show up
      */
-    CDKDebuggerLogSilent    = 0,
+    CDKDebuggerLogSilent  = 0,
     /**
      Level for detailed debug messages about what CoreDataKit is doing
      */
-    CDKDebuggerLogVerbose   = 1,
+    CDKDebuggerLogVerbose = 1,
     /**
      Level for messages about what CoreDataKit is doing
      */
-    CDKDebuggerLogInfo      = 2,
+    CDKDebuggerLogInfo    = 2,
     /**
      Level for messages about stuff that could lead to an error
      */
-    CDKDebuggerLogWarn      = 3,
+    CDKDebuggerLogWarn    = 3,
     /**
      Level for messages about things that did fail
      */
-    CDKDebuggerLogError     = 4
+    CDKDebuggerLogError   = 4
 };
-
-// Macros for easy logging with the shared debugger
-#define CDKHandleError(error)   { [[CoreDataKitDebugger sharedDebugger] handleError:error]; }
-#define CDKLogVerbose(msg, ...) { [[CoreDataKitDebugger sharedDebugger] log:CoreDataKitDebuggerLogVerbose message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
-#define CDKLogInfo(msg, ...) { [[CoreDataKitDebugger sharedDebugger] log:CoreDataKitDebuggerLogInfo message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
-#define CDKLogWarn(msg, ...) { [[CoreDataKitDebugger sharedDebugger] log:CoreDataKitDebuggerLogWarn message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
-#define CDKLogError(msg, ...) { [[CoreDataKitDebugger sharedDebugger] log:CoreDataKitDebuggerLogError message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }

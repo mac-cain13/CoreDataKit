@@ -7,6 +7,7 @@
 //
 
 #import "CDKDebugger.h"
+#import "CDKTypes.h"
 
 #ifdef DEBUG
 #define CDKBreak(msg, ...)  { NSLog(msg, ##__VA_ARGS__); kill(getpid(), SIGINT); }
@@ -79,11 +80,12 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
 #warning Tests missing
 - (void)log:(CDKDebuggerLogLevel)logLevel message:(NSString *)message
 {
+    NSString *from = NSStringFromSelector(_cmd);
     // Log message if required by log level
     if (self.logLevel != CDKDebuggerLogSilent && logLevel >= self.logLevel)
     {
-        NSLog(@"[CoreDataKit] Log from %@:", NSStringFromSelector(_cmd));
-        NSLog(@"[CoreDataKit] %@: %@", NSStringFromCDKDebuggerLogLevel(logLevel), message);
+        NSLog(@"[CoreDataKit] %@ from [%@]:", NSStringFromCDKDebuggerLogLevel(logLevel), from);
+        NSLog(@"[CoreDataKit] %@", message);
     }
 
     // Break execution if required by log level
@@ -96,7 +98,10 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
 #warning Tests missing
 - (void)handleError:(NSError *)error
 {
+    if (error)
+    {
 #warning Unimplemented method
+    }
 }
 
 @end

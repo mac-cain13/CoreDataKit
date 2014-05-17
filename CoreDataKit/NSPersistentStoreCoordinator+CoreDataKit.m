@@ -7,6 +7,7 @@
 //
 
 #import "NSPersistentStoreCoordinator+CoreDataKit.h"
+#import "CDKDebugger.h"
 
 @implementation NSPersistentStoreCoordinator (CoreDataKit)
 
@@ -38,14 +39,15 @@
 
 - (void)CDK_addSQLiteStoreWithoutRetryAtURL:(NSURL *)storeURL automigrating:(BOOL)automigrating
 {
-#warning Should handle error in some way?!
+    NSError *error;
     [self addPersistentStoreWithType:NSSQLiteStoreType
                        configuration:nil
                                  URL:storeURL
                              options:@{ NSMigratePersistentStoresAutomaticallyOption: @(automigrating),
                                         NSInferMappingModelAutomaticallyOption: @(automigrating),
                                         NSSQLitePragmasOption: @{@"journal_mode": @"WAL"} }
-                               error:NULL];
+                               error:&error];
+    CDKHandleError(error);
 }
 
 @end

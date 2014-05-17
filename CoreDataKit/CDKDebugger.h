@@ -9,6 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "CDKTypes.h"
 
+// Macros for easy logging with the shared debugger
+#define CDKHandleError(error)   { [[CDKDebugger sharedDebugger] handleError:error]; }
+#define CDKLogVerbose(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogVerbose message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
+#define CDKLogInfo(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogInfo message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
+#define CDKLogWarn(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogWarn message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
+#define CDKLogError(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogError message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
+
 /**
  `CDKDebugger` provides logging, error handling and other tricks.
  */
