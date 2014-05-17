@@ -67,7 +67,7 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 
     // Get all models merged together
     NSManagedObjectModel *mergedManagedObjectModels = [NSManagedObjectModel mergedModelFromBundles:nil];
-
+    
     // Setup persistent store
     self.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mergedManagedObjectModels];
 #warning Should handle error in some way?!

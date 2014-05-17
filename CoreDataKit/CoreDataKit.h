@@ -12,7 +12,7 @@
 #import "CDKTypes.h"
 
 /**
- `CoreDataKit` helps with setup of the CoreData stack and provides some high level convenience methods.
+ `CoreDataKit` helps with setup of the CoreData stack and provides some high level convenience methods like save helpers.
  */
 @interface CoreDataKit : NSObject
 
