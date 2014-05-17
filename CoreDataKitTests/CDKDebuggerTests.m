@@ -53,7 +53,7 @@
     XCTAssertEqual(self.debugger.breakOnLogLevel, CDKDebuggerLogError, @"Default break on log level should be error");
 }
 
-#pragma mark - Logging and error handling
+#pragma mark - Log handling
 
 - (void)testLogAtLevelBreakHigherThanLog
 {
@@ -101,6 +101,28 @@
     XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
     XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
     XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
+}
+
+#pragma mark - Error handling
+
+- (void)testErrorHandlingWithNil
+{
+    XCTFail(@"Unimplemented test");
+}
+
+- (void)testErrorHandlingWithLogLevelSilent
+{
+    XCTFail(@"Unimplemented test");
+}
+
+- (void)testErrorHandlingWithLogLevelWarn
+{
+    XCTFail(@"Unimplemented test");
+}
+
+- (void)testErrorHandlingWithLogLevelError
+{
+    XCTFail(@"Unimplemented test");
 }
 
 @end

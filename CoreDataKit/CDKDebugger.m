@@ -98,13 +98,13 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
     return actions;
 }
 
-#warning Tests missing
 - (CDKDebuggerAction)handleError:(NSError *)error
 {
     CDKDebuggerAction actions = CDKDebuggerActionNone;
 
     if (error)
     {
+        #warning Should check if we this error logging is to our liking
         NSMutableArray *messages = @[].mutableCopy;
 
         [error.userInfo.allValues enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
