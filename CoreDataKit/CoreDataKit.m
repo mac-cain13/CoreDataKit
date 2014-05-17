@@ -7,6 +7,7 @@
 //
 
 #import "CoreDataKit.h"
+#import "CDKDebugger.h"
 #import "NSPersistentStoreCoordinator+CoreDataKit.h"
 #import "NSManagedObjectContext+CoreDataKit.h"
 
@@ -69,9 +70,11 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
     NSManagedObjectModel *mergedManagedObjectModels = [NSManagedObjectModel mergedModelFromBundles:nil];
     
     // Setup persistent store
+    NSError *error = nil;
     self.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mergedManagedObjectModels];
-#warning Should handle error in some way?!
-    [self.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:NULL];
+    [self.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:&error];
+
+    CDKHandleError(error);
 
     // Create the contexts
     self.rootContext = [NSManagedObjectContext CDK_contextWithPersistentStoreCoordinator:self.persistentStoreCoordinator];
