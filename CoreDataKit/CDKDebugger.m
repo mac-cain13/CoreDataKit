@@ -32,8 +32,8 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
             string = @"Info";
             break;
 
-        case CDKDebuggerLogWarn:
-            string = @"Warn";
+        case CDKDebuggerLogWarning:
+            string = @"Warning";
             break;
 
         case CDKDebuggerLogError:
@@ -46,7 +46,6 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
 
 @implementation CDKDebugger
 
-#warning Tests missing
 + (instancetype)sharedDebugger
 {
     static CDKDebugger *sharedDebugger;
@@ -58,7 +57,6 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
     return sharedDebugger;
 }
 
-#warning Tests missing
 - (instancetype)init
 {
     self = [super init];
@@ -67,7 +65,7 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
     }
 
 #ifdef DEBUG
-    self.logLevel = CDKDebuggerLogWarn;
+    self.logLevel = CDKDebuggerLogWarning;
     self.breakOnLogLevel = CDKDebuggerLogError;
 #else
     self.logLevel = CDKDebuggerLogSilent;
@@ -77,31 +75,66 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
     return self;
 }
 
-#warning Tests missing
-- (void)log:(CDKDebuggerLogLevel)logLevel message:(NSString *)message
+- (CDKDebuggerAction)log:(NSArray *)messages atLevel:(CDKDebuggerLogLevel)logLevel
 {
-    NSString *from = NSStringFromSelector(_cmd);
+    CDKDebuggerAction actions = CDKDebuggerActionNone;
+
     // Log message if required by log level
-    if (self.logLevel != CDKDebuggerLogSilent && logLevel >= self.logLevel)
+    if (CDKDebuggerLogSilent != self.logLevel && logLevel >= self.logLevel)
     {
-        NSLog(@"[CoreDataKit] %@ from [%@]:", NSStringFromCDKDebuggerLogLevel(logLevel), from);
-        NSLog(@"[CoreDataKit] %@", message);
+        [messages enumerateObjectsUsingBlock:^(NSString *message, NSUInteger idx, BOOL *stop) {
+            NSLog(@"[CoreDataKit] %@ %@", NSStringFromCDKDebuggerLogLevel(logLevel).uppercaseString, message);
+        }];
+        actions = actions | CDKDebuggerActionLogged;
     }
 
     // Break execution if required by log level
-    if (self.breakOnLogLevel != CDKDebuggerLogSilent && logLevel >= self.breakOnLogLevel)
+    if (CDKDebuggerLogSilent != self.breakOnLogLevel && logLevel >= self.breakOnLogLevel)
     {
         CDKBreak(@"[CoreDataKit] CDKDebugger will now break so you can investigate.");
+        actions = actions | CDKDebuggerActionBreakpoint;
     }
+
+    return actions;
 }
 
 #warning Tests missing
-- (void)handleError:(NSError *)error
+- (CDKDebuggerAction)handleError:(NSError *)error
 {
+    CDKDebuggerAction actions = CDKDebuggerActionNone;
+
     if (error)
     {
-#warning Unimplemented method
+        NSMutableArray *messages = @[].mutableCopy;
+
+        [error.userInfo.allValues enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
+            if ([value isKindOfClass:[NSArray class]])
+            {
+                [value enumerateObjectsUsingBlock:^(id valueInArray, NSUInteger idxInArray, BOOL *stopInArray) {
+                    if ([valueInArray respondsToSelector:@selector(userInfo)])
+                    {
+                        [messages addObject:[NSString stringWithFormat:@"Error Details: %@", [valueInArray userInfo]]];
+                    }
+                    else
+                    {
+                        [messages addObject:[NSString stringWithFormat:@"Error Details: %@", valueInArray]];
+                    }
+                }];
+            }
+            else
+            {
+                [messages addObject:[NSString stringWithFormat:@"Error: %@", value]];
+            }
+        }];
+
+        [messages addObject:[NSString stringWithFormat:@"Error Message: %@", error.localizedDescription]];
+        [messages addObject:[NSString stringWithFormat:@"Error Domain: %@", error.domain]];
+        [messages addObject:[NSString stringWithFormat:@"Recovery Suggestion: %@", error.localizedRecoverySuggestion]];
+
+        actions = [self log:messages atLevel:CDKDebuggerLogError];
     }
+
+    return actions;
 }
 
 @end

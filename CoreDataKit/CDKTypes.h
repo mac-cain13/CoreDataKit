@@ -41,9 +41,27 @@ typedef NS_ENUM(NSUInteger, CDKDebuggerLogLevel) {
     /**
      Level for messages about stuff that could lead to an error
      */
-    CDKDebuggerLogWarn    = 3,
+    CDKDebuggerLogWarning = 3,
     /**
      Level for messages about things that did fail
      */
     CDKDebuggerLogError   = 4
+};
+
+/**
+ Actions that the `CoreDataKitDebugger` can take
+ */
+typedef NS_OPTIONS(NSUInteger, CDKDebuggerAction) {
+    /**
+     No action
+     */
+    CDKDebuggerActionNone       = 0,
+    /**
+     Log to console action
+     */
+    CDKDebuggerActionLogged     = 1 << 1,
+    /**
+     Triggered breakpoint action
+     */
+    CDKDebuggerActionBreakpoint = 1 << 2
 };

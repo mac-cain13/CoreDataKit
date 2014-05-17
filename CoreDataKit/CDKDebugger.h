@@ -11,10 +11,10 @@
 
 // Macros for easy logging with the shared debugger
 #define CDKHandleError(error)   { [[CDKDebugger sharedDebugger] handleError:error]; }
-#define CDKLogVerbose(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogVerbose message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
-#define CDKLogInfo(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogInfo message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
-#define CDKLogWarn(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogWarn message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
-#define CDKLogError(msg, ...) { [[CDKDebugger sharedDebugger] log:CoreDataKitDebuggerLogError message:[NSString stringWithFormat:msg, ##__VA_ARGS__]]; }
+#define CDKLogVerbose(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogVerbose]; }
+#define CDKLogInfo(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogInfo]; }
+#define CDKLogWarn(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogWarn]; }
+#define CDKLogError(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogError]; }
 
 /**
  `CDKDebugger` provides logging, error handling and other tricks.
@@ -27,7 +27,7 @@
 @property (nonatomic, assign) CDKDebuggerLogLevel logLevel;
 
 /**
- Messages at or above this level will halt execution of code and give you opportunity to debug and investigate.
+ If messages at or above this level are logged will halt execution of code and give you opportunity to debug and investigate.
  */
 @property (nonatomic, assign) CDKDebuggerLogLevel breakOnLogLevel;
 
@@ -41,16 +41,20 @@
 /**
  Handle a log message respecting the log level.
 
+ @param messages Messages to log, should be `NSString` instances
  @param logLevel Level at which the message should be logged
- @param message  Message to log
+ 
+ @return Action the debugger took
  */
-- (void)log:(CDKDebuggerLogLevel)logLevel message:(NSString *)message;
+- (CDKDebuggerAction)log:(NSArray *)messages atLevel:(CDKDebuggerLogLevel)logLevel;
 
 /**
  Handle error class by logging and halting execution if required by the set levels.
 
  @param error Error to handle
+ 
+ @return Action the debugger took
  */
-- (void)handleError:(NSError *)error;
+- (CDKDebuggerAction)handleError:(NSError *)error;
 
 @end
