@@ -17,6 +17,8 @@
 
 /**
  Create a new 'root' `NSManagedObjectContext` that is directly associated with the given `NSPersistentStoreCoordinator`, will be of type `NSPrivateQueueConcurrencyType`.
+ 
+ @discussion The context will also obtain permanent IDs for `NSManagedObject`s before saving. This will prevent problems where you can't convert objects between two `NSManagedObjectContext`s, so it's advised to create context using this method.
 
  @param persistentStoreCoordinator Persistent store coordinator to associate with
 
@@ -26,6 +28,8 @@
 
 /**
  Create a new 'child' `NSManagedObjectContext` that receiver of this message set as parent context to save to.
+ 
+ @discussion The context will also obtain permanent IDs for `NSManagedObject`s before saving. This will prevent problems where you can't convert objects between two `NSManagedObjectContext`s, so it's advised to create context using this method.
 
  @param concurrencyType Concurrency type to use, must be `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`
 
