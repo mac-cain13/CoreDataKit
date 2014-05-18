@@ -107,18 +107,13 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
         #warning Should check if we this error logging is to our liking
         NSMutableArray *messages = @[].mutableCopy;
 
+        // Log all values in the user info dict, also iterate over arrays/errors in the dict
         [error.userInfo.allValues enumerateObjectsUsingBlock:^(id value, NSUInteger idx, BOOL *stop) {
             if ([value isKindOfClass:[NSArray class]])
             {
                 [value enumerateObjectsUsingBlock:^(id valueInArray, NSUInteger idxInArray, BOOL *stopInArray) {
-                    if ([valueInArray respondsToSelector:@selector(userInfo)])
-                    {
-                        [messages addObject:[NSString stringWithFormat:@"Error Details: %@", [valueInArray userInfo]]];
-                    }
-                    else
-                    {
-                        [messages addObject:[NSString stringWithFormat:@"Error Details: %@", valueInArray]];
-                    }
+                    id valueToLog = ([valueInArray respondsToSelector:@selector(userInfo)]) ? [valueInArray userInfo] : valueInArray;
+                    [messages addObject:[NSString stringWithFormat:@"Error Details: %@", valueToLog]];
                 }];
             }
             else
@@ -127,6 +122,7 @@ static NSString *NSStringFromCDKDebuggerLogLevel(CDKDebuggerLogLevel logLevel)
             }
         }];
 
+        // Log error info
         [messages addObject:[NSString stringWithFormat:@"Error Message: %@", error.localizedDescription]];
         [messages addObject:[NSString stringWithFormat:@"Error Domain: %@", error.domain]];
         [messages addObject:[NSString stringWithFormat:@"Recovery Suggestion: %@", error.localizedRecoverySuggestion]];

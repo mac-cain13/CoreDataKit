@@ -7,6 +7,10 @@
 //
 
 #import <XCTest/XCTest.h>
+#define HC_SHORTHAND
+#import <OCHamcrest/OCHamcrest.h>
+#define MOCKITO_SHORTHAND
+#import <OCMockito/OCMockito.h>
 #import "CDKDebugger.h"
 
 @interface CDKDebuggerTests : XCTestCase
@@ -60,11 +64,11 @@
     self.debugger.logLevel = CDKDebuggerLogWarning;
     self.debugger.breakOnLogLevel = CDKDebuggerLogError;
 
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionLogged, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionLogged, @"Debugger should take log action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should take break and log action");
 }
 
 - (void)testLogAtLevelLogHigherThanBreak
@@ -72,11 +76,11 @@
     self.debugger.logLevel = CDKDebuggerLogError;
     self.debugger.breakOnLogLevel = CDKDebuggerLogWarning;
 
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionBreakpoint, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionBreakpoint, @"Debugger should take break action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should take break and log action");
 }
 
 - (void)testLogAtLevelBothSilent
@@ -84,11 +88,11 @@
     self.debugger.logLevel = CDKDebuggerLogSilent;
     self.debugger.breakOnLogLevel = CDKDebuggerLogSilent;
 
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogError], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogError], CDKDebuggerActionNone, @"Debugger should not take action");
 }
 
 - (void)testLogAtLevelBothVerbose
@@ -96,33 +100,45 @@
     self.debugger.logLevel = CDKDebuggerLogVerbose;
     self.debugger.breakOnLogLevel = CDKDebuggerLogVerbose;
 
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
-    XCTAssertEqual([self.debugger log:@[@""] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogSilent], CDKDebuggerActionNone, @"Debugger should not take action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogVerbose], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should take break and log action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogInfo], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should take break and log action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogWarning], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should take break and log action");
+    XCTAssertEqual([self.debugger log:@[@"Test"] atLevel:CDKDebuggerLogError], CDKDebuggerActionBreakpoint|CDKDebuggerActionLogged, @"Debugger should take break and log action");
 }
 
 #pragma mark - Error handling
 
 - (void)testErrorHandlingWithNil
 {
-    XCTFail(@"Unimplemented test");
+    self.debugger.logLevel = CDKDebuggerLogVerbose;
+    self.debugger.breakOnLogLevel = CDKDebuggerLogVerbose;
+
+    XCTAssertEqual([self.debugger handleError:nil], CDKDebuggerActionNone, @"Debugger should not take action ");
 }
 
 - (void)testErrorHandlingWithLogLevelSilent
 {
-    XCTFail(@"Unimplemented test");
+    self.debugger.logLevel = CDKDebuggerLogSilent;
+    self.debugger.breakOnLogLevel = CDKDebuggerLogSilent;
+
+    XCTAssertEqual([self.debugger handleError:mock([NSError class])], CDKDebuggerActionNone, @"Debugger should not take action ");
 }
 
 - (void)testErrorHandlingWithLogLevelWarn
 {
-    XCTFail(@"Unimplemented test");
+    self.debugger.logLevel = CDKDebuggerLogWarning;
+    self.debugger.breakOnLogLevel = CDKDebuggerLogSilent;
+
+    XCTAssertEqual([self.debugger handleError:mock([NSError class])], CDKDebuggerActionLogged, @"Debugger should take log action ");
 }
 
 - (void)testErrorHandlingWithLogLevelError
 {
-    XCTFail(@"Unimplemented test");
+    self.debugger.logLevel = CDKDebuggerLogError;
+    self.debugger.breakOnLogLevel = CDKDebuggerLogSilent;
+
+    XCTAssertEqual([self.debugger handleError:mock([NSError class])], CDKDebuggerActionLogged, @"Debugger should take log action ");
 }
 
 @end
