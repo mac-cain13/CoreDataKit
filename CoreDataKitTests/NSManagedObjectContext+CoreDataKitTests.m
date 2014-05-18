@@ -11,7 +11,35 @@
 #import <OCHamcrest/OCHamcrest.h>
 #define MOCKITO_SHORTHAND
 #import <OCMockito/OCMockito.h>
+#import <XCTestAsync/XCTestAsync.h>
 #import "NSManagedObjectContext+CoreDataKit.h"
+
+#pragma mark - Testing subclasses
+
+@interface TestingNSManagedObjectContext : NSManagedObjectContext
+
+@property (nonatomic, assign) int saveToPersistentStoreCalled;
+@property (nonatomic, assign) int saveCalled;
+
+@end
+
+@implementation TestingNSManagedObjectContext
+
+- (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion
+{
+    self.saveToPersistentStoreCalled++;
+    [super CDK_saveToPersistentStore:completion];
+}
+
+- (BOOL)save:(NSError *__autoreleasing *)error
+{
+    self.saveCalled++;
+    return [super save:error];
+}
+
+@end
+
+#pragma mark - Test class
 
 @interface NSManagedObjectContext_CoreDataKitTests : XCTestCase
 
@@ -53,37 +81,76 @@
     XCTAssertEqualObjects(childManagedObjectContext.parentContext, parentManagedObjectContext, @"Child managed object context should have called class as parent");
 }
 
-#pragma mark Saving
-
-- (void)testSaveToPersistentStoreCallsParentSave
+- (void)testChildContextWithConcurrencyTypeInvalid
 {
-    NSManagedObjectContext *parentManagedObjectContext = mock([NSManagedObjectContext class]);
-    [given([parentManagedObjectContext concurrencyType]) willReturnUnsignedInteger:NSPrivateQueueConcurrencyType];
+    @try {
+        NSManagedObjectContext *parentManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        [parentManagedObjectContext CDK_childContextWithConcurrencyType:NSConfinementConcurrencyType];
+    }
+    @catch (id assertion) {
+        XCTAssertEqualObjects([assertion description], @"NSConfinementConcurrencyType shouldn't be used as concurrency type", @"Child context with NSConfinementConcurrencyType should be refused");
+        return;
+    }
+
+    XCTFail(@"Child context with NSConfinementConcurrencyType should hit assertion");
+}
+
+#pragma mark SaveToPersistentStore
+
+- (void)testSaveToPersistentStoreCallsParentSaveAsync
+{
+    TestingNSManagedObjectContext *parentManagedObjectContext = [[TestingNSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
 
     NSManagedObjectContext *childManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
     childManagedObjectContext.parentContext = parentManagedObjectContext;
 
-    CDKCompletionBlock completion = ^(NSError *error) {};
-    [childManagedObjectContext CDK_saveToPersistentStore:completion];
-
-#warning Should wait for async action to call this
-    [verifyCount(parentManagedObjectContext, times(1)) CDK_saveToPersistentStore:completion];
-}
-
-- (void)testSaveToPersistentStoreWithoutParentCallsCompletion
-{
-    NSManagedObjectContext *childManagedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-
     [childManagedObjectContext CDK_saveToPersistentStore:^(NSError *error) {
-        XCTAssertNil(error, @"Should call save block with nil");
+        XCTAssertEqual(parentManagedObjectContext.saveToPersistentStoreCalled, 1, @"Should call parent save to persistent store once.");
+        XCAsyncSuccess();
     }];
 
-#warning Should wait for completion block to be called
+    XCAsyncFailAfter(1, @"Should have called completion block");
 }
 
-- (void)testSaveToPersistentStoreCallsSave
+- (void)testSaveToPersistentStoreWithoutParentCallsCompletionAsync
 {
-    XCTFail(@"Unimplemented test");
+    NSManagedObjectContext *managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+
+    [managedObjectContext CDK_saveToPersistentStore:^(NSError *error) {
+        XCTAssertNil(error, @"Should call save block with nil error");
+        XCAsyncSuccess();
+    }];
+
+    XCAsyncFailAfter(1, @"Should have called completion block");
+}
+
+- (void)testSaveToPersistentStoreCallsSaveAsync
+{
+    TestingNSManagedObjectContext *managedObjectContext = [[TestingNSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+
+    [managedObjectContext CDK_saveToPersistentStore:^(NSError *error) {
+        XCTAssertEqual(managedObjectContext.saveCalled, 1, @"Should call save once.");
+        XCAsyncSuccess();
+    }];
+
+    XCAsyncFailAfter(1, @"Should have called completion block");
+}
+
+#warning Should test: create object, save, retrieve
+#warning Should test: create invalid object, save, calls completion with error
+
+#pragma mark SaveToParentContext
+
+- (void)testSaveToParentContextAsync
+{
+    TestingNSManagedObjectContext *managedObjectContext = [[TestingNSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+
+    [managedObjectContext CDK_saveToParentContext:^(NSError *error) {
+        XCTAssertEqual(managedObjectContext.saveCalled, 1, @"Should call save once.");
+        XCAsyncSuccess();
+    }];
+
+    XCAsyncFailAfter(1, @"Should have called completion block");
 }
 
 #warning Should test: create object, save, retrieve

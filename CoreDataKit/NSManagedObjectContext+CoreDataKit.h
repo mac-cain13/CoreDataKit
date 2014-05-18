@@ -22,16 +22,16 @@
 
  @return The created managed object context
  */
-+ (NSManagedObjectContext *)CDK_contextWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator;
++ (instancetype)CDK_contextWithPersistentStoreCoordinator:(NSPersistentStoreCoordinator *)persistentStoreCoordinator;
 
 /**
  Create a new 'child' `NSManagedObjectContext` that receiver of this message set as parent context to save to.
 
- @param concurrencyType Concurrency type to use, should be `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`
+ @param concurrencyType Concurrency type to use, must be `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`
 
  @return Newly created managed object context
  */
-- (NSManagedObjectContext *)CDK_childContextWithConcurrencyType:(NSManagedObjectContextConcurrencyType)concurrencyType;
+- (instancetype)CDK_childContextWithConcurrencyType:(NSManagedObjectContextConcurrencyType)concurrencyType;
 
 ///-------------
 /// @name Saving

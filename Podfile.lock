@@ -2,12 +2,15 @@ PODS:
   - OCHamcrest (3.0.1)
   - OCMockito (1.2.0):
     - OCHamcrest (~> 3.0)
+  - XCTestAsync (1.0)
 
 DEPENDENCIES:
   - OCMockito (~> 1.2)
+  - XCTestAsync (~> 1.0)
 
 SPEC CHECKSUMS:
   OCHamcrest: 782c52ae8c673e5d6060a65005cfd26d20d519ba
   OCMockito: 050fca9528760faa8b5fafc82faad9d54f0864c0
+  XCTestAsync: e5d6a03766ac8bd56644ae0de9b7b28e4f851c77
 
 COCOAPODS: 0.32.1
