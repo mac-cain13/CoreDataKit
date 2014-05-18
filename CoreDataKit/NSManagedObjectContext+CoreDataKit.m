@@ -7,6 +7,7 @@
 //
 
 #import "NSManagedObjectContext+CoreDataKit.h"
+#import "CDKDebugger.h"
 
 @implementation NSManagedObjectContext (CoreDataKit)
 
@@ -21,6 +22,12 @@
         managedObjectContext.persistentStoreCoordinator = persistentStoreCoordinator;
     }];
 
+    // Make sure permanent IDs are obtained before saving
+    [[NSNotificationCenter defaultCenter] addObserver:managedObjectContext
+                                             selector:@selector(CDK_obtainPermanentIDsForInsertedObjects)
+                                                 name:NSManagedObjectContextWillSaveNotification
+                                               object:managedObjectContext];
+
     return managedObjectContext;
 }
 
@@ -30,7 +37,12 @@
 
     NSManagedObjectContext *managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:concurrencyType];
     managedObjectContext.parentContext = self;
-#warning Should make sure we always obtain permanent IDs when saving
+
+    // Make sure permanent IDs are obtained before saving
+    [[NSNotificationCenter defaultCenter] addObserver:managedObjectContext
+                                             selector:@selector(CDK_obtainPermanentIDsForInsertedObjects)
+                                                 name:NSManagedObjectContextWillSaveNotification
+                                               object:managedObjectContext];
 
     return managedObjectContext;
 }
@@ -75,6 +87,16 @@
             });
         }
     }];
+}
+
+- (void)CDK_obtainPermanentIDsForInsertedObjects
+{
+    if (self.insertedObjects.count)
+    {
+        NSError *error = nil;
+        [self obtainPermanentIDsForObjects:self.insertedObjects.allObjects error:&error];
+        CDKHandleError(error);
+    }
 }
 
 @end
