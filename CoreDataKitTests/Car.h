@@ -12,6 +12,6 @@
 
 @interface Car : NSManagedObject
 
-@property (nonatomic, retain) NSNumber * color;
+@property (nonatomic, retain) NSString * name;
 
 @end

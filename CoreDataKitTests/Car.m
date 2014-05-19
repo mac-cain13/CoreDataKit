@@ -11,6 +11,6 @@
 
 @implementation Car
 
-@dynamic color;
+@dynamic name;
 
 @end
