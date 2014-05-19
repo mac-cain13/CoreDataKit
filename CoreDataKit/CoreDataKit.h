@@ -19,17 +19,17 @@
 /**
  Persistent store coordinator that is used as default for all CoreDataKit actions, is created during invocation of one of the setup methods.
  */
-@property (atomic, strong, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (nonatomic, strong, readonly) NSPersistentStoreCoordinator *persistentStoreCoordinator;
 
 /**
  Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue, is created during invocation of one of the setup methods.
  */
-@property (atomic, strong, readonly) NSManagedObjectContext *rootContext;
+@property (nonatomic, strong, readonly) NSManagedObjectContext *rootContext;
 
 /**
  Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread, is created during invocation of one of the setup methods and has `rootContext` set as it's parent context.
  */
-@property (atomic, strong, readonly) NSManagedObjectContext *mainThreadContext;
+@property (nonatomic, strong, readonly) NSManagedObjectContext *mainThreadContext;
 
 /**
  Returns the shared instance of CoreDataKit.
@@ -79,7 +79,7 @@
 ///-------------
 
 /**
- Shorthand to call save on the shared CoreDataKit instance.
+ Shorthand to call save on the shared `CoreDataKit` instance.
 
  @param saveBlock  Block that performs the changes on the given context that should be saved
  @param completion Completion block to run after changes are saved

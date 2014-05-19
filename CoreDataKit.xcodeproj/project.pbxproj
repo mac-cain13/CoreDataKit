@@ -15,6 +15,7 @@
 		D50965F21926D3200047E050 /* CDKDebugger.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965F11926D3200047E050 /* CDKDebugger.m */; };
 		D50965F41927ACEB0047E050 /* CDKDebuggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965F31927ACEB0047E050 /* CDKDebuggerTests.m */; };
 		D50965F719291AFF0047E050 /* NSManagedObject+CoreDataKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965F619291AFF0047E050 /* NSManagedObject+CoreDataKit.m */; };
+		D51BD187192A67200079B7BE /* NSManagedObject+CoreDataKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D51BD186192A67200079B7BE /* NSManagedObject+CoreDataKitTests.m */; };
 		D5F249C91929CEC900B88629 /* CDKTestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D5F249C71929CEC900B88629 /* CDKTestModel.xcdatamodeld */; };
 		D5F249CD1929CF7E00B88629 /* Car.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F249CC1929CF7E00B88629 /* Car.m */; };
 		D5F249D01929D93D00B88629 /* CDKTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F249CF1929D93D00B88629 /* CDKTestCase.m */; };
@@ -68,6 +69,7 @@
 		D50965F31927ACEB0047E050 /* CDKDebuggerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDKDebuggerTests.m; sourceTree = "<group>"; };
 		D50965F519291AFF0047E050 /* NSManagedObject+CoreDataKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataKit.h"; sourceTree = "<group>"; };
 		D50965F619291AFF0047E050 /* NSManagedObject+CoreDataKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+CoreDataKit.m"; sourceTree = "<group>"; };
+		D51BD186192A67200079B7BE /* NSManagedObject+CoreDataKitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+CoreDataKitTests.m"; sourceTree = "<group>"; };
 		D5F249C81929CEC900B88629 /* CDKTestModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CDKTestModel.xcdatamodel; sourceTree = "<group>"; };
 		D5F249CB1929CF7E00B88629 /* Car.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Car.h; sourceTree = "<group>"; };
 		D5F249CC1929CF7E00B88629 /* Car.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Car.m; sourceTree = "<group>"; };
@@ -126,6 +128,7 @@
 		D50965EB1926BEC10047E050 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				D51BD186192A67200079B7BE /* NSManagedObject+CoreDataKitTests.m */,
 				D50965EE1926C48A0047E050 /* NSPersistentStoreCoordinator+CoreDataKitTests.m */,
 				D50965EC1926BF200047E050 /* NSManagedObjectContext+CoreDataKitTests.m */,
 			);
@@ -170,6 +173,7 @@
 				D50965DF1925EBC70047E050 /* Warnings.xcconfig */,
 			);
 			sourceTree = "<group>";
+			tabWidth = 4;
 		};
 		D5FF165C192527EF0015663B /* Products */ = {
 			isa = PBXGroup;
@@ -370,6 +374,7 @@
 				D50965ED1926BF200047E050 /* NSManagedObjectContext+CoreDataKitTests.m in Sources */,
 				D50965EF1926C48A0047E050 /* NSPersistentStoreCoordinator+CoreDataKitTests.m in Sources */,
 				D50965F41927ACEB0047E050 /* CDKDebuggerTests.m in Sources */,
+				D51BD187192A67200079B7BE /* NSManagedObject+CoreDataKitTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

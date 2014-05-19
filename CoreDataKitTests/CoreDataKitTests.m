@@ -138,6 +138,7 @@
 - (void)testSaveAndRetrieveAsync
 {
     NSString *name = [[NSUUID UUID] UUIDString];
+    
     [self.coreDataKit save:^(NSManagedObjectContext *context) {
         Car *car = [[Car alloc] initWithEntity:[NSEntityDescription entityForName:@"Car" inManagedObjectContext:self.coreDataKit.rootContext]
                 insertIntoManagedObjectContext:self.coreDataKit.rootContext];

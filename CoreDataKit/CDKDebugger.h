@@ -11,10 +11,10 @@
 
 // Macros for easy logging with the shared debugger
 #define CDKHandleError(error)   { [[CDKDebugger sharedDebugger] handleError:error]; }
-#define CDKLogVerbose(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogVerbose]; }
-#define CDKLogInfo(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogInfo]; }
-#define CDKLogWarn(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogWarn]; }
-#define CDKLogError(msg, ...) { [[CDKDebugger sharedDebugger] log:[NSString stringWithFormat:msg, ##__VA_ARGS__] level:CoreDataKitDebuggerLogError]; }
+#define CDKLogVerbose(msg, ...) { [[CDKDebugger sharedDebugger] log:@[[NSString stringWithFormat:msg, ##__VA_ARGS__]] atLevel:CDKDebuggerLogVerbose]; }
+#define CDKLogInfo(msg, ...) { [[CDKDebugger sharedDebugger] log:@[[NSString stringWithFormat:msg, ##__VA_ARGS__]] atLevel:CDKDebuggerLogInfo]; }
+#define CDKLogWarn(msg, ...) { [[CDKDebugger sharedDebugger] log:@[[NSString stringWithFormat:msg, ##__VA_ARGS__]] atLevel:CDKDebuggerLogWarning]; }
+#define CDKLogError(msg, ...) { [[CDKDebugger sharedDebugger] log:@[[NSString stringWithFormat:msg, ##__VA_ARGS__]] atLevel:CDKDebuggerLogError]; }
 
 /**
  `CDKDebugger` provides logging, error handling and other tricks.
@@ -43,7 +43,7 @@
 
  @param messages Messages to log, should be `NSString` instances
  @param logLevel Level at which the message should be logged
- 
+
  @return Action the debugger took
  */
 - (CDKDebuggerAction)log:(NSArray *)messages atLevel:(CDKDebuggerLogLevel)logLevel;
@@ -52,7 +52,7 @@
  Handle error class by logging and halting execution if required by the set levels.
 
  @param error Error to handle
- 
+
  @return Action the debugger took
  */
 - (CDKDebuggerAction)handleError:(NSError *)error;

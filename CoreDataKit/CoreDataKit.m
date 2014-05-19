@@ -15,9 +15,9 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 
 @interface CoreDataKit ()
 
-@property (atomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
-@property (atomic, strong) NSManagedObjectContext *rootContext;
-@property (atomic, strong) NSManagedObjectContext *mainThreadContext;
+@property (nonatomic, strong) NSPersistentStoreCoordinator *persistentStoreCoordinator;
+@property (nonatomic, strong) NSManagedObjectContext *rootContext;
+@property (nonatomic, strong) NSManagedObjectContext *mainThreadContext;
 
 @end
 
@@ -48,8 +48,8 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
         managedObjectModel:(NSManagedObjectModel *)managedObjectModelOrNil
 {
     // Validate setup is only runned once
-    NSAssert(nil == self.rootContext, @"Root context is already available");
-    NSAssert(nil == self.mainThreadContext, @"Main thread context is already available");
+    NSAssert(nil == _rootContext, @"Root context is already available");
+    NSAssert(nil == _mainThreadContext, @"Main thread context is already available");
 
     // Prep URL to location + get all models merged together
     NSURL *persistentStoreURL = [NSPersistentStoreCoordinator CDK_URLForStoreName:storeName];
@@ -72,8 +72,8 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 - (void)setupCoreDataStackInMemoryWithManagedObjectModel:(NSManagedObjectModel *)managedObjectModelOrNil
 {
     // Validate setup is only runned once
-    NSAssert(nil == self.rootContext, @"Root context is already available");
-    NSAssert(nil == self.mainThreadContext, @"Main thread context is already available");
+    NSAssert(nil == _rootContext, @"Root context is already available");
+    NSAssert(nil == _mainThreadContext, @"Main thread context is already available");
 
     // Get all models merged together
     NSManagedObjectModel *mergedManagedObjectModel = (managedObjectModelOrNil) ?: [NSManagedObjectModel mergedModelFromBundles:nil];
@@ -97,7 +97,6 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
     [[self sharedKit] save:saveBlock completion:completion];
 }
 
-#warning Untested
 - (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion
 {
     NSManagedObjectContext *managedObjectContext = [self.rootContext CDK_childContextWithConcurrencyType:NSPrivateQueueConcurrencyType];
@@ -110,6 +109,34 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
         // Save the changes
         [managedObjectContext CDK_saveToPersistentStore:completion];
     }];
+}
+
+#pragma mark Accessors
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator
+{
+    if (!_persistentStoreCoordinator) {
+        CDKLogWarn(@"Persistent store coordinator on %@ is not set, did you forgot to call setup?", self);
+    }
+
+    return _persistentStoreCoordinator;
+}
+
+- (NSManagedObjectContext *)rootContext
+{
+    if (!_rootContext) {
+        CDKLogWarn(@"Root context on %@ is not set, did you forgot to call setup?", self);
+    }
+
+    return _rootContext;
+}
+
+- (NSManagedObjectContext *)mainThreadContext
+{
+    if (!_mainThreadContext) {
+        CDKLogWarn(@"Main thread context on %@ is not set, did you forgot to call setup?", self);
+    }
+
+    return _mainThreadContext;
 }
 
 @end
