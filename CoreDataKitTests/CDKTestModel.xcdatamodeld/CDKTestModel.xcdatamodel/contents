@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="5064" systemVersion="13C64" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Car" representedClassName="Car" syncable="YES">
+        <attribute name="color" optional="YES" attributeType="Integer 32" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Car" positionX="-63" positionY="-18" width="128" height="60"/>
+    </elements>
+</model>

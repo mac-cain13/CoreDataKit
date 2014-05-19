@@ -7,12 +7,10 @@
 //
 
 #import <XCTest/XCTest.h>
-#define HC_SHORTHAND
-#import <OCHamcrest/OCHamcrest.h>
-#define MOCKITO_SHORTHAND
-#import <OCMockito/OCMockito.h>
-#import <XCTestAsync/XCTestAsync.h>
+#import "CDKTestCase.h"
+
 #import "NSManagedObjectContext+CoreDataKit.h"
+#import "Car.h"
 
 #pragma mark - Testing subclasses
 
@@ -136,9 +134,6 @@
     XCAsyncFailAfter(1, @"Should have called completion block");
 }
 
-#warning Should test: create object, save, retrieve
-#warning Should test: create invalid object, save, calls completion with error
-
 #pragma mark SaveToParentContext
 
 - (void)testSaveToParentContextAsync
@@ -153,7 +148,26 @@
     XCAsyncFailAfter(1, @"Should have called completion block");
 }
 
-#warning Should test: create object, save, retrieve
-#warning Should test: create invalid object, save, calls completion with error
+#pragma mark ObtainPermanentIDsForInsertedObjects
+
+- (void)testObtainPermanentIDsForInsertedObjects
+{
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+//    NSManagedObjectModel *managedObjectModel = [NSManagedObjectModel mergedModelFromBundles:@[bundle]];
+//
+//    CoreDataKit *coreDataKit = [[CoreDataKit alloc] init];
+//    [coreDataKit setupCoreDataStackInMemoryWithManagedObjectModel:managedObjectModel];
+//
+//    NSManagedObjectContext *context = coreDataKit.rootContext;
+//
+//    Car *car = [[Car alloc] initWithEntity:[NSEntityDescription entityForName:@"Car" inManagedObjectContext:context]
+//            insertIntoManagedObjectContext:context];
+//
+//    XCTAssertEqual(car.objectID.isTemporaryID, YES, @"Created object should have temporary ID");
+//
+//    [context CDK_obtainPermanentIDsForInsertedObjects];
+//
+//    XCTAssertEqual(car.objectID.isTemporaryID, NO, @"Created object should have permanent ID after obtaining");
+}
 
 @end

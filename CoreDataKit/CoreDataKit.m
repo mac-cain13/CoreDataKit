@@ -38,10 +38,14 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 
 - (void)setupAutomigratingCoreDataStack
 {
-    [self setupCoreDataStack:kCoreDataKitDefaultStoreName automigrating:YES];
+    [self setupCoreDataStack:kCoreDataKitDefaultStoreName
+               automigrating:YES
+          managedObjectModel:nil];
 }
 
-- (void)setupCoreDataStack:(NSString *)storeName automigrating:(BOOL)automigrating
+- (void)setupCoreDataStack:(NSString *)storeName
+             automigrating:(BOOL)automigrating
+        managedObjectModel:(NSManagedObjectModel *)managedObjectModelOrNil
 {
     // Validate setup is only runned once
     NSAssert(nil == self.rootContext, @"Root context is already available");
@@ -49,10 +53,10 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 
     // Prep URL to location + get all models merged together
     NSURL *persistentStoreURL = [NSPersistentStoreCoordinator CDK_URLForStoreName:storeName];
-    NSManagedObjectModel *mergedManagedObjectModels = [NSManagedObjectModel mergedModelFromBundles:nil];
+    NSManagedObjectModel *mergedManagedObjectModel = (managedObjectModelOrNil) ?: [NSManagedObjectModel mergedModelFromBundles:nil];
 
     // Setup persistent store
-    self.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mergedManagedObjectModels];
+    self.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mergedManagedObjectModel];
     [self.persistentStoreCoordinator CDK_addSQLiteStoreWithURL:persistentStoreURL automigrating:automigrating];
 
     // Create the contexts
@@ -62,16 +66,21 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 
 - (void)setupCoreDataStackInMemory
 {
+    [self setupCoreDataStackInMemoryWithManagedObjectModel:nil];
+}
+
+- (void)setupCoreDataStackInMemoryWithManagedObjectModel:(NSManagedObjectModel *)managedObjectModelOrNil
+{
     // Validate setup is only runned once
     NSAssert(nil == self.rootContext, @"Root context is already available");
     NSAssert(nil == self.mainThreadContext, @"Main thread context is already available");
 
     // Get all models merged together
-    NSManagedObjectModel *mergedManagedObjectModels = [NSManagedObjectModel mergedModelFromBundles:nil];
+    NSManagedObjectModel *mergedManagedObjectModel = (managedObjectModelOrNil) ?: [NSManagedObjectModel mergedModelFromBundles:nil];
     
     // Setup persistent store
     NSError *error = nil;
-    self.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mergedManagedObjectModels];
+    self.persistentStoreCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:mergedManagedObjectModel];
     [self.persistentStoreCoordinator addPersistentStoreWithType:NSInMemoryStoreType configuration:nil URL:nil options:nil error:&error];
 
     CDKHandleError(error);

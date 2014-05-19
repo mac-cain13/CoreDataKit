@@ -14,6 +14,10 @@
 		D50965EF1926C48A0047E050 /* NSPersistentStoreCoordinator+CoreDataKitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965EE1926C48A0047E050 /* NSPersistentStoreCoordinator+CoreDataKitTests.m */; };
 		D50965F21926D3200047E050 /* CDKDebugger.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965F11926D3200047E050 /* CDKDebugger.m */; };
 		D50965F41927ACEB0047E050 /* CDKDebuggerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965F31927ACEB0047E050 /* CDKDebuggerTests.m */; };
+		D50965F719291AFF0047E050 /* NSManagedObject+CoreDataKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D50965F619291AFF0047E050 /* NSManagedObject+CoreDataKit.m */; };
+		D5F249C91929CEC900B88629 /* CDKTestModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D5F249C71929CEC900B88629 /* CDKTestModel.xcdatamodeld */; };
+		D5F249CD1929CF7E00B88629 /* Car.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F249CC1929CF7E00B88629 /* Car.m */; };
+		D5F249D01929D93D00B88629 /* CDKTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D5F249CF1929D93D00B88629 /* CDKTestCase.m */; };
 		D5FF165F192527EF0015663B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5FF165E192527EF0015663B /* Foundation.framework */; };
 		D5FF1664192527EF0015663B /* CoreDataKit.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5FF1663192527EF0015663B /* CoreDataKit.h */; };
 		D5FF1666192527EF0015663B /* CoreDataKit.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FF1665192527EF0015663B /* CoreDataKit.m */; };
@@ -62,6 +66,13 @@
 		D50965F01926D3200047E050 /* CDKDebugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CDKDebugger.h; sourceTree = "<group>"; };
 		D50965F11926D3200047E050 /* CDKDebugger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDKDebugger.m; sourceTree = "<group>"; };
 		D50965F31927ACEB0047E050 /* CDKDebuggerTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDKDebuggerTests.m; sourceTree = "<group>"; };
+		D50965F519291AFF0047E050 /* NSManagedObject+CoreDataKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObject+CoreDataKit.h"; sourceTree = "<group>"; };
+		D50965F619291AFF0047E050 /* NSManagedObject+CoreDataKit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSManagedObject+CoreDataKit.m"; sourceTree = "<group>"; };
+		D5F249C81929CEC900B88629 /* CDKTestModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CDKTestModel.xcdatamodel; sourceTree = "<group>"; };
+		D5F249CB1929CF7E00B88629 /* Car.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Car.h; sourceTree = "<group>"; };
+		D5F249CC1929CF7E00B88629 /* Car.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Car.m; sourceTree = "<group>"; };
+		D5F249CF1929D93D00B88629 /* CDKTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CDKTestCase.m; sourceTree = "<group>"; };
+		D5F249D11929D9F100B88629 /* CDKTestCase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CDKTestCase.h; sourceTree = "<group>"; };
 		D5FF165B192527EF0015663B /* libCoreDataKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libCoreDataKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5FF165E192527EF0015663B /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D5FF1662192527EF0015663B /* CoreDataKit-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CoreDataKit-Prefix.pch"; sourceTree = "<group>"; };
@@ -102,10 +113,12 @@
 		D50965E419269F5C0047E050 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
-				D50965E519269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.h */,
-				D50965E619269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.m */,
+				D50965F519291AFF0047E050 /* NSManagedObject+CoreDataKit.h */,
+				D50965F619291AFF0047E050 /* NSManagedObject+CoreDataKit.m */,
 				D50965E81926A6F80047E050 /* NSManagedObjectContext+CoreDataKit.h */,
 				D50965E91926A6F80047E050 /* NSManagedObjectContext+CoreDataKit.m */,
+				D50965E519269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.h */,
+				D50965E619269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -117,6 +130,33 @@
 				D50965EC1926BF200047E050 /* NSManagedObjectContext+CoreDataKitTests.m */,
 			);
 			name = Categories;
+			sourceTree = "<group>";
+		};
+		D5F249C61929CE8400B88629 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				D5F249CA1929CF6D00B88629 /* CDKTestModel */,
+				D5F249C71929CEC900B88629 /* CDKTestModel.xcdatamodeld */,
+			);
+			name = Fixtures;
+			sourceTree = "<group>";
+		};
+		D5F249CA1929CF6D00B88629 /* CDKTestModel */ = {
+			isa = PBXGroup;
+			children = (
+				D5F249CB1929CF7E00B88629 /* Car.h */,
+				D5F249CC1929CF7E00B88629 /* Car.m */,
+			);
+			name = CDKTestModel;
+			sourceTree = "<group>";
+		};
+		D5F249CE1929D92100B88629 /* BaseTestClasses */ = {
+			isa = PBXGroup;
+			children = (
+				D5F249D11929D9F100B88629 /* CDKTestCase.h */,
+				D5F249CF1929D93D00B88629 /* CDKTestCase.m */,
+			);
+			name = BaseTestClasses;
 			sourceTree = "<group>";
 		};
 		D5FF1652192527EF0015663B = {
@@ -176,9 +216,11 @@
 		D5FF1674192527EF0015663B /* CoreDataKitTests */ = {
 			isa = PBXGroup;
 			children = (
+				D5F249CE1929D92100B88629 /* BaseTestClasses */,
 				D50965EB1926BEC10047E050 /* Categories */,
 				D5FF167A192527EF0015663B /* CoreDataKitTests.m */,
 				D50965F31927ACEB0047E050 /* CDKDebuggerTests.m */,
+				D5F249C61929CE8400B88629 /* Fixtures */,
 				D5FF1675192527EF0015663B /* Supporting Files */,
 			);
 			path = CoreDataKitTests;
@@ -311,6 +353,7 @@
 			files = (
 				D50965F21926D3200047E050 /* CDKDebugger.m in Sources */,
 				D50965E719269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.m in Sources */,
+				D50965F719291AFF0047E050 /* NSManagedObject+CoreDataKit.m in Sources */,
 				D5FF1666192527EF0015663B /* CoreDataKit.m in Sources */,
 				D50965EA1926A6F80047E050 /* NSManagedObjectContext+CoreDataKit.m in Sources */,
 			);
@@ -320,6 +363,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5F249D01929D93D00B88629 /* CDKTestCase.m in Sources */,
+				D5F249CD1929CF7E00B88629 /* Car.m in Sources */,
+				D5F249C91929CEC900B88629 /* CDKTestModel.xcdatamodeld in Sources */,
 				D5FF167B192527EF0015663B /* CoreDataKitTests.m in Sources */,
 				D50965ED1926BF200047E050 /* NSManagedObjectContext+CoreDataKitTests.m in Sources */,
 				D50965EF1926C48A0047E050 /* NSPersistentStoreCoordinator+CoreDataKitTests.m in Sources */,
@@ -512,6 +558,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		D5F249C71929CEC900B88629 /* CDKTestModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				D5F249C81929CEC900B88629 /* CDKTestModel.xcdatamodel */,
+			);
+			currentVersion = D5F249C81929CEC900B88629 /* CDKTestModel.xcdatamodel */;
+			path = CDKTestModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = D5FF1653192527EF0015663B /* Project object */;
 }

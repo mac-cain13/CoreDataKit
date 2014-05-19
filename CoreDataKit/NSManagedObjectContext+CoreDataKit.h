@@ -59,4 +59,11 @@
  */
 - (void)CDK_saveToParentContext:(CDKCompletionBlock)completion;
 
+/**
+ Obtains permanent object IDs for all objects inserted in this context. This ensures that the object has an object ID that you can lookup in an other context.
+ 
+ @discussion This is done automatically by `NSManagedObjectContext`s that are created by CoreDataKit right before saving. So usually you don't have to use this yourself.
+ */
+- (void)CDK_obtainPermanentIDsForInsertedObjects;
+
 @end

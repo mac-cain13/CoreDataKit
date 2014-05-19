@@ -7,27 +7,14 @@
 //
 
 #import <XCTest/XCTest.h>
+#import "CDKTestCase.h"
 #import "CoreDataKit.h"
 
-@interface CoreDataKitTests : XCTestCase
-
-@property (nonatomic, strong) CoreDataKit *coreDataKit;
+@interface CoreDataKitTests : CDKTestCase
 
 @end
 
 @implementation CoreDataKitTests
-
-- (void)setUp
-{
-    [super setUp];
-    self.coreDataKit = [[CoreDataKit alloc] init];
-}
-
-- (void)tearDown
-{
-    self.coreDataKit = nil;
-    [super tearDown];
-}
 
 #pragma mark - Singleton
 
