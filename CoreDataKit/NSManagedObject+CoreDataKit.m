@@ -29,6 +29,11 @@
 
 #pragma mark Finding
 
++ (NSFetchRequest *)CDK_requestInContext
+{
+    return nil;
+}
+
 - (instancetype)CDK_findInContext:(NSManagedObjectContext *)context
 {
     return nil;
@@ -110,7 +115,7 @@
 
 #pragma mark Deleting
 
-+ (void)CDK_deleteAllInContext:(NSManagedObjectContext *)contextOrNil
++ (void)CDK_delete
 {
     return;
 }

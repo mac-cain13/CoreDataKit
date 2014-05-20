@@ -36,6 +36,13 @@
 /// @name Finding
 ///--------------
 
+/**
+ Creates a fetch request to fetch enties of the receivers type.
+ 
+ @discussion All of CoreDataKits find, count and delete methods will only find/apply on the `NSManagedObject` subclass the are called on. So `[Car CDK_deleteAllInContext:context]` will delete all `Car` entities in the given context and `[Car CDK_countAllInContext:context]` will count all `Car` entities and subentities in the given context. Other entities are ignored and not touched.
+
+ @return Fetch request ready to fetch entities of the receivers type
+ */
 + (NSFetchRequest *)CDK_requestInContext;
 
 /**
