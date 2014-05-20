@@ -12,6 +12,8 @@
 
 @implementation NSManagedObject (CoreDataKit)
 
+#pragma mark Creating
+
 + (NSEntityDescription *)CDK_entityDescriptionInContext:(NSManagedObjectContext *)contextOrNil
 {
     NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
@@ -20,25 +22,25 @@
                        inManagedObjectContext:context];
 }
 
-#pragma mark Create
-
-#warning Untested
-- (instancetype)CDK_createInContext:(NSManagedObjectContext *)contextOrNil
++ (instancetype)CDK_createInContext:(NSManagedObjectContext *)contextOrNil
 {
     return nil;
 }
 
-#pragma mark Find
+#pragma mark Finding
 
-#warning Untested
-- (NSArray *)CDK_findAllSortedBy:(NSArray *)sortDescriptorsOrNil
+- (instancetype)CDK_findInContext:(NSManagedObjectContext *)context
+{
+    return nil;
+}
+
++ (NSArray *)CDK_findAllSortedBy:(NSArray *)sortDescriptorsOrNil
                        inContext:(NSManagedObjectContext *)contextOrNil
 {
     return [self CDK_findWithPredicate:nil sortBy:sortDescriptorsOrNil limit:0 inContext:contextOrNil];
 }
 
-#warning Untested
-- (NSArray *)CDK_findWithPredicate:(NSPredicate *)predicateOrNil
++ (NSArray *)CDK_findWithPredicate:(NSPredicate *)predicateOrNil
                             sortBy:(NSArray *)sortDescriptorsOrNil
                              limit:(NSUInteger)limitOrZero
                          inContext:(NSManagedObjectContext *)contextOrNil
@@ -58,8 +60,7 @@
     return fetchedObjects;
 }
 
-#warning Untested
-- (instancetype)CDK_findFirstWithPredicate:(NSPredicate *)predicateOrNil
++ (instancetype)CDK_findFirstWithPredicate:(NSPredicate *)predicateOrNil
                                     sortBy:(NSArray *)sortDescriptorsOrNil
                                  inContext:(NSManagedObjectContext *)contextOrNil
 {
@@ -79,8 +80,7 @@
     return fetchedObjects.firstObject;
 }
 
-#warning Untested
-- (instancetype)CDK_findFirstOrCreateWithPredicate:(NSPredicate *)predicateOrNil
++ (instancetype)CDK_findFirstOrCreateWithPredicate:(NSPredicate *)predicateOrNil
                                             sortBy:(NSArray *)sortDescriptorsOrNil
                                          inContext:(NSManagedObjectContext *)contextOrNil
 {
@@ -93,6 +93,59 @@
     }
 
     return object;
+}
+
+#pragma mark Counting
+
++ (NSUInteger)CDK_countAllInContext:(NSManagedObjectContext *)contextOrNil
+{
+    return 0;
+}
+
++ (NSUInteger)CDK_countWithPredicate:(NSPredicate *)predicateOrNil
+                           inContext:(NSManagedObjectContext *)contextOrNil
+{
+    return 0;
+}
+
+#pragma mark Deleting
+
++ (void)CDK_deleteAllInContext:(NSManagedObjectContext *)contextOrNil
+{
+    return;
+}
+
++ (void)CDK_deleteWithPredicate:(NSPredicate *)predicateOrNil
+                      inContext:(NSManagedObjectContext *)contextOrNil
+{
+    return;
+}
+
+- (void)CDK_deleteInContext:(NSManagedObjectContext *)contextOrNil
+{
+    return;
+}
+
+#pragma mark Fetched Results Controller
+
++ (NSFetchedResultsController *)CDK_controllerWithPredicate:(NSPredicate *)predicateOrNil
+                                                     sortBy:(NSArray *)sortDescriptorsOrNil
+                                                      limit:(NSUInteger)limitOrZero
+                                         sectionNameKeyPath:(NSString *)sectionNameKeyPathOrNil
+                                                  cacheName:(NSString *)cacheNameOrNil
+                                                   delegate:(id<NSFetchedResultsControllerDelegate>)delegateOrNil
+                                                  inContext:(NSManagedObjectContext *)contextOrNil
+{
+    return nil;
+}
+
++ (NSFetchedResultsController *)CDK_controllerWithFetchRequest:(NSFetchRequest *)fetchRequest
+                                            sectionNameKeyPath:(NSString *)sectionNameKeyPathOrNil
+                                                     cacheName:(NSString *)cacheNameOrNil
+                                                      delegate:(id<NSFetchedResultsControllerDelegate>)delegateOrNil
+                                                     inContext:(NSManagedObjectContext *)contextOrNil
+{
+    return nil;
 }
 
 @end
