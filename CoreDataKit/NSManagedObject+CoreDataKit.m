@@ -7,6 +7,7 @@
 //
 
 #import "NSManagedObject+CoreDataKit.h"
+#import "NSManagedObjectContext+CoreDataKit.h"
 #import "CoreDataKit.h"
 #import "CDKDebugger.h"
 
@@ -24,19 +25,38 @@
 
 + (instancetype)CDK_createInContext:(NSManagedObjectContext *)contextOrNil
 {
-    return nil;
+    NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
+    return [[self alloc] initWithEntity:[self CDK_entityDescriptionInContext:context]
+         insertIntoManagedObjectContext:context];
 }
 
 #pragma mark Finding
 
-+ (NSFetchRequest *)CDK_requestInContext
++ (NSFetchRequest *)CDK_request
 {
-    return nil;
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    fetchRequest.entity = [self CDK_entityDescriptionInContext:nil];
+    return fetchRequest;
 }
 
 - (instancetype)CDK_findInContext:(NSManagedObjectContext *)context
 {
-    return nil;
+    NSAssert(context, @"Managed object context cannot be nil");
+
+    NSManagedObject *fetchedObject = nil;
+    NSError *error = nil;
+
+    if (self.objectID.isTemporaryID) {
+        [self.managedObjectContext obtainPermanentIDsForObjects:@[self] error:&error];
+        CDKHandleError(error);
+    }
+
+    if (!error) {
+        fetchedObject = [context existingObjectWithID:self.objectID error:&error];
+        CDKHandleError(error);
+    }
+
+    return fetchedObject;
 }
 
 + (NSArray *)CDK_findAllSortedBy:(NSArray *)sortDescriptorsOrNil
@@ -115,7 +135,7 @@
 
 #pragma mark Deleting
 
-+ (void)CDK_delete
++ (void)CDK_deleteAllInContext:(NSManagedObjectContext *)contextOrNil
 {
     return;
 }
@@ -126,7 +146,7 @@
     return;
 }
 
-- (void)CDK_deleteInContext:(NSManagedObjectContext *)contextOrNil
+- (void)CDK_delete
 {
     return;
 }

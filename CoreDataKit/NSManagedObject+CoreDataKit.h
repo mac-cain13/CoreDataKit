@@ -43,7 +43,7 @@
 
  @return Fetch request ready to fetch entities of the receivers type
  */
-+ (NSFetchRequest *)CDK_requestInContext;
++ (NSFetchRequest *)CDK_request;
 
 /**
  Finds this `NSManagedObject` in the given context.
