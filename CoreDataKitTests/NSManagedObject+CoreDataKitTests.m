@@ -20,6 +20,14 @@
 
 @implementation NSManagedObject_CoreDataKitTests
 
+- (void)testNoManagedObjectsAtStart
+{
+    NSArray *resultsBeforeInsert = [Car CDK_findAllSortedBy:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:NO]]
+                                                  inContext:self.coreDataKit.rootContext];
+    XCTAssertNotNil(resultsBeforeInsert, @"Result array should be returned");
+    XCTAssertEqual(resultsBeforeInsert.count, 0, @"There should be no results");
+}
+
 #pragma mark -
 
 #pragma mark EntityDescriptionInContext
@@ -66,7 +74,7 @@
 
 - (void)testRequest
 {
-    NSFetchRequest *request = [Car CDK_request];
+    NSFetchRequest *request = [Car CDK_requestInContext:nil];
     XCTAssertNotNil(request, @"Fetch request should not be nil");
     XCTAssertEqualObjects(request.entity.name, @"Car", @"Fetch request should be for Car");
 }
@@ -104,6 +112,73 @@
     }];
 
     XCAsyncFailAfter(1, @"Timed out");
+}
+
+#pragma mark FindAllSortedByInContext
+
+- (void)testFindAllSortedByInContext
+{
+    [self seedWithCars:@[@"a", @"b", @"c"] inContext:self.coreDataKit.rootContext];
+
+    NSArray *resultsAfterInsert = [Car CDK_findAllSortedBy:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:NO]]
+                                                 inContext:self.coreDataKit.rootContext];
+    XCTAssertNotNil(resultsAfterInsert, @"Result array should be returned");
+    XCTAssertEqual(resultsAfterInsert.count, 3, @"There should be 3 results");
+}
+
+- (void)testFindAllSortedByInContextUsingSorting
+{
+    NSArray *names = @[@"a", @"b", @"c"];
+    [self seedWithCars:names inContext:self.coreDataKit.rootContext];
+
+    NSArray *resultsAfterInsert = [Car CDK_findAllSortedBy:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:NO]]
+                                               inContext:self.coreDataKit.rootContext];
+    XCTAssertNotNil(resultsAfterInsert, @"Result array should be returned");
+    XCTAssertEqual(resultsAfterInsert.count, 3, @"There should be 3 results");
+
+    [names enumerateObjectsUsingBlock:^(NSString *name, NSUInteger idx, BOOL *stop) {
+        Car *car = (Car *)resultsAfterInsert[resultsAfterInsert.count - (1 + idx)];
+        XCTAssertEqualObjects(car.name, name, @"Order of cars is incorrect");
+    }];
+}
+
+#pragma mark FindWithPredicateSortByLimitInContext
+
+- (void)testFindWithPredicateSortByLimitInContextAllParameters
+{
+    [self seedWithCars:@[@"a", @"b", @"c", @"d"] inContext:self.coreDataKit.rootContext];
+
+    NSArray *resultsAfterInsert = [Car CDK_findWithPredicate:[NSPredicate predicateWithFormat:@"name = 'b' OR name = 'd'"]
+                                                      sortBy:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:NO]]
+                                                       limit:1
+                                                   inContext:self.coreDataKit.rootContext];
+    XCTAssertNotNil(resultsAfterInsert, @"Result array should be returned");
+    XCTAssertEqual(resultsAfterInsert.count, 1, @"There should be 1 results");
+    XCTAssertEqualObjects([(Car *)resultsAfterInsert.firstObject name], @"d", @"Should have found Car with highest name");
+}
+
+- (void)testFindWithPredicateSortByLimitInContextNoLimit
+{
+    [self seedWithCars:@[@"a", @"b", @"c", @"d"] inContext:self.coreDataKit.rootContext];
+
+    NSArray *resultsAfterInsert = [Car CDK_findWithPredicate:[NSPredicate predicateWithFormat:@"name = 'b' OR name = 'd'"]
+                                                      sortBy:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:NO]]
+                                                       limit:0
+                                                   inContext:self.coreDataKit.rootContext];
+    XCTAssertNotNil(resultsAfterInsert, @"Result array should be returned");
+    XCTAssertEqual(resultsAfterInsert.count, 2, @"There should be 2 results");
+    XCTAssertEqualObjects([(Car *)resultsAfterInsert.firstObject name], @"d", @"Should have found Car d first");
+    XCTAssertEqualObjects([(Car *)resultsAfterInsert[1] name], @"b", @"Should have found Car b second");
+}
+
+#pragma mark - Helper method
+- (void)seedWithCars:(NSArray *)names inContext:(NSManagedObjectContext *)context
+{
+    // Save some objects into CoreData
+    [names enumerateObjectsUsingBlock:^(NSString *name, NSUInteger idx, BOOL *stop) {
+        Car *car = [Car CDK_createInContext:context];
+        car.name = name;
+    }];
 }
 
 @end

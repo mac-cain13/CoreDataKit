@@ -32,10 +32,10 @@
 
 #pragma mark Finding
 
-+ (NSFetchRequest *)CDK_request
++ (NSFetchRequest *)CDK_requestInContext:(NSManagedObjectContext *)contextOrNil
 {
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    fetchRequest.entity = [self CDK_entityDescriptionInContext:nil];
+    fetchRequest.entity = [self CDK_entityDescriptionInContext:contextOrNil];
     return fetchRequest;
 }
 
@@ -46,11 +46,13 @@
     NSManagedObject *fetchedObject = nil;
     NSError *error = nil;
 
+    // First make sure we have a permanent ID for this object
     if (self.objectID.isTemporaryID) {
         [self.managedObjectContext obtainPermanentIDsForObjects:@[self] error:&error];
         CDKHandleError(error);
     }
 
+    // If no errors so far, fetch this object in the given context
     if (!error) {
         fetchedObject = [context existingObjectWithID:self.objectID error:&error];
         CDKHandleError(error);
@@ -72,8 +74,7 @@
 {
     NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
 
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    fetchRequest.entity = [[self class] CDK_entityDescriptionInContext:context];
+    NSFetchRequest *fetchRequest = [self CDK_requestInContext:context];
     fetchRequest.predicate = predicateOrNil;
     fetchRequest.sortDescriptors = sortDescriptorsOrNil;
     fetchRequest.fetchLimit = limitOrZero;
@@ -91,8 +92,7 @@
 {
     NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
 
-    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-    fetchRequest.entity = [[self class] CDK_entityDescriptionInContext:context];
+    NSFetchRequest *fetchRequest = [self CDK_requestInContext:context];
     fetchRequest.predicate = predicateOrNil;
     fetchRequest.sortDescriptors = sortDescriptorsOrNil;
     fetchRequest.fetchLimit = 1;
