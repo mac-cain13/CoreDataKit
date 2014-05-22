@@ -187,7 +187,7 @@
  Creates a fully initialized `NSFetchedResultsController`.
 
  @param predicateOrNil          `NSPredicate` to filter entities on or nil to apply no predicate
- @param sortDescriptorsOrNil    Array of sort descriptors to order the entities by or nil to not apply sorting
+ @param sortDescriptors         Array of sort descriptors to order the entities by
  @param limitOrZero             Maximum number of entities to fetch or zero to apply no limit
  @param sectionNameKeyPathOrNil A key path on result objects that returns the section name or nil to indicate that the controller should generate a single section
  @param cacheNameOrNil          The name of the cache file the receiver should use or nil to prevent caching
@@ -197,7 +197,7 @@
  @return The initialized `NSFetchedResultsController`
  */
 + (NSFetchedResultsController *)CDK_controllerWithPredicate:(NSPredicate *)predicateOrNil
-                                                     sortBy:(NSArray *)sortDescriptorsOrNil
+                                                     sortBy:(NSArray *)sortDescriptors
                                                       limit:(NSUInteger)limitOrZero
                                          sectionNameKeyPath:(NSString *)sectionNameKeyPathOrNil
                                                   cacheName:(NSString *)cacheNameOrNil

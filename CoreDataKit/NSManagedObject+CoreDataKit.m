@@ -78,6 +78,7 @@
     fetchRequest.predicate = predicateOrNil;
     fetchRequest.sortDescriptors = sortDescriptorsOrNil;
     fetchRequest.fetchLimit = limitOrZero;
+    fetchRequest.returnsObjectsAsFaults = YES;
 
     NSError *error = nil;
     NSArray *fetchedObjects = [context executeFetchRequest:fetchRequest error:&error];
@@ -90,19 +91,12 @@
                                     sortBy:(NSArray *)sortDescriptorsOrNil
                                  inContext:(NSManagedObjectContext *)contextOrNil
 {
-    NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
-
-    NSFetchRequest *fetchRequest = [self CDK_requestInContext:context];
-    fetchRequest.predicate = predicateOrNil;
-    fetchRequest.sortDescriptors = sortDescriptorsOrNil;
-    fetchRequest.fetchLimit = 1;
-    fetchRequest.returnsObjectsAsFaults = NO;
-
-    NSError *error = nil;
-    NSArray *fetchedObjects = [context executeFetchRequest:fetchRequest error:&error];
-
-    CDKHandleError(error);
-    return fetchedObjects.firstObject;
+    // Note; Would love to use `returnsObjectsAsFaults` here to not fetch a fault, but it seems buggy in at least iOS 7
+    // See: http://stackoverflow.com/questions/12780509/does-coredata-always-respect-returnobjectsasfaults?rq=1
+    return [self CDK_findWithPredicate:predicateOrNil
+                                sortBy:sortDescriptorsOrNil
+                                 limit:1
+                             inContext:contextOrNil].firstObject;
 }
 
 + (instancetype)CDK_findFirstOrCreateWithPredicate:(NSPredicate *)predicateOrNil
@@ -124,53 +118,95 @@
 
 + (NSUInteger)CDK_countAllInContext:(NSManagedObjectContext *)contextOrNil
 {
-    return 0;
+    return [self CDK_countWithPredicate:nil inContext:contextOrNil];
 }
 
 + (NSUInteger)CDK_countWithPredicate:(NSPredicate *)predicateOrNil
                            inContext:(NSManagedObjectContext *)contextOrNil
 {
-    return 0;
+    NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
+
+    NSFetchRequest *fetchRequest = [self CDK_requestInContext:context];
+    fetchRequest.predicate = predicateOrNil;
+
+    NSError *error = nil;
+    NSUInteger count = [context countForFetchRequest:fetchRequest error:&error];
+
+    CDKHandleError(error);
+    return count;
 }
 
 #pragma mark Deleting
 
 + (void)CDK_deleteAllInContext:(NSManagedObjectContext *)contextOrNil
 {
-    return;
+    return [self CDK_deleteWithPredicate:nil inContext:contextOrNil];
 }
 
 + (void)CDK_deleteWithPredicate:(NSPredicate *)predicateOrNil
                       inContext:(NSManagedObjectContext *)contextOrNil
 {
-    return;
+    NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
+
+    NSFetchRequest *fetchRequest = [self CDK_requestInContext:context];
+    fetchRequest.predicate = predicateOrNil;
+    fetchRequest.includesPropertyValues = NO;
+
+    NSError *error = nil;
+    NSArray *fetchedObjects = [context executeFetchRequest:fetchRequest error:&error];
+    CDKHandleError(error);
+
+    [fetchedObjects enumerateObjectsUsingBlock:^(NSManagedObject *obj, NSUInteger idx, BOOL *stop) {
+        [obj CDK_delete];
+    }];
 }
 
 - (void)CDK_delete
 {
-    return;
+    [self.managedObjectContext CDK_obtainPermanentIDsForInsertedObjects];
+
+    [self.managedObjectContext deleteObject:self];
 }
 
 #pragma mark Fetched Results Controller
 
 + (NSFetchedResultsController *)CDK_controllerWithPredicate:(NSPredicate *)predicateOrNil
-                                                     sortBy:(NSArray *)sortDescriptorsOrNil
+                                                     sortBy:(NSArray *)sortDescriptors
                                                       limit:(NSUInteger)limitOrZero
                                          sectionNameKeyPath:(NSString *)sectionNameKeyPathOrNil
                                                   cacheName:(NSString *)cacheNameOrNil
                                                    delegate:(id<NSFetchedResultsControllerDelegate>)delegateOrNil
                                                   inContext:(NSManagedObjectContext *)contextOrNil
 {
-    return nil;
+    NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
+
+    NSFetchRequest *fetchRequest = [self CDK_requestInContext:context];
+    fetchRequest.predicate = predicateOrNil;
+    fetchRequest.sortDescriptors = sortDescriptors;
+    fetchRequest.fetchLimit = limitOrZero;
+
+    return [self CDK_controllerWithFetchRequest:fetchRequest
+                             sectionNameKeyPath:sectionNameKeyPathOrNil
+                                      cacheName:cacheNameOrNil
+                                       delegate:delegateOrNil
+                                      inContext:context];
 }
 
 + (NSFetchedResultsController *)CDK_controllerWithFetchRequest:(NSFetchRequest *)fetchRequest
-                                            sectionNameKeyPath:(NSString *)sectionNameKeyPathOrNil
+                                            sectionNameKeyPath:(NSString *)sectionNameKeyPath
                                                      cacheName:(NSString *)cacheNameOrNil
                                                       delegate:(id<NSFetchedResultsControllerDelegate>)delegateOrNil
                                                      inContext:(NSManagedObjectContext *)contextOrNil
 {
-    return nil;
+    NSManagedObjectContext *context = (contextOrNil) ?: [CoreDataKit sharedKit].rootContext;
+
+    NSFetchedResultsController *frc = [[NSFetchedResultsController alloc] initWithFetchRequest:fetchRequest
+                                                                          managedObjectContext:context
+                                                                            sectionNameKeyPath:sectionNameKeyPath
+                                                                                     cacheName:cacheNameOrNil];
+    frc.delegate = delegateOrNil;
+
+    return frc;
 }
 
 @end
