@@ -1,2 +1,5 @@
 language: objective-c
+
+before_install: gem install cocoapods -v '0.33.1'
+before_script: export LANG=en_US.UTF-8
 script: xctool test -workspace CoreDataKit.xcworkspace -scheme CoreDataKit -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
