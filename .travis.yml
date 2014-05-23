@@ -1,0 +1,2 @@
+language: objective-c
+script: xcodebuild test -workspace CoreDataKit.xcworkspace -scheme CoreDataKit -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
