@@ -1,4 +1,7 @@
 language: objective-c
-before_install: gem install cocoapods -v '0.33.1'
+before_install:
+  - gem install cocoapods -v '0.33.1'
+  - brew update
+  - brew install xctool
 before_script: export LANG=en_US.UTF-8
 script: xctool test -workspace CoreDataKit.xcworkspace -scheme CoreDataKit -sdk iphonesimulator -destination 'name=iPhone Retina (3.5-inch),OS=7.1' ONLY_ACTIVE_ARCH=NO
