@@ -112,7 +112,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D50965E419269F5C0047E050 /* Categories */ = {
+		D50965E419269F5C0047E050 /* Core Categories */ = {
 			isa = PBXGroup;
 			children = (
 				D50965F519291AFF0047E050 /* NSManagedObject+CoreDataKit.h */,
@@ -122,7 +122,7 @@
 				D50965E519269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.h */,
 				D50965E619269F750047E050 /* NSPersistentStoreCoordinator+CoreDataKit.m */,
 			);
-			name = Categories;
+			name = "Core Categories";
 			sourceTree = "<group>";
 		};
 		D50965EB1926BEC10047E050 /* Categories */ = {
@@ -199,7 +199,7 @@
 			isa = PBXGroup;
 			children = (
 				D50965DD1925E0A40047E050 /* CDKTypes.h */,
-				D50965E419269F5C0047E050 /* Categories */,
+				D50965E419269F5C0047E050 /* Core Categories */,
 				D5FF1663192527EF0015663B /* CoreDataKit.h */,
 				D5FF1665192527EF0015663B /* CoreDataKit.m */,
 				D50965F01926D3200047E050 /* CDKDebugger.h */,
