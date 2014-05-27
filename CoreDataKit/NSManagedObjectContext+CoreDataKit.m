@@ -51,11 +51,7 @@
 
 - (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion
 {
-    [self performBlock:^{
-        // Perform save
-        NSError *error = nil;
-        [self save:&error];
-
+    [self CDK_saveToParentContext:^(NSError *error) {
         if (error || !self.parentContext)
         {
             // If error or no more parent contexts call completion handler
