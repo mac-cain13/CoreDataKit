@@ -100,15 +100,11 @@ static NSString * const kCoreDataKitDefaultStoreName = @"CoreDataKit";
 - (void)save:(CDKSaveBlock)saveBlock completion:(CDKCompletionBlock)completion
 {
     NSManagedObjectContext *managedObjectContext = [self.rootContext CDK_childContextWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    [managedObjectContext performBlock:^{
-        // Perform save block
+    [managedObjectContext CDK_performBlockAndSaveToPersistentStore:^{
         if (saveBlock) {
             saveBlock(managedObjectContext);
         }
-
-        // Save the changes
-        [managedObjectContext CDK_saveToPersistentStore:completion];
-    }];
+    } completion:completion];
 }
 
 #pragma mark Accessors

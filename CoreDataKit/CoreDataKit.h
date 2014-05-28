@@ -93,7 +93,7 @@
  
  @discussion It is advised to **never** nest save operations, this will prevent hairpulling, since the `NSManagedObjectContext`s passed to your `CDKSaveBlock` are not nested it will haunt you down some time.
  
- @discussion Please remember that `NSManagedObjects` are not threadsafe and your block is performed on another thread and `NSManagedObjectContext`. Make sure to **always** convert your `NSManagedObjects` to the given `NSManagedObjectContext` with `[NSManagedObjects CDK_inContext:]` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data, which in turn prevents a lot of swearing.
+ @discussion Please remember that `NSManagedObjects` are not threadsafe and your block is performed on another thread/`NSManagedObjectContext`. Make sure to **always** convert your `NSManagedObjects` to the given `NSManagedObjectContext` with `[NSManagedObjects CDK_inContext:]` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data, which in turn prevents a lot of swearing.
 
  @param saveBlock  Block that performs the changes on the given context that should be saved
  @param completion Completion block to run after changes are saved

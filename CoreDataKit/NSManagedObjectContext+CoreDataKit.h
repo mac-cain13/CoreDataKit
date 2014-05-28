@@ -42,22 +42,32 @@
 ///-------------
 
 /**
- Asynchronously saves the context all the way up to the persistent store.
+ Performs the given block in the background and persists changes performed on the receiving `NSManagedObjectContext`. After saving the `CDKCompletionBlock` block is called and passed a `NSError` object when an error occured or nil when successfull. The `CDKCompletionBlock` will always be called on the main thread.
 
- @param completion Will be performed on the main thread after save and is passed the error of the save action if any
+ @discussion It is advised to **never** nest save operations, this will prevent hairpulling.
 
- @see -CDK_saveToParentContext:
+ @discussion Please remember that `NSManagedObjects` are not threadsafe. Make sure to **always** convert your `NSManagedObjects` to the receiving context by using `[NSManagedObjects CDK_inContext:]` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data, which in turn prevents a lot of swearing.
+
+ @param block      Block that performs the changes on the given context that should be saved
+ @param completion Completion block to run after changes are saved
+ 
+ @see -CDK_performBlockAndSaveToPersistentStore:completion:
  */
-- (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion;
+- (void)CDK_performBlockAndSaveToParentContext:(void (^)())block completion:(CDKCompletionBlock)completion;
 
 /**
- Asynchronously saves the context to it's parent context.
+ Performs the given block in the background and persists changes performed on the receiving `NSManagedObjectContext`all the way up to the persistent store. After saving the `CDKCompletionBlock` block is called and passed a `NSError` object when an error occured or nil when successfull. The `CDKCompletionBlock` will always be called on the main thread.
 
- @param completion Will be performed on the main thread after save and is passed the error of the save action if any
- 
- @see -CDK_saveToPersistentStore:
+ @discussion It is advised to **never** nest save operations, this will prevent hairpulling.
+
+ @discussion Please remember that `NSManagedObjects` are not threadsafe. Make sure to **always** convert your `NSManagedObjects` to the receiving context by using `[NSManagedObjects CDK_inContext:]` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data, which in turn prevents a lot of swearing.
+
+ @param block      Block that performs the changes on the given context that should be saved
+ @param completion Completion block to run after changes are saved
+
+ @see -CDK_performBlockAndSaveToParentContext:completion:
  */
-- (void)CDK_saveToParentContext:(CDKCompletionBlock)completion;
+- (void)CDK_performBlockAndSaveToPersistentStore:(void (^)())block completion:(CDKCompletionBlock)completion;
 
 /**
  Obtains permanent object IDs for all objects inserted in this context. This ensures that the object has an object ID that you can lookup in an other context.

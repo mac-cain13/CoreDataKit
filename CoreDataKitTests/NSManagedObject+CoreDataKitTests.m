@@ -113,7 +113,7 @@
     Car *fetchedCarBeforeSave = [car CDK_findInContext:context.parentContext];
     XCTAssertNil(fetchedCarBeforeSave, @"Fetched car should not yet be available in parent context");
 
-    [context CDK_saveToParentContext:^(NSError *error) {
+    [context CDK_performBlockAndSaveToPersistentStore:nil completion:^(NSError *error) {
         XCTAssertNil(error, @"Error during save to other context");
 
         Car *fetchedCarAfterSave = [car CDK_findInContext:context.parentContext];

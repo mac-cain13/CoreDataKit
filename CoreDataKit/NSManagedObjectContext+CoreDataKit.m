@@ -49,22 +49,42 @@
 
 #pragma mark Saving
 
-- (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion
+- (void)CDK_performBlockAndSaveToParentContext:(void (^)())block completion:(CDKCompletionBlock)completion
 {
-    [self CDK_saveToParentContext:^(NSError *error) {
-        if (error || !self.parentContext)
+    [self performBlock:^{
+        // Perform block
+        if (block) {
+            block();
+        }
+
+        // Perform save
+        NSError *error = nil;
+        [self save:&error];
+
+        // Done, call completion if any
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(error);
+            });
+        }
+    }];
+}
+
+- (void)CDK_performBlockAndSaveToPersistentStore:(void (^)())block completion:(CDKCompletionBlock)completion
+{
+    __weak NSManagedObjectContext *managedObjectContext = self;
+    [self CDK_performBlockAndSaveToParentContext:block completion:^(NSError *error) {
+        if (error || !managedObjectContext.parentContext)
         {
-            // If error or no more parent contexts call completion handler
+            // If no parent context available (strange case?!) or on error call completion handler
             if (completion) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(error);
-                });
+                completion(error);
             }
         }
         else
         {
-            // Continue to save one level up
-            [self.parentContext CDK_saveToPersistentStore:completion];
+            // Make parent context save itself all the way up to the persistent store
+            [managedObjectContext.parentContext CDK_saveToPersistentStore:completion];
         }
     }];
 }
@@ -81,6 +101,24 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(error);
             });
+        }
+    }];
+}
+
+- (void)CDK_saveToPersistentStore:(CDKCompletionBlock)completion
+{
+    [self CDK_saveToParentContext:^(NSError *error) {
+        if (error || !self.parentContext)
+        {
+            // If error or no more parent contexts call completion handler
+            if (completion) {
+                completion(error);
+            }
+        }
+        else
+        {
+            // Continue to save one level up
+            [self.parentContext CDK_saveToPersistentStore:completion];
         }
     }];
 }

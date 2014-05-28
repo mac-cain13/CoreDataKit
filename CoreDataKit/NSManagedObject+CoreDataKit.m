@@ -55,7 +55,11 @@
     // If no errors so far, fetch this object in the given context
     if (!error) {
         fetchedObject = [context existingObjectWithID:self.objectID error:&error];
-        CDKHandleError(error);
+        if ([error.domain isEqualToString:NSCocoaErrorDomain] && NSManagedObjectReferentialIntegrityError == error.code) {
+            CDKLogInfo(@"Object not found in given context due NSManagedObjectReferentialIntegrityError.");
+        } else {
+            CDKHandleError(error);
+        }
     }
 
     return fetchedObject;
