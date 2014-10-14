@@ -6,9 +6,15 @@
 
 ## Installation
 
-```
-TODO
-```
+_Due to the current lack of [proper infrastructure](http://cocoapods.org) for Swift dependency management, using CoreDataKit in your project requires the following steps:_
+
+1. Add CoreDataKit as a [submodule](http://git-scm.com/docs/git-submodule) by opening the Terminal, `cd`-ing into your top-level project directory, and entering the command `git submodule add https://github.com/mac-cain13/CoreDataKit.git`
+2. Open the `CoreDataKit` folder, and drag `CoreDataKit.xcodeproj` into the file navigator of your app project.
+3. In Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar.
+4. Ensure that the deployment target of CoreDataKit.framework matches that of the application target.
+5. In the tab bar at the top of that window, open the "Build Phases" panel.
+6. Expand the "Target Dependencies" group, and add `CoreDataKit.framework`.
+7. Click on the `+` button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `Alamofire.framework`.
 
 ## Usage
 
