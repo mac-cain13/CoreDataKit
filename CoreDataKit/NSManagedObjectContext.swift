@@ -8,8 +8,9 @@
 
 import CoreData
 
-public extension NSManagedObjectContext {
-    convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, persistentStoreCoordinator: NSPersistentStoreCoordinator)
+extension NSManagedObjectContext
+{
+    public convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, persistentStoreCoordinator: NSPersistentStoreCoordinator)
     {
         self.init(concurrencyType: concurrencyType)
         self.performBlockAndWait { [unowned self] in
@@ -18,7 +19,7 @@ public extension NSManagedObjectContext {
         self.beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
-    convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, parentContext: NSManagedObjectContext)
+    public convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, parentContext: NSManagedObjectContext)
     {
         self.init(concurrencyType: concurrencyType)
         self.performBlockAndWait { [unowned self] in
@@ -36,7 +37,7 @@ public extension NSManagedObjectContext {
         }
     }
 
-    func obtainPermanentIDsForInsertedObjects()
+    public func obtainPermanentIDsForInsertedObjects(error: NSErrorPointer)
     {
         if (self.insertedObjects.count > 0)
         {

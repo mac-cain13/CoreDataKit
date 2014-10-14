@@ -8,7 +8,7 @@
 
 import CoreData
 
-public extension NSPersistentStoreCoordinator
+extension NSPersistentStoreCoordinator
 {
     public class func coordinatorWithPersistentStore(URL optionalURL: NSURL?, automigrating: Bool, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) -> NSPersistentStoreCoordinator?
     {
@@ -41,6 +41,8 @@ public extension NSPersistentStoreCoordinator
 
         return coordinator;
     }
+
+// MARK: - Store add helpers
 
     func addSQLitePersistentStoreWithURL(url: NSURL, automigrating: Bool, error: NSErrorPointer)
     {

@@ -8,7 +8,7 @@
 
 import CoreData
 
-public extension NSPersistentStore
+extension NSPersistentStore
 {
     public class func URLForStoreName(storeName: String) -> NSURL?
     {
