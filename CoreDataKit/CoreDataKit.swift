@@ -8,6 +8,8 @@
 
 import CoreData
 
+public typealias CompletionHandler = (NSError?) -> Void
+
 public class CoreDataKit : NSObject
 {
     private struct DefaultCoordinator {

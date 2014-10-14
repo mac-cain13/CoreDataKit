@@ -28,6 +28,39 @@ extension NSManagedObjectContext
         self.beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
+// MARK: - Saving
+
+    public func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler?)
+    {
+        performBlock {
+            var optionalError: NSError?
+            self.save(&optionalError)
+
+            switch (optionalError, self.parentContext, optionalCompletionHandler) {
+                case let (.None, .Some(parentContext), _):
+                    parentContext.saveToPersistentStore(optionalCompletionHandler)
+
+                case let (_, _, .Some(completionHandler)):
+                    dispatch_async(dispatch_get_main_queue()) { completionHandler(optionalError) }
+
+                default:
+                    break
+            }
+        }
+    }
+
+    public func saveToParentContext(completionHandler optionalCompletionHandler: CompletionHandler?)
+    {
+        performBlock {
+            var optionalError: NSError?
+            self.save(&optionalError)
+
+            if let completionHandler = optionalCompletionHandler {
+                dispatch_async(dispatch_get_main_queue()) { completionHandler(optionalError) }
+            }
+        }
+    }
+
 // MARK: - Obtaining permanent IDs
 
     func beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
