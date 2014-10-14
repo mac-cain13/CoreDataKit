@@ -14,7 +14,7 @@ public class CoreDataKit : NSObject
         static var instance: NSPersistentStoreCoordinator?
     }
 
-    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator! {
+    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator? {
         get {
             return DefaultCoordinator.instance
         }
