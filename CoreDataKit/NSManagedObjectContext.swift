@@ -8,7 +8,7 @@
 
 import CoreData
 
-extension NSManagedObjectContext {
+public extension NSManagedObjectContext {
     convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, persistentStoreCoordinator: NSPersistentStoreCoordinator)
     {
         self.init(concurrencyType: concurrencyType)

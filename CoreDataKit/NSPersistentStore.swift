@@ -8,9 +8,9 @@
 
 import CoreData
 
-extension NSPersistentStore
+public extension NSPersistentStore
 {
-    class func URLForStoreName(storeName: String) -> NSURL?
+    public class func URLForStoreName(storeName: String) -> NSURL?
     {
         assert(countElements(storeName) > 0, "Store name must be longer then zero characters.")
 

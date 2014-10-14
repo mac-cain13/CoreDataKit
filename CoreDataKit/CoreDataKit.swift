@@ -8,13 +8,13 @@
 
 import CoreData
 
-class CoreDataKit : NSObject
+public class CoreDataKit : NSObject
 {
     private struct DefaultCoordinator {
         static var instance: NSPersistentStoreCoordinator?
     }
 
-    class var persistentStoreCoordinator: NSPersistentStoreCoordinator! {
+    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator! {
         get {
             return DefaultCoordinator.instance
         }
@@ -24,7 +24,7 @@ class CoreDataKit : NSObject
         }
     }
 
-    class var rootContext: NSManagedObjectContext {
+    public class var rootContext: NSManagedObjectContext {
         struct Singleton {
             static let instance = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
         }
@@ -32,7 +32,7 @@ class CoreDataKit : NSObject
         return Singleton.instance
     }
 
-    class var mainThreadContext: NSManagedObjectContext {
+    public class var mainThreadContext: NSManagedObjectContext {
         struct Singleton {
             static let instance = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
         }

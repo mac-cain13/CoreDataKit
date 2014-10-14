@@ -8,9 +8,9 @@
 
 import CoreData
 
-extension NSPersistentStoreCoordinator
+public extension NSPersistentStoreCoordinator
 {
-    class func coordinatorWithPersistentStore(URL optionalURL: NSURL?, automigrating: Bool, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) -> NSPersistentStoreCoordinator?
+    public class func coordinatorWithPersistentStore(URL optionalURL: NSURL?, automigrating: Bool, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) -> NSPersistentStoreCoordinator?
     {
         var coordinator: NSPersistentStoreCoordinator?
 
@@ -29,7 +29,7 @@ extension NSPersistentStoreCoordinator
         return coordinator
     }
 
-    class func coordinatorWithInMemoryStore(managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) -> NSPersistentStoreCoordinator?
+    public class func coordinatorWithInMemoryStore(managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) -> NSPersistentStoreCoordinator?
     {
         var coordinator: NSPersistentStoreCoordinator?
 
