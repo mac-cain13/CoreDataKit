@@ -28,26 +28,20 @@ extension NSManagedObjectContext
         self.beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
+// MARK: - Obtaining permanent IDs
+
     func beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     {
-        // Make sure permanent IDs are obtained before saving
-        // We can't send a message to ourselfs when we're deallocated so it's save, but not the nicest way.
-        NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextWillSaveNotification, object: self, queue: NSOperationQueue.mainQueue()) { [unowned self] _ in
-            self.obtainPermanentIDsForInsertedObjects()
+        NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextWillSaveNotification, object: self, queue: NSOperationQueue.mainQueue()) { [weak self] _ in
+            self?.obtainPermanentIDsForInsertedObjects(nil)
+            return
         }
     }
 
     public func obtainPermanentIDsForInsertedObjects(error: NSErrorPointer)
     {
-        if (self.insertedObjects.count > 0)
-        {
-            var possibleError: NSError?;
-            self.obtainPermanentIDsForObjects(self.insertedObjects.allObjects, error: &possibleError)
-
-            if let error = possibleError {
-                // TODO: Handle error better
-                println("CoreDataKit error while obtaining permanent IDs: \(error)")
-            }
+        if (self.insertedObjects.count > 0) {
+            self.obtainPermanentIDsForObjects(self.insertedObjects.allObjects, error: error)
         }
     }
 }
