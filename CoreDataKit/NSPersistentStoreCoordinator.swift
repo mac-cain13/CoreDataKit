@@ -10,17 +10,19 @@ import CoreData
 
 extension NSPersistentStoreCoordinator
 {
-    public class func coordinatorWithPersistentStore(URL optionalURL: NSURL?, automigrating: Bool, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) -> NSPersistentStoreCoordinator?
+    public class func coordinatorWithPersistentStore(URL optionalURL: NSURL?, automigrating: Bool, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?) -> NSPersistentStoreCoordinator?
     {
         var coordinator: NSPersistentStoreCoordinator?
 
+        // Fallback on the defaults
         let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
         let _URL = optionalURL ?? NSPersistentStore.URLForStoreName("CoreDataKit")
 
+        // Initialize coordinator if we have all data
         switch ((_managedObjectModel, _URL)) {
             case let (.Some(managedObjectModel), .Some(URL)):
                 coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
-                coordinator?.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating, error: error)
+                coordinator?.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating)
 
             default:
                 break
@@ -33,7 +35,11 @@ extension NSPersistentStoreCoordinator
     {
         var coordinator: NSPersistentStoreCoordinator?
 
-        if let managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel(byMergingModels: nil)
+        // Fallback on the defaults
+        let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
+
+        // Initialize coordinator if we have all data
+        if let managedObjectModel = _managedObjectModel
         {
             coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
             coordinator?.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: error)
@@ -44,7 +50,7 @@ extension NSPersistentStoreCoordinator
 
 // MARK: - Store add helpers
 
-    func addSQLitePersistentStoreWithURL(url: NSURL, automigrating: Bool, error: NSErrorPointer)
+    func addSQLitePersistentStoreWithURL(url: NSURL, automigrating: Bool)
     {
         let addStore: () -> Void = {
             let options = [
@@ -53,7 +59,12 @@ extension NSPersistentStoreCoordinator
                 NSSQLitePragmasOption: ["journal_mode": "WAL"]
             ];
 
-            self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: options, error: error)
+            var optionalError: NSError?
+            self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: options, error: &optionalError)
+
+            if let error = optionalError {
+                println("[CoreDataKit] Error while adding SQLite persistent store: \(error)")
+            }
         }
 
         addStore()
@@ -61,6 +72,7 @@ extension NSPersistentStoreCoordinator
         // Workaround for "Migration failed after first pass" error
         if (automigrating && 0 == self.persistentStores.count)
         {
+            println("[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 2), dispatch_get_main_queue(), addStore)
         }
     }
