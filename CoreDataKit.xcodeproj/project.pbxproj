@@ -13,6 +13,8 @@
 		D595F67F19EEDE6000D73790 /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F67E19EEDE6000D73790 /* Employee.swift */; };
 		D595F68119EEE17B00D73790 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D595F67B19EEDE3100D73790 /* Model.xcdatamodeld */; };
 		D595F68319EEE23000D73790 /* TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F68219EEE23000D73790 /* TestCase.swift */; };
+		D595F68519EF0EA100D73790 /* CoreDataStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F68419EF0EA100D73790 /* CoreDataStack.swift */; };
+		D595F68719EF0ED800D73790 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F68619EF0ED800D73790 /* Types.swift */; };
 		D5C6C63F19EEC6D60035BFFF /* NSManagedObjectContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */; };
 		D5D7C6C81958B8CF0048B576 /* CoreDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5D7C6BC1958B8CF0048B576 /* CoreDataKit.framework */; };
 		D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */; };
@@ -36,6 +38,8 @@
 		D595F67C19EEDE3100D73790 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		D595F67E19EEDE6000D73790 /* Employee.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
 		D595F68219EEE23000D73790 /* TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCase.swift; sourceTree = "<group>"; };
+		D595F68419EF0EA100D73790 /* CoreDataStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStack.swift; sourceTree = "<group>"; };
+		D595F68619EF0ED800D73790 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSManagedObjectContextTests.swift; sourceTree = "<group>"; };
 		D5D7C6BC1958B8CF0048B576 /* CoreDataKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreDataKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5D7C6C01958B8CF0048B576 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,7 +98,9 @@
 		D5D7C6BE1958B8CF0048B576 /* CoreDataKit */ = {
 			isa = PBXGroup;
 			children = (
+				D595F68619EF0ED800D73790 /* Types.swift */,
 				D5D7C6D81958B9300048B576 /* CoreDataKit.swift */,
+				D595F68419EF0EA100D73790 /* CoreDataStack.swift */,
 				D553FD961959505800E71FCE /* NSManagedObjectContext.swift */,
 				D55152D0196A739500857453 /* NSPersistentStore.swift */,
 				D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */,
@@ -238,8 +244,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D595F68519EF0EA100D73790 /* CoreDataStack.swift in Sources */,
 				D5D7C6D91958B9300048B576 /* CoreDataKit.swift in Sources */,
 				D55152D1196A739500857453 /* NSPersistentStore.swift in Sources */,
+				D595F68719EF0ED800D73790 /* Types.swift in Sources */,
 				D51AFE161965266000287A2D /* NSPersistentStoreCoordinator.swift in Sources */,
 				D553FD971959505800E71FCE /* NSManagedObjectContext.swift in Sources */,
 			);

@@ -14,10 +14,15 @@ class TestCase: XCTestCase {
     private struct Holder {
         static var token: dispatch_once_t = 0
         static var sharedPersistentCoordinator: NSPersistentStoreCoordinator?
+        static var coreDataStack: CoreDataStack?
     }
 
     var sharedPersistentCoordinator: NSPersistentStoreCoordinator {
         return Holder.sharedPersistentCoordinator!
+    }
+
+    var coreDataStack: CoreDataStack {
+        return Holder.coreDataStack!
     }
 
     override func setUp() {
@@ -26,12 +31,19 @@ class TestCase: XCTestCase {
         var optionalError: NSError?
         let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())
 
+        // Setup the shared stack
         dispatch_once(&Holder.token) {
             Holder.sharedPersistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: managedObjectModel, error: &optionalError)
-            CoreDataKit.persistentStoreCoordinator = Holder.sharedPersistentCoordinator
-
             XCTAssertNil(optionalError, "ERROR: \(optionalError)")
+
+            CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: self.sharedPersistentCoordinator)
         }
+
+        // Setup the stack for this test
+        let persistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: managedObjectModel, error: &optionalError)
+        XCTAssertNil(optionalError, "ERROR: \(optionalError)")
+
+        Holder.coreDataStack = CoreDataStack(persistentStoreCoordinator: persistentCoordinator!)
     }
 
     override func tearDown() {

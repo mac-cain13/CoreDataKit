@@ -9,57 +9,43 @@
 import CoreData
 
 /**
-    Blocktype used to handle completion.
-
-    :param: error The error that occurred or nil if operation was successful
-*/
-public typealias CompletionHandler = (NSError?) -> Void
-
-public typealias PerformChangesBlock = (NSManagedObjectContext) -> Void
-
-/**
-    `CoreDataKit` helps with setup of the CoreData stack
+`CoreDataKit` helps with setup of the CoreData stack
 */
 public class CoreDataKit : NSObject
 {
-    private struct DefaultCoordinator {
-        static var instance: NSPersistentStoreCoordinator?
+    private struct Holder {
+        static var sharedStack: CoreDataStack?
     }
 
     /**
-    Persistent store coordinator that is used as default for all CoreDataKit actions, this is the only property you need to set to setup the full CoreData stack.
-
-    :discussion: It is not supported to change the persistent store coordinator after the root and main thread contexts are created. This will result in unknown behaviour.
+    Property to hold a shared instance of CoreDataKit, all the convenience class properties access and unwrap this shared instance. So make sure to set the shared instance before doing anything else.
+    
+    :discussion: This is the only property you have to set to setup CoreDataKit, changing the shared instace is not supported.
     */
-    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator? {
+    public class var sharedStack: CoreDataStack? {
         get {
-            return DefaultCoordinator.instance
+            return Holder.sharedStack
         }
 
         set {
-            DefaultCoordinator.instance = newValue
+            Holder.sharedStack = newValue
         }
     }
 
-    /**
-    Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue, is automatically created on first use.
-    */
+// MARK: Convenience properties
+
+    /// Persistent store coordinator used as backing for the contexts of the shared stack
+    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator {
+        return sharedStack!.persistentStoreCoordinator
+    }
+
+    /// Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue of the shared stack
     public class var rootContext: NSManagedObjectContext {
-        struct Singleton {
-            static let instance = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
-        }
-
-        return Singleton.instance
+        return sharedStack!.rootContext
     }
 
-    /**
-    Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread, is automatically created on first use and has `rootContext` set as it's parent context.
-    */
+    /// Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread of the shared stack
     public class var mainThreadContext: NSManagedObjectContext {
-        struct Singleton {
-            static let instance = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
-        }
-
-        return Singleton.instance
+        return sharedStack!.mainThreadContext
     }
 }

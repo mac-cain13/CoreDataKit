@@ -12,30 +12,29 @@ import CoreDataKit
 
 class NSManagedObjectContextTests: TestCase {
     func testInitWithPersistentStore() {
-        let context = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
+        let context = NSManagedObjectContext(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
 
         XCTAssertNil(context.parentContext, "Unexpected parent context")
         XCTAssertNotNil(context.persistentStoreCoordinator, "Missing persistent coordinator")
-        XCTAssertEqual(context.persistentStoreCoordinator!, CoreDataKit.persistentStoreCoordinator!, "Incorrect persistent coordinator")
+        XCTAssertEqual(context.persistentStoreCoordinator!, coreDataStack.persistentStoreCoordinator, "Incorrect persistent coordinator")
         XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType, "Incorrect concurrency type")
     }
 
     func testInitWithPersistentStoreObtainsPermanentIDs() {
-        let context = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
+        let context = NSManagedObjectContext(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
         testContextObtainsPermanentIDs(context)
     }
 
     func testInitWithParentContext() {
-        let parentContext = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
-        let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: parentContext)
+        let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: coreDataStack.rootContext)
 
         XCTAssertNotNil(context.parentContext, "Missing parent context")
-        XCTAssertEqual(context.parentContext!, parentContext, "Incorrect parent context")
+        XCTAssertEqual(context.parentContext!, coreDataStack.rootContext, "Incorrect parent context")
         XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType, "Incorrect concurrency type")
     }
 
     func testInitWithParentContextObtainsPermanentIDs() {
-        let parentContext = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
+        let parentContext = NSManagedObjectContext(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
         let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: parentContext)
         testContextObtainsPermanentIDs(context)
     }
@@ -43,8 +42,7 @@ class NSManagedObjectContextTests: TestCase {
     func testPerformBlockAndSaveToPersistentStore() {
         let completionExpectation = expectationWithDescription("Expected completion handler call")
 
-        let context = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
-        context.performBlockAndSaveToPersistentStore({ (context) -> Void in
+        coreDataStack.rootContext.performBlockAndSaveToPersistentStore({ (context) -> Void in
             let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
             employee.name = "Mike Ross"
         }, completionHandler: { (optionalError) -> Void in
@@ -58,8 +56,7 @@ class NSManagedObjectContextTests: TestCase {
     func testFailingPerformBlockAndSaveToPersistentStore() {
         let completionExpectation = expectationWithDescription("Expected completion handler call")
 
-        let context = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
-        context.performBlockAndSaveToPersistentStore({ (context) -> Void in
+        coreDataStack.rootContext.performBlockAndSaveToPersistentStore({ (context) -> Void in
             let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
             }, completionHandler: { (optionalError) -> Void in
                 XCTAssertNotNil(optionalError, "Expected error")
@@ -71,13 +68,12 @@ class NSManagedObjectContextTests: TestCase {
     }
 
     func testObtainPermanentIDsForInsertedObjects() {
-        let context = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
-        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
+        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: coreDataStack.rootContext) as Employee
         employee.name = "Harvey Specter"
 
         XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
         var optionalError: NSError?
-        context.obtainPermanentIDsForInsertedObjects(&optionalError)
+        coreDataStack.rootContext.obtainPermanentIDsForInsertedObjects(&optionalError)
         XCTAssertNil(optionalError, "Unexpected error")
         XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
     }
