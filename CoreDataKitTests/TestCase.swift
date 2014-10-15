@@ -13,12 +13,9 @@ import CoreDataKit
 class TestCase: XCTestCase {
     private struct Holder {
         static var token: dispatch_once_t = 0
-        static var coreDataStack: CoreDataStack?
     }
 
-    var coreDataStack: CoreDataStack {
-        return Holder.coreDataStack!
-    }
+    var coreDataStack: CoreDataStack!
 
     override func setUp() {
         super.setUp()
@@ -31,7 +28,7 @@ class TestCase: XCTestCase {
         }
 
         // Setup the stack for this test
-        Holder.coreDataStack = setupCoreDataStack(managedObjectModel)
+        coreDataStack = setupCoreDataStack(managedObjectModel)
     }
 
     override func tearDown() {
