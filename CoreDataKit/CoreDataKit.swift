@@ -46,7 +46,7 @@ public class CoreDataKit : NSObject
     */
     public class var rootContext: NSManagedObjectContext {
         struct Singleton {
-            static let instance = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
+            static let instance = NSManagedObjectContext(persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
         }
 
         return Singleton.instance
