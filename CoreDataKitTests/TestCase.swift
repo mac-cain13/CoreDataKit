@@ -23,26 +23,27 @@ class TestCase: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        var optionalError: NSError?
-        let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())
+        let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())!
 
         // Setup the shared stack
         dispatch_once(&Holder.token) {
-            let persistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: managedObjectModel, error: &optionalError)
-            XCTAssertNil(optionalError, "ERROR: \(optionalError)")
-
-            CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentCoordinator!)
+            CoreDataKit.sharedStack = self.setupCoreDataStack(managedObjectModel)
         }
 
         // Setup the stack for this test
-        let persistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: managedObjectModel, error: &optionalError)
-        XCTAssertNil(optionalError, "ERROR: \(optionalError)")
-
-        Holder.coreDataStack = CoreDataStack(persistentStoreCoordinator: persistentCoordinator!)
+        Holder.coreDataStack = setupCoreDataStack(managedObjectModel)
     }
 
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
+    }
+
+    private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {
+        var optionalError: NSError?
+        let persistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: model, error: &optionalError)
+        XCTAssertNil(optionalError, "ERROR: \(optionalError)")
+
+        return CoreDataStack(persistentStoreCoordinator: persistentCoordinator!)
     }
 }
