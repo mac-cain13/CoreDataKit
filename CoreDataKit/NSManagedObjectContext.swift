@@ -41,6 +41,7 @@ extension NSManagedObjectContext
     :param: completion  Completion block to run after changes are saved
     */
     public func performBlockAndPersist(block: PerformChangesBlock, completion: CompletionHandler?) {
+        // TODO: Can we make something that is nest-able?
         let childContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
 
         childContext.performBlock {
