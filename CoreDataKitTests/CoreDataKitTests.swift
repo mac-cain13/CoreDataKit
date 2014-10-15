@@ -12,7 +12,7 @@ import CoreDataKit
 
 class CoreDataKitTests: TestCase {
     func testPersistentStoreCoordinator() {
-        XCTAssertEqual(CoreDataKit.persistentStoreCoordinator, sharedPersistentCoordinator, "Incorrect persistent coordinator")
+        XCTAssertEqual(CoreDataKit.persistentStoreCoordinator, CoreDataKit.sharedStack!.persistentStoreCoordinator, "Incorrect persistent coordinator")
     }
 
     func testRootContext() {

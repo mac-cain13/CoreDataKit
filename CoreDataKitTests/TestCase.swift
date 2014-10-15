@@ -13,12 +13,7 @@ import CoreDataKit
 class TestCase: XCTestCase {
     private struct Holder {
         static var token: dispatch_once_t = 0
-        static var sharedPersistentCoordinator: NSPersistentStoreCoordinator?
         static var coreDataStack: CoreDataStack?
-    }
-
-    var sharedPersistentCoordinator: NSPersistentStoreCoordinator {
-        return Holder.sharedPersistentCoordinator!
     }
 
     var coreDataStack: CoreDataStack {
@@ -33,10 +28,10 @@ class TestCase: XCTestCase {
 
         // Setup the shared stack
         dispatch_once(&Holder.token) {
-            Holder.sharedPersistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: managedObjectModel, error: &optionalError)
+            let persistentCoordinator = NSPersistentStoreCoordinator.coordinatorWithInMemoryStore(managedObjectModel: managedObjectModel, error: &optionalError)
             XCTAssertNil(optionalError, "ERROR: \(optionalError)")
 
-            CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: self.sharedPersistentCoordinator)
+            CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentCoordinator!)
         }
 
         // Setup the stack for this test
