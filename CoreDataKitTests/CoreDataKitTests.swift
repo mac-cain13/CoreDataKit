@@ -10,31 +10,10 @@ import XCTest
 import CoreData
 import CoreDataKit
 
-class CoreDataKitTests: XCTestCase {
-    class var coordinator: NSPersistentStoreCoordinator {
-        struct Singleton {
-            static let instance = NSPersistentStoreCoordinator()
-        }
-
-        return Singleton.instance
-    }
-    
-    override func setUp() {
-        super.setUp()
-
-        if CoreDataKit.persistentStoreCoordinator == nil {
-            CoreDataKit.persistentStoreCoordinator = CoreDataKitTests.coordinator
-        }
-    }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
+class CoreDataKitTests: TestCase {
     func testPersistentStoreCoordinator() {
         XCTAssertNotNil(CoreDataKit.persistentStoreCoordinator, "Missing persistent coordinator")
-        XCTAssertEqual(CoreDataKit.persistentStoreCoordinator!, CoreDataKitTests.coordinator, "CoreDataKit.persistentStoreCoordinator didn't return correct coordinator")
+        XCTAssertEqual(CoreDataKit.persistentStoreCoordinator!, sharedPersistentCoordinator, "Incorrect persistent coordinator")
     }
 
     func testRootContext() {
