@@ -30,6 +30,36 @@ extension NSManagedObjectContext
 
 // MARK: - Saving
 
+    /**
+    Performs the given block on a child context and persists changes performed on the given context to the persistent store. After saving the `CompletionHandler` block is called and passed a `NSError` object when an error occured or nil when saving was successfull. The `CompletionHandler` will always be called on the main thread.
+
+    :discussion: Do not nest save operations with this method, since the nested save will also save to the persistent store this will give unexpected results.
+
+    :discussion: Please remember that `NSManagedObjects` are not threadsafe and your block is performed on another thread/`NSManagedObjectContext`. Make sure to **always** convert your `NSManagedObjects` to the given `NSManagedObjectContext` with `NSManagedObject.inContext()` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data, which in turn prevents hairpulling.
+
+    :param: block       Block that performs the changes on the given context that should be saved
+    :param: completion  Completion block to run after changes are saved
+    */
+    public func performBlockAndPersist(block: PerformChangesBlock, completion: CompletionHandler?) {
+        let childContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
+
+        childContext.performBlock {
+            block(childContext)
+            childContext.saveToPersistentStore(completion)
+        }
+    }
+
+    /**
+    Performs the given block on a background thread and persists changes performed on the `NSManagedObjectContext` given to the block to the persistent store.
+
+    :param: saveBlock  Block that performs the changes on the given context that should be saved
+
+    :see: performBlockAndPersist(block:completion:)
+    */
+    public func performBlockAndPersist(block: PerformChangesBlock) {
+        performBlockAndPersist(block, completion: nil)
+    }
+
     public func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler?)
     {
         performBlock {

@@ -41,19 +41,4 @@ public class CoreDataKit : NSObject
 
         return Singleton.instance
     }
-
-// MARK: - Saving
-
-    public class func save(saveBlock: () -> Void, completion: CompletionHandler?) {
-        let savingContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
-
-        savingContext.performBlock {
-            saveBlock()
-            savingContext.saveToPersistentStore(completion)
-        }
-    }
-
-    public class func save(saveBlock: () -> Void) {
-        save(saveBlock, completion: nil)
-    }
 }
