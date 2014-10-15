@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D5090B3E19EDB8C2000D66C5 /* NSManagedObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5090B3D19EDB8C2000D66C5 /* NSManagedObject.swift */; };
 		D51AFE161965266000287A2D /* NSPersistentStoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */; };
 		D55152D1196A739500857453 /* NSPersistentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D55152D0196A739500857453 /* NSPersistentStore.swift */; };
 		D553FD971959505800E71FCE /* NSManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D553FD961959505800E71FCE /* NSManagedObjectContext.swift */; };
@@ -26,6 +27,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D5090B3D19EDB8C2000D66C5 /* NSManagedObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSManagedObject.swift; sourceTree = "<group>"; };
 		D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreCoordinator.swift; sourceTree = "<group>"; };
 		D55152D0196A739500857453 /* NSPersistentStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStore.swift; sourceTree = "<group>"; };
 		D553FD961959505800E71FCE /* NSManagedObjectContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSManagedObjectContext.swift; sourceTree = "<group>"; };
@@ -56,6 +58,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D5090B3C19EDB8AA000D66C5 /* Importing */ = {
+			isa = PBXGroup;
+			children = (
+				D5090B3D19EDB8C2000D66C5 /* NSManagedObject.swift */,
+			);
+			name = Importing;
+			sourceTree = "<group>";
+		};
 		D5D7C6B21958B8CF0048B576 = {
 			isa = PBXGroup;
 			children = (
@@ -81,6 +91,7 @@
 				D553FD961959505800E71FCE /* NSManagedObjectContext.swift */,
 				D55152D0196A739500857453 /* NSPersistentStore.swift */,
 				D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */,
+				D5090B3C19EDB8AA000D66C5 /* Importing */,
 				D5D7C6BF1958B8CF0048B576 /* Supporting Files */,
 			);
 			path = CoreDataKit;
@@ -220,6 +231,7 @@
 			files = (
 				D5D7C6D91958B9300048B576 /* CoreDataKit.swift in Sources */,
 				D55152D1196A739500857453 /* NSPersistentStore.swift in Sources */,
+				D5090B3E19EDB8C2000D66C5 /* NSManagedObject.swift in Sources */,
 				D51AFE161965266000287A2D /* NSPersistentStoreCoordinator.swift in Sources */,
 				D553FD971959505800E71FCE /* NSManagedObjectContext.swift in Sources */,
 			);
