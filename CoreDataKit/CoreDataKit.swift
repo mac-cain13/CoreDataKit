@@ -8,52 +8,44 @@
 
 import CoreData
 
-public typealias CompletionHandler = (NSError?) -> Void
-
+/**
+`CoreDataKit` helps with setup of the CoreData stack
+*/
 public class CoreDataKit : NSObject
 {
-    private struct DefaultCoordinator {
-        static var instance: NSPersistentStoreCoordinator?
+    private struct Holder {
+        static var sharedStack: CoreDataStack?
     }
 
-    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator? {
+    /**
+    Property to hold a shared instance of CoreDataKit, all the convenience class properties access and unwrap this shared instance. So make sure to set the shared instance before doing anything else.
+    
+    :discussion: This is the only property you have to set to setup CoreDataKit, changing the shared instace is not supported.
+    */
+    public class var sharedStack: CoreDataStack? {
         get {
-            return DefaultCoordinator.instance
+            return Holder.sharedStack
         }
 
         set {
-            DefaultCoordinator.instance = newValue
+            Holder.sharedStack = newValue
         }
     }
 
+// MARK: Convenience properties
+
+    /// Persistent store coordinator used as backing for the contexts of the shared stack
+    public class var persistentStoreCoordinator: NSPersistentStoreCoordinator {
+        return sharedStack!.persistentStoreCoordinator
+    }
+
+    /// Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue of the shared stack
     public class var rootContext: NSManagedObjectContext {
-        struct Singleton {
-            static let instance = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, persistentStoreCoordinator: CoreDataKit.persistentStoreCoordinator!)
-        }
-
-        return Singleton.instance
+        return sharedStack!.rootContext
     }
 
+    /// Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread of the shared stack
     public class var mainThreadContext: NSManagedObjectContext {
-        struct Singleton {
-            static let instance = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
-        }
-
-        return Singleton.instance
-    }
-
-// MARK: - Saving
-
-    public class func save(saveBlock: () -> Void, completion: CompletionHandler?) {
-        let savingContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: CoreDataKit.rootContext)
-
-        savingContext.performBlock {
-            saveBlock()
-            savingContext.saveToPersistentStore(completion)
-        }
-    }
-
-    public class func save(saveBlock: () -> Void) {
-        save(saveBlock, completion: nil)
+        return sharedStack!.mainThreadContext
     }
 }

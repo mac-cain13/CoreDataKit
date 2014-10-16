@@ -10,26 +10,87 @@ import CoreData
 
 extension NSManagedObjectContext
 {
-    public convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, persistentStoreCoordinator: NSPersistentStoreCoordinator)
+
+// MARK: Creating
+
+    /**
+    Create a new `NSManagedObjectContext` that is directly associated with the given `NSPersistentStoreCoordinator`, will be of type `NSPrivateQueueConcurrencyType`.
+
+    :discussion: The context will also obtain permanent IDs for `NSManagedObject`s before saving. This will prevent problems where you can't convert objects between two `NSManagedObjectContext`s, so it's advised to create contexts using this method.
+
+    :param: persistentStoreCoordinator Persistent store coordinator to associate with
+
+    :returns: Managed object context
+    */
+    public convenience init(persistentStoreCoordinator: NSPersistentStoreCoordinator)
     {
-        self.init(concurrencyType: concurrencyType)
-        self.performBlockAndWait { [unowned self] in
+        self.init(concurrencyType: .PrivateQueueConcurrencyType)
+        performBlockAndWait { [unowned self] in
             self.persistentStoreCoordinator = persistentStoreCoordinator
         }
-        self.beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
+        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
+    /**
+    Create a new `NSManagedObjectContext` that has the given context set as parent context to save to.
+
+    :discussion: The context will also obtain permanent IDs for `NSManagedObject`s before saving. This will prevent problems where you can't convert objects between two `NSManagedObjectContext`s, so it's advised to create context using this method.
+
+    :param: concurrencyType Concurrency type to use, must be `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`
+    :param: parentContext Parent context to associate with
+
+    :returns: Managed object context
+    */
     public convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, parentContext: NSManagedObjectContext)
     {
         self.init(concurrencyType: concurrencyType)
-        self.performBlockAndWait { [unowned self] in
-            self.parentContext = parentContext;
+        performBlockAndWait { [unowned self] in
+            self.parentContext = parentContext
         }
-        self.beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
+        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
 // MARK: - Saving
 
+    /**
+    Performs the given block on a child context and persists changes performed on the given context to the persistent store. After saving the `CompletionHandler` block is called and passed a `NSError` object when an error occured or nil when saving was successfull. The `CompletionHandler` will always be called on the main thread.
+
+    :discussion: Do not nest save operations with this method, since the nested save will also save to the persistent store this will give unexpected results. Also the nested calls will not perform their changes on nested contexts, so the changes will not appear in the outer call as you'd expect to.
+
+    :discussion: Please remember that `NSManagedObjects` are not threadsafe and your block is performed on another thread/`NSManagedObjectContext`. Make sure to **always** convert your `NSManagedObjects` to the given `NSManagedObjectContext` with `NSManagedObject.inContext()` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data.
+
+    :param: block       Block that performs the changes on the given context that should be saved
+    :param: completion  Completion block to run after changes are saved
+    */
+    public func performBlockAndSaveToPersistentStore(block: PerformChangesBlock, completionHandler: CompletionHandler?) {
+        let childContext = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: self)
+
+        childContext.performBlock {
+            block(childContext)
+
+            // This schedules a block that saves all changes right after this block, this is no problem for concurrency since no one else can schedule a block on our private child context
+            childContext.saveToPersistentStore(completionHandler)
+        }
+    }
+
+    /**
+    Performs the given block on a background thread and persists changes performed on the `NSManagedObjectContext` given to the block to the persistent store.
+
+    :param: saveBlock  Block that performs the changes on the given context that should be saved
+
+    :see: performBlockAndSaveToPersistentStore(block:completion:)
+    */
+    public func performBlockAndSaveToPersistentStore(block: PerformChangesBlock) {
+        performBlockAndSaveToPersistentStore(block, completionHandler: nil)
+    }
+
+    /**
+    Save all changes in this context and all parent contexts to the persistent store, `CompletionHandler` will be called when finished.
+    
+    :discussion: This wraps the saves in a `performBlock` call, so they will be queued on the contexts that are performing saves. This basically means that a batch action will first finish and
+    
+    :param: completionHandler  Completion block to run after changes are saved
+    */
     public func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler?)
     {
         performBlock {
@@ -49,20 +110,9 @@ extension NSManagedObjectContext
         }
     }
 
-    public func saveToParentContext(completionHandler optionalCompletionHandler: CompletionHandler?)
-    {
-        performBlock {
-            var optionalError: NSError?
-            self.save(&optionalError)
-
-            if let completionHandler = optionalCompletionHandler {
-                dispatch_async(dispatch_get_main_queue()) { completionHandler(optionalError) }
-            }
-        }
-    }
-
 // MARK: - Obtaining permanent IDs
 
+    /// Installs a notification handler on the will save event that calls `obtainPermanentIDsForInsertedObjects()`
     func beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     {
         NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextWillSaveNotification, object: self, queue: NSOperationQueue.mainQueue()) { [weak self] _ in
@@ -71,6 +121,11 @@ extension NSManagedObjectContext
         }
     }
 
+    /**
+    Obtains permanent object IDs for all objects inserted in this context. This ensures that the object has an object ID that you can lookup in an other context.
+
+    @discussion This method is called automatically by `NSManagedObjectContext`s that are created by CoreDataKit right before saving. So usually you don't have to use this yourself if you stay within CoreDataKit created contexts.
+    */
     public func obtainPermanentIDsForInsertedObjects(error: NSErrorPointer)
     {
         if (self.insertedObjects.count > 0) {

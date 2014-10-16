@@ -7,21 +7,24 @@
 //
 
 import XCTest
+import CoreData
 import CoreDataKit
 
-class CoreDataKitTests: XCTestCase {
-    
-    override func setUp() {
-        super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+class CoreDataKitTests: TestCase {
+    func testPersistentStoreCoordinator() {
+        XCTAssertEqual(CoreDataKit.persistentStoreCoordinator, CoreDataKit.sharedStack!.persistentStoreCoordinator, "Incorrect persistent coordinator")
     }
-    
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
+
+    func testRootContext() {
+        XCTAssertNil(CoreDataKit.rootContext.parentContext, "Unexpected parent context")
+        XCTAssertNotNil(CoreDataKit.rootContext.persistentStoreCoordinator, "Missing persistent coordinator")
+        XCTAssertEqual(CoreDataKit.rootContext.persistentStoreCoordinator!, CoreDataKit.persistentStoreCoordinator, "Incorrect persistent coordinator")
     }
-    
-    func testSetup() {
-        CoreDataKit.stor
+
+    func testMainThreadContext() {
+        XCTAssertNotNil(CoreDataKit.mainThreadContext.persistentStoreCoordinator, "Missing persistent coordinator")
+        XCTAssertEqual(CoreDataKit.mainThreadContext.persistentStoreCoordinator!, CoreDataKit.persistentStoreCoordinator, "Incorrect persistent coordinator")
+        XCTAssertNotNil(CoreDataKit.mainThreadContext.parentContext, "Missing parent context")
+        XCTAssertEqual(CoreDataKit.mainThreadContext.parentContext!, CoreDataKit.rootContext, "Incorrect parent context")
     }
 }

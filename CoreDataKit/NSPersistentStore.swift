@@ -10,7 +10,14 @@ import CoreData
 
 extension NSPersistentStore
 {
-    public class func URLForStoreName(storeName: String) -> NSURL?
+    /**
+    Creates URL for SQLite store with the given store name.
+
+    :param: storeName Store name to build URL for
+
+    :returns: URL with the location of the store
+    */
+    public class func URLForSQLiteStoreName(storeName: String) -> NSURL?
     {
         assert(countElements(storeName) > 0, "Store name must be longer then zero characters.")
 
