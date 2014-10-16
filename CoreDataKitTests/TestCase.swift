@@ -20,6 +20,7 @@ class TestCase: XCTestCase {
     override func setUp() {
         super.setUp()
 
+        // Fetch model
         let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())!
 
         // Setup the shared stack
