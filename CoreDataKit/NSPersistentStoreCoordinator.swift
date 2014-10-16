@@ -13,6 +13,8 @@ extension NSPersistentStoreCoordinator
     /**
     Creates a `NSPersistentStoreCoordinator` with SQLite added as persistent store.
     
+    :discussion: Use `NSPersistentStore.URLForSQLiteStoreName(storeName:)` to create the store URL
+    
     :param: automigrating      Whether to enable automigration for the SQLite store
     :param: URL                URL to save the SQLite store at, pass nil to use default
     :param: managedObjectModel Managed object model to initialize the store with, pass nil to use all models in the main bundle
@@ -21,7 +23,7 @@ extension NSPersistentStoreCoordinator
 
         // Fallback on the defaults
         let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
-        let _URL = optionalURL ?? NSPersistentStore.URLForStoreName("CoreDataKit")
+        let _URL = optionalURL ?? NSPersistentStore.URLForSQLiteStoreName("CoreDataKit")
 
         // Initialize coordinator if we have all data
         switch ((_managedObjectModel, _URL)) {

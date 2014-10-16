@@ -20,6 +20,7 @@
 		D5D7C6C81958B8CF0048B576 /* CoreDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5D7C6BC1958B8CF0048B576 /* CoreDataKit.framework */; };
 		D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */; };
 		D5D7C6D91958B9300048B576 /* CoreDataKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6D81958B9300048B576 /* CoreDataKit.swift */; };
+		D5EDACE319EF950B00FAC712 /* NSPersistentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		D5D7C6CD1958B8CF0048B576 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataKitTests.swift; sourceTree = "<group>"; };
 		D5D7C6D81958B9300048B576 /* CoreDataKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataKit.swift; sourceTree = "<group>"; };
+		D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,6 +128,7 @@
 				D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */,
 				D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */,
 				D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */,
+				D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */,
 				D595F67A19EEDD8800D73790 /* Fixtures */,
 				D5D7C6CC1958B8CF0048B576 /* Supporting Files */,
 			);
@@ -263,6 +266,7 @@
 				D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */,
 				D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */,
 				D595F68319EEE23000D73790 /* TestCase.swift in Sources */,
+				D5EDACE319EF950B00FAC712 /* NSPersistentStoreTests.swift in Sources */,
 				D595F67F19EEDE6000D73790 /* Employee.swift in Sources */,
 				D5C6C63F19EEC6D60035BFFF /* NSManagedObjectContextTests.swift in Sources */,
 				D595F68119EEE17B00D73790 /* Model.xcdatamodeld in Sources */,
