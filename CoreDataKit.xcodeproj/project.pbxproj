@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D5093C6A19EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5093C6919EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift */; };
 		D51AFE161965266000287A2D /* NSPersistentStoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */; };
 		D55152D1196A739500857453 /* NSPersistentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D55152D0196A739500857453 /* NSPersistentStore.swift */; };
 		D553FD971959505800E71FCE /* NSManagedObjectContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D553FD961959505800E71FCE /* NSManagedObjectContext.swift */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D5093C6919EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreCoordinatorTests.swift; sourceTree = "<group>"; };
 		D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreCoordinator.swift; sourceTree = "<group>"; };
 		D55152D0196A739500857453 /* NSPersistentStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStore.swift; sourceTree = "<group>"; };
 		D553FD961959505800E71FCE /* NSManagedObjectContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSManagedObjectContext.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 				D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */,
 				D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */,
 				D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */,
+				D5093C6919EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift */,
 				D595F67A19EEDD8800D73790 /* Fixtures */,
 				D5D7C6CC1958B8CF0048B576 /* Supporting Files */,
 			);
@@ -263,6 +266,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5093C6A19EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift in Sources */,
 				D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */,
 				D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */,
 				D595F68319EEE23000D73790 /* TestCase.swift in Sources */,
