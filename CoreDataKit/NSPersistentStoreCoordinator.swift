@@ -62,7 +62,15 @@ extension NSPersistentStoreCoordinator
 
 // MARK: - Store add helpers
 
-    func addSQLitePersistentStoreWithURL(url: NSURL, automigrating: Bool)
+    /**
+    Adds a SQLite persistent store to this persistent store coordinator.
+    
+    :discussion: Will do a async retry when automigration fails, because of a CoreData bug in serveral iOS versions where migration fails the first time.
+    
+    :param: URL           Location of the store
+    :param: automigrating Whether the store should automigrate itself
+    */
+    func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool)
     {
         let addStore: () -> Void = {
             let options = [
@@ -72,7 +80,7 @@ extension NSPersistentStoreCoordinator
             ];
 
             var optionalError: NSError?
-            self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: url, options: options, error: &optionalError)
+            self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options, error: &optionalError)
 
             if let error = optionalError {
                 println("[CoreDataKit] Error while adding SQLite persistent store: \(error)")
