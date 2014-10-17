@@ -23,7 +23,7 @@ extension NSManagedObjectContext
                     {
                         if (objects.count > 1)
                         {
-                            error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(objects.count) results"])
+                            error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(objects.count) results"])
                         }
                         else if let object = objects.first ?? create(entity, error: error)
                         {
