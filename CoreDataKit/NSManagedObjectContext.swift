@@ -141,7 +141,7 @@ extension NSManagedObjectContext
         return nil
     }
 
-    public func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> NSEntityDescription?
+    func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> NSEntityDescription?
     {
         if let entityDescription = NSEntityDescription.entityForName(entity.entityName, inManagedObjectContext: self) {
             return entityDescription

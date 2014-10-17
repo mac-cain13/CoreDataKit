@@ -39,6 +39,8 @@ class NSManagedObjectContextTests: TestCase {
         testContextObtainsPermanentIDs(context)
     }
 
+// MARK: - Saving
+
     func testPerformBlockAndSaveToPersistentStore() {
         let completionExpectation = expectationWithDescription("Expected completion handler call")
 
@@ -75,6 +77,8 @@ class NSManagedObjectContextTests: TestCase {
         waitForExpectationsWithTimeout(3, handler: nil)
     }
 
+// MARK: Obtaining permanent IDs
+
     func testObtainPermanentIDsForInsertedObjects() {
         let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: coreDataStack.rootContext) as Employee
         employee.name = "Harvey Specter"
@@ -96,5 +100,34 @@ class NSManagedObjectContextTests: TestCase {
         XCTAssertNil(optionalError, "Unexpected error")
         XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
     }
+
+// MARK: - Creating
+
+    func testCreate() {
+        var optionalError: NSError?
+        let optionalEmployee = coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self, error: &optionalError)
+        XCTAssertNotNil(optionalEmployee, "Missing managed object")
+        XCTAssertNil(optionalError, "Unexpected error")
+
+        if let employee = optionalEmployee {
+            XCTAssertTrue(employee.inserted, "Managed object should be inserted")
+            XCTAssertEqual(employee.managedObjectContext!, coreDataStack.rootContext, "Unexpected managed object context")
+        }
+    }
+
+    func testCreateIncorrectEntityName() {
+        var optionalError: NSError?
+        let optionalEmployee = coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self, error: &optionalError)
+        XCTAssertNil(optionalEmployee, "Unexpected managed object")
+        XCTAssertNotNil(optionalError, "Missing error")
+
+        if let error = optionalError {
+            XCTAssertEqual(error.domain, CoreDataKitErrorDomain, "Unexpected error domain")
+            XCTAssertEqual(error.code, CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, "Unexpected error code")
+        }
+    }
+
+// MARK: - Finding
+
 }
 
