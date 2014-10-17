@@ -8,11 +8,18 @@
 
 import CoreData
 
-let CoreDataKitErrorDomain = "CoreDataKitErrorDomain"
+/// Error domain used by CoreDataKit when it generates a NSError
+public let CoreDataKitErrorDomain = "CoreDataKitErrorDomain"
 
-enum CoreDataKitErrorCode: Int {
-    case InvalidNumberOfResults = 1
+/// Error codes used by CoreDataKit when it generates a NSError
+public enum CoreDataKitErrorCode: Int {
+    /// Number of results was not within the expected range
+    case UnexpectedNumberOfResults = 1
+
+    /// Entity description could not be found
     case EntityDescriptionNotFound
+
+    /// Import was cancelled
     case ImportCancelled
 }
 
