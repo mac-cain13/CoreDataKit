@@ -8,9 +8,11 @@
 
 import Foundation
 import CoreData
+import CoreDataKit
 
-class Employee: NSManagedObject {
+class Employee: NSManagedObject, NamedManagedObject {
 
     @NSManaged var name: String
 
+    class var entityName: String { return "Employee" }
 }

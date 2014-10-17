@@ -19,6 +19,11 @@ public class CoreDataStack: NSObject {
     /// Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread
     public let mainThreadContext: NSManagedObjectContext
 
+    /**
+    Create a stack based on the given `NSPersistentStoreCoordinator`.
+
+    :param: persistentStoreCoordinator The coordinator that will be coordinate the persistent store of this stack
+    */
     public init(persistentStoreCoordinator _persistentStoreCoordinator: NSPersistentStoreCoordinator) {
         persistentStoreCoordinator = _persistentStoreCoordinator
         rootContext = NSManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)

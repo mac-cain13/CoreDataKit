@@ -8,6 +8,14 @@
 
 import CoreData
 
+let CoreDataKitErrorDomain = "CoreDataKitErrorDomain"
+
+enum CoreDataKitErrorCode: Int {
+    case InvalidNumberOfResults = 1
+    case EntityDescriptionNotFound
+    case ImportCancelled
+}
+
 /**
 Blocktype used to perform changes on a `NSManagedObjectContext`.
 

@@ -10,9 +10,6 @@ import CoreData
 
 extension NSManagedObjectContext
 {
-
-// MARK: Creating
-
     /**
     Create a new `NSManagedObjectContext` that is directly associated with the given `NSPersistentStoreCoordinator`, will be of type `NSPrivateQueueConcurrencyType`.
 
@@ -110,7 +107,7 @@ extension NSManagedObjectContext
         }
     }
 
-// MARK: - Obtaining permanent IDs
+// MARK: Obtaining permanent IDs
 
     /// Installs a notification handler on the will save event that calls `obtainPermanentIDsForInsertedObjects()`
     func beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
@@ -131,5 +128,43 @@ extension NSManagedObjectContext
         if (self.insertedObjects.count > 0) {
             self.obtainPermanentIDsForObjects(self.insertedObjects.allObjects, error: error)
         }
+    }
+
+// MARK: - Creating
+
+    public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> T?
+    {
+        if let entityDescription = entityDescription(entity, error: error) {
+            return entity(entity: entityDescription, insertIntoManagedObjectContext: self)
+        }
+
+        return nil
+    }
+
+    public func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> NSEntityDescription?
+    {
+        if let entityDescription = NSEntityDescription.entityForName(entity.entityName, inManagedObjectContext: self) {
+            return entityDescription
+        } else {
+            error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description for entity name '\(entity.entityName)' not found"])
+            return nil
+        }
+    }
+
+// MARK: - Finding
+
+    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, error: NSErrorPointer = nil) -> [T]? {
+        if let entityDescription = entityDescription(entity, error: error) {
+            let fetchRequest = NSFetchRequest()
+            fetchRequest.entity = entityDescription
+            fetchRequest.predicate = predicate
+            fetchRequest.sortDescriptors = sortDescriptors
+            fetchRequest.fetchLimit = limit ?? 0
+            fetchRequest.returnsObjectsAsFaults = true
+
+            return executeFetchRequest(fetchRequest, error: error)?.map { $0 as T }
+        }
+
+        return nil
     }
 }
