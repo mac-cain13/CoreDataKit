@@ -171,6 +171,17 @@ extension NSManagedObjectContext
 
 // MARK: - Finding
 
+    /**
+    Find entities of a certain type in this context
+    
+    :param: entity          Type of entity to search for
+    :param: predicate       Predicate to filter on
+    :param: sortDescriptors Sort descriptors to sort on
+    :param: limit           Maximum number of items to return
+    :error: error           Error if not succesful
+    
+    :returns: Array of entities found, empty array on no results, nil on error
+    */
     public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, error: NSErrorPointer = nil) -> [T]? {
         if let entityDescription = entityDescription(entity, error: error) {
             let fetchRequest = NSFetchRequest()
