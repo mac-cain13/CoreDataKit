@@ -105,7 +105,7 @@ class NSManagedObjectContextTests: TestCase {
 
     func testCreate() {
         var optionalError: NSError?
-        let optionalEmployee = coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self, error: &optionalError)
+        let optionalEmployee = coreDataStack.rootContext.create(Employee.self, error: &optionalError)
         XCTAssertNotNil(optionalEmployee, "Missing managed object")
         XCTAssertNil(optionalError, "Unexpected error")
 
@@ -127,7 +127,77 @@ class NSManagedObjectContextTests: TestCase {
         }
     }
 
+    func testCreateIncorrectEntityNameWithoutErrorHandling() {
+        let optionalEmployee = coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self, error: nil)
+        XCTAssertNil(optionalEmployee, "Unexpected managed object")
+    }
+
 // MARK: - Finding
 
+    func testFindEmployeesWithoutAnythingInserted() {
+        var optionalError: NSError?
+        let optionalAllEmployees = coreDataStack.rootContext.find(Employee.self, predicate: nil, sortDescriptors: nil, limit: nil, error: &optionalError)
+        XCTAssertNotNil(optionalAllEmployees, "Missing results")
+        XCTAssertNil(optionalError, "Unexpected error")
+
+        if let allEmployees = optionalAllEmployees {
+            XCTAssertEqual(allEmployees.count, 0, "Incorrect number of results")
+        }
+    }
+
+    func testFindEmployeesWithOneEmployeeInserted() {
+        var optionalError: NSError?
+        let optionalEmployee = coreDataStack.rootContext.create(Employee.self, error: &optionalError)
+        XCTAssertNotNil(optionalEmployee, "Missing managed object")
+        XCTAssertNil(optionalError, "Unexpected error")
+
+        if let employee = optionalEmployee {
+            employee.name = "Rachel Zane"
+
+            let optionalAllEmployees: [Employee]? = coreDataStack.rootContext.find(Employee.self)
+            XCTAssertNotNil(optionalAllEmployees, "Missing results")
+
+            if let allEmployees = optionalAllEmployees {
+                XCTAssertEqual(allEmployees.count, 1, "Incorrect number of results")
+
+                if let firstEmployee = allEmployees.first {
+                    XCTAssertEqual(firstEmployee.name, "Rachel Zane", "Incorrect employee name")
+                }
+            }
+        }
+    }
+
+    func testFindEmployeesWithFilteringAndSorting() {
+        var optionalError: NSError?
+        let optionalEmployees: (Employee?, Employee?, Employee?) = (
+            coreDataStack.rootContext.create(Employee.self, error: &optionalError),
+            coreDataStack.rootContext.create(Employee.self, error: &optionalError),
+            coreDataStack.rootContext.create(Employee.self, error: &optionalError)
+        )
+        XCTAssertNil(optionalError, "Unexpected error")
+
+        switch optionalEmployees {
+        case let (.Some(employee0), .Some(employee1), .Some(employee2)):
+            employee0.name = "Rachel Zane 2"
+            employee1.name = "Rachel Zane 1"
+            employee2.name = "Mike Ross"
+
+        default:
+            XCTFail("Missing managed object")
+        }
+
+        let predicate = NSPredicate(format: "name contains %@", argumentArray: ["Rachel Zane"])
+        let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        let optionalFoundEmployees: [Employee]? = coreDataStack.rootContext.find(Employee.self, predicate: predicate, sortDescriptors: sortDescriptors, limit: nil, error: &optionalError)
+        XCTAssertNil(optionalError, "Unexpected error")
+        XCTAssertNotNil(optionalFoundEmployees, "Missing results")
+
+        if let foundEmployees = optionalFoundEmployees {
+            XCTAssertEqual(foundEmployees.count, 2, "Incorrect number of results")
+
+            XCTAssertEqual(foundEmployees[0].name, "Rachel Zane 1", "Incorrect order")
+            XCTAssertEqual(foundEmployees[1].name, "Rachel Zane 2", "Incorrect order")
+        }
+    }
 }
 
