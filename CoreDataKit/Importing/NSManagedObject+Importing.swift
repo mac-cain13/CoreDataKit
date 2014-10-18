@@ -1,5 +1,5 @@
 //
-//  NSManagedObject.swift
+//  NSManagedObject+Importing.swift
 //  CoreDataKit
 //
 //  Created by Mathijs Kadijk on 14-10-14.

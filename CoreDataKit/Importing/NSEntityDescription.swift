@@ -8,7 +8,7 @@
 
 import CoreData
 
-let IdentifierUserInfoKey = "CDKIdentifier"
+let IdentifierUserInfoKey = "CDKId"
 
 extension NSEntityDescription
 {

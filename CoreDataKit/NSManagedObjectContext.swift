@@ -172,6 +172,39 @@ extension NSManagedObjectContext
 // MARK: - Finding
 
     /**
+    Looks the given managed object up in this context
+    
+    :param: managedObject Object from other context
+    :error: error           Error if not succesful
+
+    :returns: The object in this context or nil if not found
+    */
+    public func convert<T:NSManagedObject>(managedObject: T, error: NSErrorPointer) -> T? {
+        // First make sure we have a permanent ID for this object
+        if (managedObject.objectID.temporaryID) {
+            obtainPermanentIDsForObjects([managedObject], error: error)
+        }
+
+        if let managedObjectInContext = existingObjectWithID(managedObject.objectID, error: error) {
+            return managedObjectInContext as? T
+        }
+
+        return nil
+    }
+
+    /**
+    Find all entities of a certain type
+    
+    :param: entity          Type of entity to search for
+    :error: error           Error if not succesful
+
+    :returns: Array of entities found, empty array on no results, nil on error
+    */
+    public func all<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> [T]? {
+        return find(entity, predicate: nil, sortDescriptors: nil, limit: nil, error: error)
+    }
+
+    /**
     Find entities of a certain type in this context
     
     :param: entity          Type of entity to search for
@@ -182,7 +215,7 @@ extension NSManagedObjectContext
     
     :returns: Array of entities found, empty array on no results, nil on error
     */
-    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, error: NSErrorPointer = nil) -> [T]? {
+    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, error: NSErrorPointer) -> [T]? {
         if let entityDescription = entityDescription(entity, error: error) {
             let fetchRequest = NSFetchRequest()
             fetchRequest.entity = entityDescription

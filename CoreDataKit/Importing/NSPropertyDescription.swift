@@ -8,7 +8,7 @@
 
 import CoreData
 
-let MappingUserInfoKey = "CDKMapping"
+let MappingUserInfoKey = "CDKMap"
 let MaxNumberedMappings = 10
 
 extension NSPropertyDescription

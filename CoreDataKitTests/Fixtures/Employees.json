@@ -1,0 +1,5 @@
+[
+ { "name": "A", "checkName": "A" },
+ { "naam": "B", "name": "WRONG NAME FIELD: name", "checkName": "B" },
+ { "nome": "C", "naam": "WRONG NAME FIELD: naam", "name": "WRONG NAME FIELD: name", "checkName": "C" },
+]

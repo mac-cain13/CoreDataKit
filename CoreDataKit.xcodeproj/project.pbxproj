@@ -30,7 +30,9 @@
 		D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */; };
 		D5D7C6D91958B9300048B576 /* CoreDataKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6D81958B9300048B576 /* CoreDataKit.swift */; };
 		D5EDACE319EF950B00FAC712 /* NSPersistentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */; };
-		D5FD050619EFF76A00AC0F9F /* NSManagedObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FD050519EFF76A00AC0F9F /* NSManagedObjectTests.swift */; };
+		D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */ = {isa = PBXBuildFile; fileRef = D5FE0FBD19F28340008DC1ED /* Employees.json */; };
+		D5FE0FC019F286DF008DC1ED /* NSManagedObject+ImportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */; };
+		D5FE0FC419F29FFD008DC1ED /* EmployeeImportable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,7 +72,9 @@
 		D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataKitTests.swift; sourceTree = "<group>"; };
 		D5D7C6D81958B9300048B576 /* CoreDataKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataKit.swift; sourceTree = "<group>"; };
 		D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreTests.swift; sourceTree = "<group>"; };
-		D5FD050519EFF76A00AC0F9F /* NSManagedObjectTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSManagedObjectTests.swift; sourceTree = "<group>"; };
+		D5FE0FBD19F28340008DC1ED /* Employees.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Employees.json; sourceTree = "<group>"; };
+		D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObject+ImportingTests.swift"; sourceTree = "<group>"; };
+		D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeImportable.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,7 +114,9 @@
 			children = (
 				D595F67B19EEDE3100D73790 /* Model.xcdatamodeld */,
 				D595F67E19EEDE6000D73790 /* Employee.swift */,
+				D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */,
 				D5253DA619F1591000E8B4AF /* EmployeeIncorrectEntityName.swift */,
+				D5FE0FBD19F28340008DC1ED /* Employees.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -184,7 +190,7 @@
 		D5FD050419EFF68200AC0F9F /* Importing */ = {
 			isa = PBXGroup;
 			children = (
-				D5FD050519EFF76A00AC0F9F /* NSManagedObjectTests.swift */,
+				D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */,
 			);
 			path = Importing;
 			sourceTree = "<group>";
@@ -286,6 +292,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -319,13 +326,14 @@
 				D5093C6A19EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift in Sources */,
 				D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */,
 				D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */,
+				D5FE0FC419F29FFD008DC1ED /* EmployeeImportable.swift in Sources */,
 				D5253DA719F1591000E8B4AF /* EmployeeIncorrectEntityName.swift in Sources */,
 				D595F68319EEE23000D73790 /* TestCase.swift in Sources */,
 				D5EDACE319EF950B00FAC712 /* NSPersistentStoreTests.swift in Sources */,
 				D595F67F19EEDE6000D73790 /* Employee.swift in Sources */,
 				D5C6C63F19EEC6D60035BFFF /* NSManagedObjectContextTests.swift in Sources */,
 				D595F68119EEE17B00D73790 /* Model.xcdatamodeld in Sources */,
-				D5FD050619EFF76A00AC0F9F /* NSManagedObjectTests.swift in Sources */,
+				D5FE0FC019F286DF008DC1ED /* NSManagedObject+ImportingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

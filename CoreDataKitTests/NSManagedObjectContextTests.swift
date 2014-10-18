@@ -134,18 +134,7 @@ class NSManagedObjectContextTests: TestCase {
 
 // MARK: - Finding
 
-    func testFindEmployeesWithoutAnythingInserted() {
-        var optionalError: NSError?
-        let optionalAllEmployees = coreDataStack.rootContext.find(Employee.self, predicate: nil, sortDescriptors: nil, limit: nil, error: &optionalError)
-        XCTAssertNotNil(optionalAllEmployees, "Missing results")
-        XCTAssertNil(optionalError, "Unexpected error")
-
-        if let allEmployees = optionalAllEmployees {
-            XCTAssertEqual(allEmployees.count, 0, "Incorrect number of results")
-        }
-    }
-
-    func testFindEmployeesWithOneEmployeeInserted() {
+    func testAllEmployeesWithOneEmployeeInserted() {
         var optionalError: NSError?
         let optionalEmployee = coreDataStack.rootContext.create(Employee.self, error: &optionalError)
         XCTAssertNotNil(optionalEmployee, "Missing managed object")
@@ -154,7 +143,7 @@ class NSManagedObjectContextTests: TestCase {
         if let employee = optionalEmployee {
             employee.name = "Rachel Zane"
 
-            let optionalAllEmployees: [Employee]? = coreDataStack.rootContext.find(Employee.self)
+            let optionalAllEmployees: [Employee]? = coreDataStack.rootContext.all(Employee.self, error: nil)
             XCTAssertNotNil(optionalAllEmployees, "Missing results")
 
             if let allEmployees = optionalAllEmployees {
@@ -164,6 +153,17 @@ class NSManagedObjectContextTests: TestCase {
                     XCTAssertEqual(firstEmployee.name, "Rachel Zane", "Incorrect employee name")
                 }
             }
+        }
+    }
+
+    func testFindEmployeesWithoutAnythingInserted() {
+        var optionalError: NSError?
+        let optionalAllEmployees = coreDataStack.rootContext.find(Employee.self, predicate: nil, sortDescriptors: nil, limit: nil, error: &optionalError)
+        XCTAssertNotNil(optionalAllEmployees, "Missing results")
+        XCTAssertNil(optionalError, "Unexpected error")
+
+        if let allEmployees = optionalAllEmployees {
+            XCTAssertEqual(allEmployees.count, 0, "Incorrect number of results")
         }
     }
 
