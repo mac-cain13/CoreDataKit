@@ -132,6 +132,14 @@ extension NSManagedObjectContext
 
 // MARK: - Creating
 
+    /**
+    Create and insert an entity into this context
+    
+    :param: entity Type of entity to create
+    :param: error  Error if not succesful
+    
+    :returns: Entity of the given type
+    */
     public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> T?
     {
         if let entityDescription = entityDescription(entity, error: error) {
@@ -141,12 +149,22 @@ extension NSManagedObjectContext
         return nil
     }
 
+    /**
+    Get description of an entity
+
+    :param: entity Type of entity to describe
+    :param: error  Error if not succesful
+
+    :returns: Entity description of the given type
+    */
     func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> NSEntityDescription?
     {
         if let entityDescription = NSEntityDescription.entityForName(entity.entityName, inManagedObjectContext: self) {
             return entityDescription
         } else {
-            error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description for entity name '\(entity.entityName)' not found"])
+            if nil != error {
+                error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description for entity name '\(entity.entityName)' not found"])
+            }
             return nil
         }
     }
