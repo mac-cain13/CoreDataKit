@@ -3,7 +3,19 @@
     <entity name="Employee" representedClassName="CoreDataKitTests.Employee" syncable="YES">
         <attribute name="name" attributeType="String" syncable="YES"/>
     </entity>
+    <entity name="EmployeeImportable" representedClassName="CoreDataKitTests.EmployeeImportable" syncable="YES">
+        <attribute name="name" attributeType="String" syncable="YES">
+            <userInfo>
+                <entry key="CDKMap" value="nome"/>
+                <entry key="CDKMap.0" value="naam"/>
+            </userInfo>
+        </attribute>
+        <userInfo>
+            <entry key="CDKId" value="name"/>
+        </userInfo>
+    </entity>
     <elements>
         <element name="Employee" positionX="-63" positionY="-18" width="128" height="60"/>
+        <element name="EmployeeImportable" positionX="-63" positionY="-9" width="128" height="58"/>
     </elements>
 </model>
