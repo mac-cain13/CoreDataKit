@@ -48,4 +48,16 @@ public class CoreDataKit : NSObject
     public class var mainThreadContext: NSManagedObjectContext {
         return sharedStack!.mainThreadContext
     }
+
+    /**
+    Creates a child context with the root context of the shared stack as parent and performs the given block on the created context.
+
+    :param: block       Block that performs the changes on the given context that should be saved
+    :param: completion  Completion block to run after changes are saved
+
+    :see: NSManagedObjectContext.performBlock()
+    */
+    public class func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
+        sharedStack!.performBlockOnBackgroundContext(block, completionHandler: completionHandler)
+    }
 }

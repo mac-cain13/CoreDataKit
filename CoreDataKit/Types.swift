@@ -23,12 +23,22 @@ public enum CoreDataKitErrorCode: Int {
     case ImportCancelled
 }
 
+//protocol CommitAction {}
+
+public enum CommitAction {
+    case DoNothing
+    case SaveToParentContext
+    case SaveToPersistentStore
+//    case Undo
+//    case RollbackAllChanges
+}
+
 /**
 Blocktype used to perform changes on a `NSManagedObjectContext`.
 
 :param: context The context to perform your changes on
 */
-public typealias PerformChangesBlock = (NSManagedObjectContext) -> Void
+public typealias PerformBlock = (NSManagedObjectContext) -> CommitAction
 
 /**
 Blocktype used to handle completion.
@@ -36,3 +46,5 @@ Blocktype used to handle completion.
 :param: error The error that occurred or nil if operation was successful
 */
 public typealias CompletionHandler = (NSError?) -> Void
+
+public typealias PerformBlockCompletionHandler = (CommitAction, NSError?) -> Void

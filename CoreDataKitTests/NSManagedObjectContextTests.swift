@@ -47,10 +47,12 @@ class NSManagedObjectContextTests: TestCase {
         let countFRq = NSFetchRequest(entityName: "Employee")
         XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
 
-        coreDataStack.rootContext.performBlockAndSaveToPersistentStore({ (context) -> Void in
+        coreDataStack.rootContext.createChildContext().performBlock({ (context) -> CommitAction in
             let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
             employee.name = "Mike Ross"
-        }, completionHandler: { (optionalError) -> Void in
+
+            return .SaveToPersistentStore
+        }, completionHandler: { (commitAction, optionalError) -> Void in
             XCTAssertNil(optionalError, "Unexpected error")
             XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 1, "Unexpected employee entity count")
             completionExpectation.fulfill()
@@ -65,13 +67,14 @@ class NSManagedObjectContextTests: TestCase {
         let countFRq = NSFetchRequest(entityName: "Employee")
         XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
 
-        coreDataStack.rootContext.performBlockAndSaveToPersistentStore({ (context) -> Void in
-            let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
-            }, completionHandler: { (optionalError) -> Void in
-                XCTAssertNotNil(optionalError, "Expected error")
-                XCTAssertEqual(optionalError!.code, 1570, "Incorrect error code")
-                XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
-                completionExpectation.fulfill()
+        coreDataStack.rootContext.createChildContext().performBlock({ (context) -> CommitAction in
+            NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context)
+            return .SaveToParentContext
+        }, completionHandler: { (commitAction, optionalError) -> Void in
+            XCTAssertNotNil(optionalError, "Expected error")
+            XCTAssertEqual(optionalError!.code, 1570, "Incorrect error code")
+            XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+            completionExpectation.fulfill()
         })
 
         waitForExpectationsWithTimeout(3, handler: nil)
