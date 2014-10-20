@@ -80,7 +80,6 @@ extension NSManagedObjectContext
                     completionHandler?(commitAction, $0)
                     return
                 }
-                rollback()
             }
         }
     }
