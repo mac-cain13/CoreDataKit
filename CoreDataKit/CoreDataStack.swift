@@ -29,4 +29,16 @@ public class CoreDataStack: NSObject {
         rootContext = NSManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
     }
+
+    /**
+    Creates a child context with the root context as parent and performs the given block on the created context.
+    
+    :param: block       Block that performs the changes on the given context that should be saved
+    :param: completion  Completion block to run after changes are saved
+
+    :see: NSManagedObjectContext.performBlock()
+    */
+    public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
+        rootContext.createChildContext().performBlock(block, completionHandler: completionHandler)
+    }
 }
