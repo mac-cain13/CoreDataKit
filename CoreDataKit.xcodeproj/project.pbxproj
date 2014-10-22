@@ -33,6 +33,9 @@
 		D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */ = {isa = PBXBuildFile; fileRef = D5FE0FBD19F28340008DC1ED /* Employees.json */; };
 		D5FE0FC019F286DF008DC1ED /* NSManagedObject+ImportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */; };
 		D5FE0FC419F29FFD008DC1ED /* EmployeeImportable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */; };
+		D5FE0FC619F4E0D3008DC1ED /* Car.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC519F4E0D3008DC1ED /* Car.swift */; };
+		D5FE0FC819F4E0D4008DC1ED /* EmployeeWithRelations.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */; };
+		D5FE0FCC19F4EAC6008DC1ED /* EmployeesWithRelations.json in Resources */ = {isa = PBXBuildFile; fileRef = D5FE0FCB19F4EAC6008DC1ED /* EmployeesWithRelations.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +78,9 @@
 		D5FE0FBD19F28340008DC1ED /* Employees.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Employees.json; sourceTree = "<group>"; };
 		D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObject+ImportingTests.swift"; sourceTree = "<group>"; };
 		D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeImportable.swift; sourceTree = "<group>"; };
+		D5FE0FC519F4E0D3008DC1ED /* Car.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Car.swift; sourceTree = "<group>"; };
+		D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeWithRelations.swift; sourceTree = "<group>"; };
+		D5FE0FCB19F4EAC6008DC1ED /* EmployeesWithRelations.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = EmployeesWithRelations.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,10 +119,13 @@
 			isa = PBXGroup;
 			children = (
 				D595F67B19EEDE3100D73790 /* Model.xcdatamodeld */,
+				D5FE0FC519F4E0D3008DC1ED /* Car.swift */,
 				D595F67E19EEDE6000D73790 /* Employee.swift */,
 				D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */,
 				D5253DA619F1591000E8B4AF /* EmployeeIncorrectEntityName.swift */,
+				D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */,
 				D5FE0FBD19F28340008DC1ED /* Employees.json */,
+				D5FE0FCB19F4EAC6008DC1ED /* EmployeesWithRelations.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -293,6 +302,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */,
+				D5FE0FCC19F4EAC6008DC1ED /* EmployeesWithRelations.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,7 +334,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5093C6A19EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift in Sources */,
+				D5FE0FC819F4E0D4008DC1ED /* EmployeeWithRelations.swift in Sources */,
 				D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */,
+				D5FE0FC619F4E0D3008DC1ED /* Car.swift in Sources */,
 				D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */,
 				D5FE0FC419F29FFD008DC1ED /* EmployeeImportable.swift in Sources */,
 				D5253DA719F1591000E8B4AF /* EmployeeIncorrectEntityName.swift in Sources */,

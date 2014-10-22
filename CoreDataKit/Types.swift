@@ -19,6 +19,12 @@ public enum CoreDataKitErrorCode: Int {
     /// Entity description could not be found
     case EntityDescriptionNotFound
 
+    /// Idenifying attribute could not be found
+    case IdentifyingAttributeNotFound
+
+    /// Relationship property could not be found
+    case RelationshipPropertyNotFound
+
     /// Import was cancelled
     case ImportCancelled
 }

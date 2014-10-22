@@ -41,9 +41,10 @@ extension NSPropertyDescription
         return _mappings
     }
 
+    /// Looks at the available mappings and takes the preferred value out of the given dictionary based on those mappings
     func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> AnyObject? {
-        for key in mappings {
-            if let value: AnyObject = dictionary[key] {
+        for keyPath in mappings {
+            if let value: AnyObject = (dictionary as NSDictionary).valueForKeyPath(keyPath) {
                 return value
             }
         }

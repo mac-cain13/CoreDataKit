@@ -12,15 +12,19 @@ let IdentifierUserInfoKey = "CDKId"
 
 extension NSEntityDescription
 {
-    var identifyingAttribute: NSAttributeDescription? {
-        if let identifyingAttribute = userInfo?[IdentifierUserInfoKey] as? String {
-            return self.attributesByName[identifyingAttribute] as? NSAttributeDescription
+    func identifyingAttribute(error: NSErrorPointer) -> NSAttributeDescription? {
+        if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
+            if let identifyingAttribute = self.attributesByName[identifyingAttributeName] as? NSAttributeDescription {
+                return identifyingAttribute
+            } else if nil != error {
+                error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name"])
+            }
         } else if let superEntity = self.superentity {
-            println("[CoreDataKit] Info: \(IdentifierUserInfoKey) not found on \(self), looking up on super entity...")
-            return superEntity.identifyingAttribute
+            return superEntity.identifyingAttribute(error)
+        } else if nil != error {
+            error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "No \(IdentifierUserInfoKey) value found on \(name)"])
         }
 
-        println("[CoreDataKit] Warning: \(IdentifierUserInfoKey) not found on \(self)")
         return nil
     }
 }

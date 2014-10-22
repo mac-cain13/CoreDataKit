@@ -146,10 +146,23 @@ extension NSManagedObjectContext
     public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, error: NSErrorPointer) -> T?
     {
         if let entityDescription = entityDescription(entity, error: error) {
-            return entity(entity: entityDescription, insertIntoManagedObjectContext: self)
+            return create(entityDescription)
         }
 
         return nil
+    }
+
+    func create<T:NSManagedObject>(entityDescription: NSEntityDescription) -> T?
+    {
+        if let entityName = entityDescription.name {
+            return insertIntoContext(entityName) as T
+        }
+
+        return nil
+    }
+
+    private func insertIntoContext<T:NSManagedObject>(entityName: String) -> T {
+        return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as T
     }
 
     /**
@@ -170,6 +183,19 @@ extension NSManagedObjectContext
             }
             return nil
         }
+    }
+
+// MARK: - Deleting
+
+    /**
+    Delete object from this context
+    
+    :param: managedObject Object to delete
+    :param: error         Error if not succesful
+    */
+    func delete(managedObject: NSManagedObject, error: NSErrorPointer) {
+        obtainPermanentIDsForObjects([managedObject], error: error)
+        deleteObject(managedObject)
     }
 
 // MARK: - Finding
@@ -220,16 +246,20 @@ extension NSManagedObjectContext
     */
     public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, error: NSErrorPointer) -> [T]? {
         if let entityDescription = entityDescription(entity, error: error) {
-            let fetchRequest = NSFetchRequest()
-            fetchRequest.entity = entityDescription
-            fetchRequest.predicate = predicate
-            fetchRequest.sortDescriptors = sortDescriptors
-            fetchRequest.fetchLimit = limit ?? 0
-            fetchRequest.returnsObjectsAsFaults = true
-
-            return executeFetchRequest(fetchRequest, error: error)?.map { $0 as T }
+            return find(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit, error: error)
         }
 
         return nil
+    }
+
+    func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, error: NSErrorPointer) -> [T]? {
+        let fetchRequest = NSFetchRequest()
+        fetchRequest.entity = entityDescription
+        fetchRequest.predicate = predicate
+        fetchRequest.sortDescriptors = sortDescriptors
+        fetchRequest.fetchLimit = limit ?? 0
+        fetchRequest.returnsObjectsAsFaults = true
+
+        return executeFetchRequest(fetchRequest, error: error)?.map { $0 as T }
     }
 }

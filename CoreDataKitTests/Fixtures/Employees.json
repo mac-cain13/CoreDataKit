@@ -1,5 +1,5 @@
 [
- { "name": "A", "checkName": "A" },
- { "naam": "B", "name": "WRONG NAME FIELD: name", "checkName": "B" },
- { "nome": "C", "naam": "WRONG NAME FIELD: naam", "name": "WRONG NAME FIELD: name", "checkName": "C" },
+ { "name": "A", "age": 32, "checkName": "A", "checkAge": 32 },
+ { "naam": "B", "name": "WRONG NAME FIELD: name", "age": 32, "checkName": "B", "checkAge": 32 },
+ { "nome": "C", "naam": "WRONG NAME FIELD: naam", "name": "WRONG NAME FIELD: name", "age": 32, "checkName": "C", "checkAge": 32 },
 ]

@@ -56,7 +56,9 @@ extension NSDate {
     }
 
     class func decode(json : AnyObject) -> NSDate? {
-        if let dateString = json as? String {
+        if let date = json as? NSDate {
+            return date
+        } else if let dateString = json as? String {
             return DateFormatter.withTimeZone.dateFromString(dateString)
         }
 
