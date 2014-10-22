@@ -18,6 +18,7 @@
 		D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */; };
 		D566F6AE19F0DCA0003C503F /* NSPropertyDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D566F6AD19F0DCA0003C503F /* NSPropertyDescription.swift */; };
 		D566F6B219F0F277003C503F /* JsonDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D566F6B119F0F277003C503F /* JsonDecode.swift */; };
+		D58D29D919F83604006D3B07 /* EmployeesNestedRelation.json in Resources */ = {isa = PBXBuildFile; fileRef = D58D29D819F83604006D3B07 /* EmployeesNestedRelation.json */; };
 		D595F67F19EEDE6000D73790 /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F67E19EEDE6000D73790 /* Employee.swift */; };
 		D595F68119EEE17B00D73790 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D595F67B19EEDE3100D73790 /* Model.xcdatamodeld */; };
 		D595F68319EEE23000D73790 /* TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F68219EEE23000D73790 /* TestCase.swift */; };
@@ -35,7 +36,7 @@
 		D5FE0FC419F29FFD008DC1ED /* EmployeeImportable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */; };
 		D5FE0FC619F4E0D3008DC1ED /* Car.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC519F4E0D3008DC1ED /* Car.swift */; };
 		D5FE0FC819F4E0D4008DC1ED /* EmployeeWithRelations.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */; };
-		D5FE0FCC19F4EAC6008DC1ED /* EmployeesWithRelations.json in Resources */ = {isa = PBXBuildFile; fileRef = D5FE0FCB19F4EAC6008DC1ED /* EmployeesWithRelations.json */; };
+		D5FE0FCC19F4EAC6008DC1ED /* EmployeesReferencedRelation.json in Resources */ = {isa = PBXBuildFile; fileRef = D5FE0FCB19F4EAC6008DC1ED /* EmployeesReferencedRelation.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,7 @@
 		D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStackTests.swift; sourceTree = "<group>"; };
 		D566F6AD19F0DCA0003C503F /* NSPropertyDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPropertyDescription.swift; sourceTree = "<group>"; };
 		D566F6B119F0F277003C503F /* JsonDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonDecode.swift; sourceTree = "<group>"; };
+		D58D29D819F83604006D3B07 /* EmployeesNestedRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = EmployeesNestedRelation.json; sourceTree = "<group>"; };
 		D595F67C19EEDE3100D73790 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		D595F67E19EEDE6000D73790 /* Employee.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
 		D595F68219EEE23000D73790 /* TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCase.swift; sourceTree = "<group>"; };
@@ -80,7 +82,7 @@
 		D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeImportable.swift; sourceTree = "<group>"; };
 		D5FE0FC519F4E0D3008DC1ED /* Car.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Car.swift; sourceTree = "<group>"; };
 		D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeWithRelations.swift; sourceTree = "<group>"; };
-		D5FE0FCB19F4EAC6008DC1ED /* EmployeesWithRelations.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = EmployeesWithRelations.json; sourceTree = "<group>"; };
+		D5FE0FCB19F4EAC6008DC1ED /* EmployeesReferencedRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = EmployeesReferencedRelation.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,7 +127,8 @@
 				D5253DA619F1591000E8B4AF /* EmployeeIncorrectEntityName.swift */,
 				D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */,
 				D5FE0FBD19F28340008DC1ED /* Employees.json */,
-				D5FE0FCB19F4EAC6008DC1ED /* EmployeesWithRelations.json */,
+				D58D29D819F83604006D3B07 /* EmployeesNestedRelation.json */,
+				D5FE0FCB19F4EAC6008DC1ED /* EmployeesReferencedRelation.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -302,7 +305,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */,
-				D5FE0FCC19F4EAC6008DC1ED /* EmployeesWithRelations.json in Resources */,
+				D5FE0FCC19F4EAC6008DC1ED /* EmployeesReferencedRelation.json in Resources */,
+				D58D29D919F83604006D3B07 /* EmployeesNestedRelation.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

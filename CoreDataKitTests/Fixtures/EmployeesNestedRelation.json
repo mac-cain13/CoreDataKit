@@ -1,0 +1,8 @@
+{
+    "name": "Mike Ross",
+    "age": 32,
+    "car": {
+        "plate": "YY-YY-YY",
+        "color": "red"
+    }
+}

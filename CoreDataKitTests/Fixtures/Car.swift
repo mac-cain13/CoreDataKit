@@ -8,11 +8,13 @@
 
 import Foundation
 import CoreData
+import CoreDataKit
 
-class Car: NSManagedObject {
+class Car: NSManagedObject, NamedManagedObject {
 
     @NSManaged var plate: String
     @NSManaged var color: String
     @NSManaged var owners: NSSet
 
+    class var entityName: String { return "Car" }
 }

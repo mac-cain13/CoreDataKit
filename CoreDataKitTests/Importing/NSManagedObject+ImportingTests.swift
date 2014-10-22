@@ -29,8 +29,8 @@ class NSManagedObjectTests: TestCase {
         }
     }
 
-    func testImportWithRelations() {
-        if let jsonObject = loadJSONFile("EmployeesWithRelations")? as? [String: AnyObject] {
+    func testImportWithNestedRelation() {
+        if let jsonObject = loadJSONFile("EmployeesNestedRelation")? as? [String: AnyObject] {
             var optionalError: NSError?
             let optionalImportResult = coreDataStack.rootContext.importEntity(EmployeeWithRelations.self, dictionary: jsonObject, error: &optionalError)
             XCTAssertNil(optionalError, "Unexpected error")
@@ -47,7 +47,59 @@ class NSManagedObjectTests: TestCase {
                 }
             }
         } else {
-            XCTFail("Missing EmployeesWithRelations.json fixture")
+            XCTFail("Missing EmployeesNestedRelation.json fixture")
+        }
+    }
+
+    func testImportWithExistingReferencedRelation() {
+        // Prep context with car
+        var optionalError: NSError?
+        let createdCar = coreDataStack.rootContext.create(Car.self, error: &optionalError)
+        XCTAssertNil(optionalError, "Unexpected error")
+        XCTAssertNotNil(createdCar, "Missing car")
+
+        createdCar?.plate = "ZZ-ZZ-ZZ"
+        createdCar?.color = "brown"
+
+        if let jsonObject = loadJSONFile("EmployeesReferencedRelation")? as? [String: AnyObject] {
+            let optionalImportResult = coreDataStack.rootContext.importEntity(EmployeeWithRelations.self, dictionary: jsonObject, error: &optionalError)
+            XCTAssertNil(optionalError, "Unexpected error")
+            XCTAssertNotNil(optionalImportResult, "Missing import result: \(jsonObject) / \(optionalImportResult) / \(optionalError?)")
+
+            if let importResult = optionalImportResult {
+                XCTAssertEqual(importResult.name, "Mike Ross", "Unexpected name")
+                XCTAssertEqual(importResult.age, 23, "Unexpected age")
+                XCTAssertEqual(importResult.cars.count, 1, "Unexpected count of cars")
+
+                if let car = importResult.cars.anyObject() as? Car {
+                    XCTAssertEqual(car.plate, "ZZ-ZZ-ZZ", "Unexpected plate")
+                    XCTAssertEqual(car.color, "brown", "Unexpected color")
+                }
+            }
+        } else {
+            XCTFail("Missing EmployeesReferencedRelation.json fixture")
+        }
+    }
+
+    func testImportWithUnexistingReferencedRelation() {
+        if let jsonObject = loadJSONFile("EmployeesReferencedRelation")? as? [String: AnyObject] {
+            var optionalError: NSError?
+            let optionalImportResult = coreDataStack.rootContext.importEntity(EmployeeWithRelations.self, dictionary: jsonObject, error: &optionalError)
+            XCTAssertNil(optionalError, "Unexpected error")
+            XCTAssertNotNil(optionalImportResult, "Missing import result: \(jsonObject) / \(optionalImportResult) / \(optionalError?)")
+
+            if let importResult = optionalImportResult {
+                XCTAssertEqual(importResult.name, "Mike Ross", "Unexpected name")
+                XCTAssertEqual(importResult.age, 23, "Unexpected age")
+                XCTAssertEqual(importResult.cars.count, 0, "Unexpected count of cars")
+
+                if let car = importResult.cars.anyObject() as? Car {
+                    XCTAssertEqual(car.plate, "YY-YY-YY", "Unexpected plate")
+                    XCTAssertEqual(car.color, "red", "Unexpected color")
+                }
+            }
+        } else {
+            XCTFail("Missing EmployeesReferencedRelation.json fixture")
         }
     }
 

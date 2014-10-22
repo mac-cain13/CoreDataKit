@@ -46,7 +46,7 @@ extension NSManagedObjectContext
         return nil
     }
 
-    private func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject, error: NSErrorPointer) -> T? {
+    func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject, error: NSErrorPointer) -> T? {
         if let identifyingAttribute = entityDescription.identifyingAttribute(error)
         {
             let predicate = NSPredicate(format: "%K = %@", argumentArray: [identifyingAttribute.name, identifyingValue])

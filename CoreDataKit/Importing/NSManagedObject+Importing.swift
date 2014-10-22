@@ -47,15 +47,7 @@ extension NSManagedObject
             case let (relationshipDescription as NSRelationshipDescription, dictValue as [String: AnyObject]):
                 if let destinationEntity = relationshipDescription.destinationEntity {
                     if let importedObject = managedObjectContext?.importEntity(destinationEntity, dictionary: dictValue, error: error) {
-                        if (relationshipDescription.toMany) {
-                            if let objectSet = valueForKey(relationshipDescription.name) as? NSMutableSet {
-                                objectSet.addObject(importedObject)
-                            } else if (nil != error) {
-                                error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.RelationshipPropertyNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Can't append imported object to to-many relation '\(entity.name).\(relationshipDescription.name)' because it's not a NSMutableSet"])
-                            }
-                        } else {
-                            setValue(importedObject, forKey: relationshipDescription.name)
-                        }
+                        addObjectToRelationship(importedObject, relationship: relationshipDescription, error: error)
                     }
                 }
 
@@ -63,20 +55,34 @@ extension NSManagedObject
             case let (relationshipDescription as NSRelationshipDescription, dictValue as [AnyObject]):
                 let noop = 0 // TODO
 
-            // References relationship
-            case let (relationshipDescription as NSRelationshipDescription, dictValue as String):
-                let noop = 0 // TODO
-            case let (relationshipDescription as NSRelationshipDescription, dictValue as NSNumber):
-                let noop = 0 // TODO
+            // Referenced relationship
+            case let (relationshipDescription as NSRelationshipDescription, .Some(value)):
+                if let destinationEntity = relationshipDescription.destinationEntity {
+                    if let relatedObject = managedObjectContext?.findEntityByIdentifyingAttribute(destinationEntity, identifyingValue: value, error: error) {
+                        addObjectToRelationship(relatedObject, relationship: relationshipDescription, error: error)
+                    }
+                }
 
             // Anything invalid
             default:
-                let noop = 0 // TODO
+                break
             }
         }
     }
 
     public func didImport(dictionary: [String : AnyObject]) {
         // No-op
+    }
+
+    private func addObjectToRelationship(object: NSManagedObject, relationship: NSRelationshipDescription, error: NSErrorPointer) {
+        if (relationship.toMany) {
+            if let objectSet = valueForKey(relationship.name) as? NSMutableSet {
+                objectSet.addObject(object)
+            } else if (nil != error) {
+                error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.RelationshipPropertyNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Can't append imported object to to-many relation '\(entity.name).\(relationship.name)' because it's not a NSMutableSet"])
+            }
+        } else {
+            setValue(object, forKey: relationship.name)
+        }
     }
 }
