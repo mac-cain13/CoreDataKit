@@ -51,9 +51,9 @@ extension NSManagedObject
                     }
                 }
 
-            // Multiple referenced / nested relationship
+            // Multiple referenced / nested relationships
             case let (relationshipDescription as NSRelationshipDescription, dictValue as [AnyObject]):
-                let noop = 0 // TODO
+                println("[CoreDataKit] Multiple referenced / nested relationships not yet supported") // TODO
 
             // Referenced relationship
             case let (relationshipDescription as NSRelationshipDescription, .Some(value)):
