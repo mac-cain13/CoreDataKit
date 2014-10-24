@@ -13,6 +13,7 @@
     </entity>
     <entity name="EmployeeImportable" representedClassName="CoreDataKitTests.EmployeeImportable" syncable="YES">
         <attribute name="age" attributeType="Integer 32" syncable="YES"/>
+        <attribute name="haircolor" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" attributeType="String" syncable="YES">
             <userInfo>
                 <entry key="CDKMap" value="nome"/>
@@ -41,7 +42,7 @@
     <elements>
         <element name="Car" positionX="-36" positionY="18" width="128" height="88"/>
         <element name="Employee" positionX="-63" positionY="-18" width="128" height="60"/>
-        <element name="EmployeeImportable" positionX="-63" positionY="-9" width="128" height="75"/>
+        <element name="EmployeeImportable" positionX="-63" positionY="-9" width="128" height="90"/>
         <element name="EmployeeWithRelations" positionX="-54" positionY="9" width="128" height="88"/>
     </elements>
 </model>

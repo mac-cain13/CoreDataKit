@@ -29,6 +29,64 @@ class NSManagedObjectTests: TestCase {
         }
     }
 
+    func testImportDictionaryWithNull() {
+        // Prep context with car
+        var optionalError: NSError?
+        let createdEmployee = coreDataStack.rootContext.create(EmployeeImportable.self, error: &optionalError)
+        XCTAssertNil(optionalError, "Unexpected error")
+        XCTAssertNotNil(createdEmployee, "Missing employee")
+
+        createdEmployee?.name = "Haircolor Nulled"
+        createdEmployee?.age = 100
+        createdEmployee?.haircolor = "Yellow"
+
+        if let jsonObject = loadJSONFile("EmployeesWithNull")? as? [String: AnyObject] {
+            var optionalError: NSError?
+            let optionalImportResult = coreDataStack.rootContext.importEntity(EmployeeImportable.self, dictionary: jsonObject, error: &optionalError)
+            XCTAssertNil(optionalError, "Unexpected error")
+            XCTAssertNotNil(optionalImportResult, "Missing import result")
+
+            if let importResult = optionalImportResult {
+                XCTAssertEqual(importResult.name, "Haircolor Nulled", "Unexpected name")
+                XCTAssertEqual(importResult.age, 100, "Unexpected age")
+                XCTAssertNil(importResult.haircolor, "Unexpected haircolor")
+            }
+        } else {
+            XCTFail("Missing EmployeesWithNull.json fixture")
+        }
+    }
+
+    func testImportDictionaryWithOmittedField() {
+        // Prep context with car
+        var optionalError: NSError?
+        let createdEmployee = coreDataStack.rootContext.create(EmployeeImportable.self, error: &optionalError)
+        XCTAssertNil(optionalError, "Unexpected error")
+        XCTAssertNotNil(createdEmployee, "Missing employee")
+
+        createdEmployee?.name = "Haircolor Omitted"
+        createdEmployee?.age = 100
+        createdEmployee?.haircolor = "Yellow"
+
+        if let jsonObject = loadJSONFile("EmployeesWithOmittedField")? as? [String: AnyObject] {
+            var optionalError: NSError?
+            let optionalImportResult = coreDataStack.rootContext.importEntity(EmployeeImportable.self, dictionary: jsonObject, error: &optionalError)
+            XCTAssertNil(optionalError, "Unexpected error")
+            XCTAssertNotNil(optionalImportResult, "Missing import result")
+
+            if let importResult = optionalImportResult {
+                XCTAssertEqual(importResult.name, "Haircolor Omitted", "Unexpected name")
+                XCTAssertEqual(importResult.age, 200, "Unexpected age")
+                if let haircolor = importResult.haircolor {
+                    XCTAssertEqual(importResult.haircolor!, "Yellow", "Unexpected haircolor")
+                } else {
+                    XCTFail("Missing haircolor")
+                }
+            }
+        } else {
+            XCTFail("Missing EmployeesWithOmittedField.json fixture")
+        }
+    }
+
     func testImportWithNestedRelation() {
         if let jsonObject = loadJSONFile("EmployeesNestedRelation")? as? [String: AnyObject] {
             var optionalError: NSError?

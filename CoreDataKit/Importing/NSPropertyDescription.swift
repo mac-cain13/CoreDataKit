@@ -8,8 +8,23 @@
 
 import CoreData
 
+/// Key used to defined mapping in CoreData user info
 let MappingUserInfoKey = "CDKMap"
+
+/// Maximum of numbered MappingUserInfoKey
 let MaxNumberedMappings = 10
+
+/// Value extracted from source that can be imported
+enum ImportableValue {
+    // Some value is found
+    case Some(AnyObject)
+
+    // Value should be set to null
+    case Null
+
+    // No value is found
+    case None
+}
 
 extension NSPropertyDescription
 {
@@ -28,7 +43,7 @@ extension NSPropertyDescription
                 _mappings.append(numberedMapping)
 
                 if i == MaxNumberedMappings+1 {
-                    println("[CoreDataKit] Warning: Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported, you defined more for \(entity.name).\(name).")
+                    println("[CoreDataKit] Warning: Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported, you defined more for \(entity.name).\(name)")
                 }
             }
         }
@@ -42,13 +57,17 @@ extension NSPropertyDescription
     }
 
     /// Looks at the available mappings and takes the preferred value out of the given dictionary based on those mappings
-    func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> AnyObject? {
+    func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> ImportableValue {
         for keyPath in mappings {
             if let value: AnyObject = (dictionary as NSDictionary).valueForKeyPath(keyPath) {
-                return value
+                if value is NSNull {
+                    return .Null
+                } else {
+                    return .Some(value)
+                }
             }
         }
 
-        return nil
+        return .None
     }
 }

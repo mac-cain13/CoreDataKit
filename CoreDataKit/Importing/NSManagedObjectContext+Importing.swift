@@ -29,11 +29,13 @@ extension NSManagedObjectContext
         return nil
     }
 
+    /// Import dictionary into an entity based on entity description
     func importEntity<T:NSManagedObject>(entityDescription: NSEntityDescription, dictionary: [String : AnyObject], error: NSErrorPointer) -> T? {
-        if let identifyingValue: AnyObject = entityDescription.identifyingAttribute(error)?.preferredValueFromDictionary(dictionary) {
-            let existingObject: T? = findEntityByIdentifyingAttribute(entityDescription, identifyingValue: identifyingValue, error: error)
-            if let object = existingObject ?? create(entityDescription)
-            {
+        switch entityDescription.identifyingAttribute(error)?.preferredValueFromDictionary(dictionary) {
+        case let .Some(.Some(value)):
+            // Optional contains ImportableValue with some value
+            let existingObject: T? = findEntityByIdentifyingAttribute(entityDescription, identifyingValue: value, error: error)
+            if let object = existingObject ?? create(entityDescription) {
                 if (object.importDictionary(dictionary, error: error)) {
                     return object
                 } else if (nil == existingObject) {
@@ -41,17 +43,24 @@ extension NSManagedObjectContext
                     delete(object, error: error)
                 }
             }
+
+        case .Some:
+            // Optional contains ImportableValue with .Null or .None value
+            return nil
+
+        case .None:
+            // Optional no ImportableValue
+            return nil
         }
 
         return nil
     }
 
+    /// Find entity based on the identifying attribute
     func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject, error: NSErrorPointer) -> T? {
-        if let identifyingAttribute = entityDescription.identifyingAttribute(error)
-        {
+        if let identifyingAttribute = entityDescription.identifyingAttribute(error) {
             let predicate = NSPredicate(format: "%K = %@", argumentArray: [identifyingAttribute.name, identifyingValue])
-            if let objects: [T] = find(entityDescription, predicate: predicate, sortDescriptors: nil, limit: nil, error: error)
-            {
+            if let objects: [T] = find(entityDescription, predicate: predicate, sortDescriptors: nil, limit: nil, error: error) {
                 if (objects.count > 1) {
                     if nil != error {
                         error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(objects.count) results"])

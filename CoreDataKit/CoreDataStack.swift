@@ -9,7 +9,6 @@
 import CoreData
 
 public class CoreDataStack: NSObject {
-
     /// Persistent store coordinator used as backing for the contexts
     public let persistentStoreCoordinator: NSPersistentStoreCoordinator
 
@@ -29,6 +28,8 @@ public class CoreDataStack: NSObject {
         rootContext = NSManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
     }
+
+// MARK: Convenience methods
 
     /**
     Creates a child context with the root context as parent and performs the given block on the created context.

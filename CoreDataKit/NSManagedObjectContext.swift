@@ -152,17 +152,14 @@ extension NSManagedObjectContext
         return nil
     }
 
+    /// Create and insert entity into this context based on its description
     func create<T:NSManagedObject>(entityDescription: NSEntityDescription) -> T?
     {
         if let entityName = entityDescription.name {
-            return insertIntoContext(entityName) as T
+            return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as? T
         }
 
         return nil
-    }
-
-    private func insertIntoContext<T:NSManagedObject>(entityName: String) -> T {
-        return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as T
     }
 
     /**
@@ -252,6 +249,7 @@ extension NSManagedObjectContext
         return nil
     }
 
+    /// Find entities of a certain type in this context based on its description
     func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate?, sortDescriptors: [NSSortDescriptor]?, limit: Int?, error: NSErrorPointer) -> [T]? {
         let fetchRequest = NSFetchRequest()
         fetchRequest.entity = entityDescription

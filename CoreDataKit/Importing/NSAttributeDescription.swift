@@ -10,53 +10,45 @@ import CoreData
 
 extension NSAttributeDescription
 {
-    override func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> AnyObject? {
-        if let value: AnyObject = super.preferredValueFromDictionary(dictionary) {
-            if value is NSNull {
+    func transformValue(value: AnyObject) -> AnyObject? {
+        switch (attributeType) {
+        case .Integer16AttributeType:
+            fallthrough
+        case .Integer32AttributeType:
+            return Int.decode(value)
+
+        case .Integer64AttributeType:
+            if let int64 = Int64.decode(value) {
+                return NSNumber(longLong: int64)
+            } else {
                 return nil
             }
 
-            switch (attributeType) {
-            case .Integer16AttributeType:
-                fallthrough
-            case .Integer32AttributeType:
-                return Int.decode(value)
+        case .DecimalAttributeType:
+            fallthrough
+        case .DoubleAttributeType:
+            fallthrough
+        case .FloatAttributeType:
+            return Double.decode(value)
 
-            case .Integer64AttributeType:
-                if let int64 = Int64.decode(value) {
-                    return NSNumber(longLong: int64)
-                } else {
-                    return nil
-                }
+        case .StringAttributeType:
+            return String.decode(value)
 
-            case .DecimalAttributeType:
-                fallthrough
-            case .DoubleAttributeType:
-                fallthrough
-            case .FloatAttributeType:
-                return Double.decode(value)
+        case .BooleanAttributeType:
+            return Bool.decode(value)
 
-            case .StringAttributeType:
-                return String.decode(value)
+        case .DateAttributeType:
+            return NSDate.decode(value)
 
-            case .BooleanAttributeType:
-                return Bool.decode(value)
+        case .BinaryDataAttributeType:
+            return NSData.decode(value)
 
-            case .DateAttributeType:
-                return NSDate.decode(value)
-
-            case .BinaryDataAttributeType:
-                return NSData.decode(value)
-
-            case .UndefinedAttributeType:
-                fallthrough
-            case .TransformableAttributeType:
-                fallthrough
-            case .ObjectIDAttributeType:
-                return nil
-            }
+        case .UndefinedAttributeType:
+            fallthrough
+        case .TransformableAttributeType:
+            fallthrough
+        case .ObjectIDAttributeType:
+            return nil
         }
-
-        return nil
     }
 }

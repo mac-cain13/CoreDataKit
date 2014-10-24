@@ -14,6 +14,7 @@ class EmployeeImportable: NSManagedObject, NamedManagedObject {
 
     @NSManaged var name: String
     @NSManaged var age: Int
+    @NSManaged var haircolor: String?
 
     class var entityName: String { return "EmployeeImportable" }
 }
