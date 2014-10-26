@@ -87,10 +87,13 @@ class NSManagedObjectContextTests: TestCase {
         employee.name = "Harvey Specter"
 
         XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
-        var optionalError: NSError?
-        coreDataStack.rootContext.obtainPermanentIDsForInsertedObjects(&optionalError)
-        XCTAssertNil(optionalError, "Unexpected error")
-        XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
+
+        switch coreDataStack.rootContext.obtainPermanentIDsForInsertedObjects() {
+        case .Failure:
+            XCTFail("Unexpected error")
+        case .Success:
+            XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
+        }
     }
 
     private func testContextObtainsPermanentIDs(context: NSManagedObjectContext) {

@@ -12,19 +12,19 @@ let IdentifierUserInfoKey = "CDKId"
 
 extension NSEntityDescription
 {
-    func identifyingAttribute(error: NSErrorPointer) -> NSAttributeDescription? {
+    func identifyingAttribute() -> Result<NSAttributeDescription> {
         if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
             if let identifyingAttribute = self.attributesByName[identifyingAttributeName] as? NSAttributeDescription {
-                return identifyingAttribute
-            } else if nil != error {
-                error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name"])
+                return Result(identifyingAttribute)
             }
+
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name"])
+            return Result(error)
         } else if let superEntity = self.superentity {
-            return superEntity.identifyingAttribute(error)
-        } else if nil != error {
-            error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "No \(IdentifierUserInfoKey) value found on \(name)"])
+            return superEntity.identifyingAttribute()
         }
 
-        return nil
+        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "No \(IdentifierUserInfoKey) value found on \(name)"])
+        return Result(error)
     }
 }

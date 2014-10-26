@@ -8,37 +8,33 @@
 
 import CoreData
 
-/// Error domain used by CoreDataKit when it generates a NSError
-public let CoreDataKitErrorDomain = "CoreDataKitErrorDomain"
+public class Box<T> {
+    let value: T
 
-/// Error codes used by CoreDataKit when it generates a NSError
-public enum CoreDataKitErrorCode: Int {
-    /// The method is unimplemented or should be overridden without calling super
-    case UnimplementedMethod = 1
+    init(_ _value: T) {
+        value = _value
+    }
+}
 
-    case ContextNotFound
+public enum Result<T> {
+    case Success(Box<T>)
+    case Failure(Box<NSError>)
 
-    /// Entity description could not be found
-    case EntityDescriptionNotFound
+    init(_ value: T) {
+        self = .Success(Box(value))
+    }
 
-    /// Idenifying attribute could not be found
-    case IdentifyingAttributeNotFound
+    init(_ value: NSError) {
+        self = .Failure(Box(value))
+    }
 
-    /// Relationship property could not be found
-    case RelationshipPropertyNotFound
+    static func fromOptionalError(optionalError: NSError?) -> Result<Void> {
+        if let error = optionalError {
+            return Result<Void>(error)
+        }
 
-    /// Invalid configuration of property for the action you want to perform
-    case InvalidPropertyConfiguration
-
-    case InvalidValue
-
-    /// Number of results was not within the expected range
-    case UnexpectedNumberOfResults
-
-    /// Import was cancelled
-    case ImportCancelled
-
-
+        return Result<Void>()
+    }
 }
 
 /// Commit actions that can be taken by CoreDataKit after a block of changes is performed
@@ -80,3 +76,38 @@ Blocktype used to handle completion of `PerformBlock`s.
 :param: error        The error that occurred or nil if operation was successful
 */
 public typealias PerformBlockCompletionHandler = (CommitAction, NSError?) -> Void
+
+// MARK: - Errors
+
+/// Error domain used by CoreDataKit when it generates a NSError
+public let CoreDataKitErrorDomain = "CoreDataKitErrorDomain"
+
+/// Error codes used by CoreDataKit when it generates a NSError
+public enum CoreDataKitErrorCode: Int {
+    case UnknownError = 1
+
+    /// The method is unimplemented or should be overridden without calling super
+    case UnimplementedMethod
+
+    case ContextNotFound
+
+    /// Entity description could not be found
+    case EntityDescriptionNotFound
+
+    /// Idenifying attribute could not be found
+    case IdentifyingAttributeNotFound
+
+    /// Relationship property could not be found
+    case RelationshipPropertyNotFound
+
+    /// Invalid configuration of property for the action you want to perform
+    case InvalidPropertyConfiguration
+
+    case InvalidValue
+
+    /// Number of results was not within the expected range
+    case UnexpectedNumberOfResults
+
+    /// Import was cancelled
+    case ImportCancelled
+}
