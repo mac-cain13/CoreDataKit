@@ -65,10 +65,20 @@ extension NSManagedObject
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
-                    return performImportAttribute(attributeDescription, dictionary: dictionary)
+                    switch performImportAttribute(attributeDescription, dictionary: dictionary) {
+                    case let .Failure(boxedError):
+                        return .Failure(boxedError)
+                    case .Success:
+                        break
+                    }
 
                 case let relationshipDescription as NSRelationshipDescription:
-                    return performImportRelationship(relationshipDescription, dictionary: dictionary)
+                    switch performImportRelationship(relationshipDescription, dictionary: dictionary)  {
+                    case let .Failure(boxedError):
+                        return .Failure(boxedError)
+                    case .Success:
+                        break
+                    }
 
                 case is NSFetchedPropertyDescription:
                     let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Importing NSFetchedPropertyDescription is not supported"])
@@ -79,10 +89,12 @@ extension NSManagedObject
                     return Result(error)
                 }
             }
+        } else {
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ContextNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Managed object not inserted in context, objects must be inserted before importing"])
+            return Result(error)
         }
 
-        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ContextNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Managed object not inserted in context, objects must be inserted before importing"])
-        return Result(error)
+        return Result()
     }
 
     /// Helper to perform importing on attributes

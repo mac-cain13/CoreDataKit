@@ -128,13 +128,16 @@ extension NSManagedObjectContext
     */
     public func obtainPermanentIDsForInsertedObjects() -> Result<Void>
     {
-        var optionalError: NSError?
-
         if (self.insertedObjects.count > 0) {
+            var optionalError: NSError?
             self.obtainPermanentIDsForObjects(self.insertedObjects.allObjects, error: &optionalError)
+
+            if let error = optionalError {
+                return Result(error)
+            }
         }
 
-        return Result<Void>.fromOptionalError(optionalError)
+        return Result()
     }
 
 // MARK: - Creating

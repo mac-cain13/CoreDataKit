@@ -9,7 +9,7 @@
 import CoreData
 
 public class Box<T> {
-    let value: T
+    public let value: T
 
     init(_ _value: T) {
         value = _value
@@ -28,12 +28,24 @@ public enum Result<T> {
         self = .Failure(Box(value))
     }
 
-    static func fromOptionalError(optionalError: NSError?) -> Result<Void> {
-        if let error = optionalError {
-            return Result<Void>(error)
-        }
+    public func successValue() -> T? {
+        switch self {
+        case let .Success(box):
+            return box.value
 
-        return Result<Void>()
+        default:
+            return nil
+        }
+    }
+
+    public func failureValue() -> NSError? {
+        switch self {
+        case let .Failure(box):
+            return box.value
+
+        default:
+            return nil
+        }
     }
 }
 
