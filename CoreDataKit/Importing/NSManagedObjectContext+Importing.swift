@@ -13,64 +13,120 @@ extension NSManagedObjectContext
     /**
     Import dictionary into the given type of entity, will do lookups in the context to find the object to import
     
+    :see: Importing documentation at [TODO]
+
     :param: entity      Type of entity to import
     :param: dictionary  Data to import
-    :param: error       Error if not succesful
     
-    :returns: Managed object of the given entity type with the data imported on it or nil on failure
-    
-    :see: Importing documentation at [TODO]
+    :returns: Result with managed object of the given entity type with the data imported on it
     */
-    public func importEntity<T: NSManagedObject where T:NamedManagedObject>(entity: T.Type, dictionary: [String : AnyObject], error: NSErrorPointer) -> T? {
-        if let entityDescription = entityDescription(entity, error: error) {
-            return importEntity(entityDescription, dictionary: dictionary, error: error)
-        }
+    public func importEntity<T: NSManagedObject where T:NamedManagedObject>(entity: T.Type, dictionary: [String : AnyObject]) -> Result<T> {
+        switch entityDescription(entity) {
+        case let .Success(boxedDescription):
+            return importEntity(boxedDescription.value, dictionary: dictionary)
 
-        return nil
+        case let .Failure(boxedError):
+            return .Failure(boxedError)
+        }
     }
 
-    /// Import dictionary into an entity based on entity description
-    func importEntity<T:NSManagedObject>(entityDescription: NSEntityDescription, dictionary: [String : AnyObject], error: NSErrorPointer) -> T? {
-        switch entityDescription.identifyingAttribute(error)?.preferredValueFromDictionary(dictionary) {
-        case let .Some(.Some(value)):
-            // Optional contains ImportableValue with some value
-            let existingObject: T? = findEntityByIdentifyingAttribute(entityDescription, identifyingValue: value, error: error)
-            if let object = existingObject ?? create(entityDescription) {
-                if (object.importDictionary(dictionary, error: error)) {
-                    return object
-                } else if (nil == existingObject) {
-                    // Delete object if import failed and we created the object just for importing
-                    delete(object, error: error)
-                }
-            }
+    /**
+    Import dictionary into an entity based on entity description, will do lookups in the context to find the object to import
 
-        case .Some:
-            // Optional contains ImportableValue with .Null or .None value
-            return nil
+    :see: Importing documentation at [TODO]
 
-        case .None:
-            // Optional no ImportableValue
-            return nil
-        }
+    :param: entityDescription Description of entity to import
+    :param: dictionary        Data to import
 
-        return nil
-    }
+    :returns: Result with managed object of the given entity type with the data imported on it
+    */
+    func importEntity<T:NSManagedObject>(entityDescription: NSEntityDescription, dictionary: [String : AnyObject]) -> Result<T> {
 
-    /// Find entity based on the identifying attribute
-    func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject, error: NSErrorPointer) -> T? {
-        if let identifyingAttribute = entityDescription.identifyingAttribute(error) {
-            let predicate = NSPredicate(format: "%K = %@", argumentArray: [identifyingAttribute.name, identifyingValue])
-            if let objects: [T] = find(entityDescription, predicate: predicate, sortDescriptors: nil, limit: nil, error: error) {
-                if (objects.count > 1) {
-                    if nil != error {
-                        error.memory = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(objects.count) results"])
+        switch entityDescription.identifyingAttribute() {
+        case let .Success(boxedAttribute):
+            switch boxedAttribute.value.preferredValueFromDictionary(dictionary) {
+            case let .Some(value):
+                let importObjectResult: Result<T> = objectForImport(entityDescription, identifyingValue: value)
+                switch importObjectResult {
+                case let .Success(boxedImportedObject):
+                    switch boxedImportedObject.value.importDictionary(dictionary) {
+                    case .Success:
+                        return .Success(boxedImportedObject)
+
+                    case let .Failure(error):
+                        return .Failure(error)
                     }
-                } else {
-                    return objects.first
-                }
-            }
-        }
 
-        return nil
+                case let .Failure(boxedError):
+                    return .Failure(boxedError)
+                }
+
+            case .Null:
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "Value 'null' in import dictionary for identifying atribute '\(entityDescription.name).\(boxedAttribute.value.name)', dictionary: \(dictionary)"])
+                return Result(error)
+
+            case .None:
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "No value in import dictionary for identifying atribute '\(entityDescription.name).\(boxedAttribute.value.name)', dictionary: \(dictionary)"])
+                return Result(error)
+            }
+
+        case let .Failure(boxedError):
+            return .Failure(boxedError)
+        }
+    }
+
+    /**
+    Find or create an instance of this managed object to use for import
+    
+    :param: entityDescription Description of entity to import
+    :param: identifyingValue  The identifying value of the object
+    
+    :return: Result with the object to perform the import on
+    */
+    private func objectForImport<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject) -> Result<T> {
+        let findResult: Result<T?> = findEntityByIdentifyingAttribute(entityDescription, identifyingValue: identifyingValue)
+        switch findResult {
+        case let .Success(boxedObject):
+            if let existingObject = boxedObject.value {
+                return Result(existingObject)
+            } else {
+                return create(entityDescription)
+            }
+
+        case .Failure:
+            return create(entityDescription)
+        }
+    }
+
+    /**
+    Find entity based on the identifying attribute
+
+    :param: entityDescription Description of entity to find
+    :param: identifyingValue  The identifying value of the object
+    
+    :returns: Result with the optional object that is found, nil on not found
+    */
+    func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject) -> Result<T?> {
+        switch entityDescription.identifyingAttribute() {
+        case let .Success(boxedAttribute):
+            let predicate = NSPredicate(format: "%K = %@", argumentArray: [boxedAttribute.value.name, identifyingValue])
+            switch find(entityDescription, predicate: predicate, sortDescriptors: nil, limit: nil) {
+            case let .Success(boxedResults):
+                if (boxedResults.value.count > 1) {
+                    let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(boxedResults.value.count) results"])
+                    return Result(error)
+                } else if let firstResult = boxedResults.value.first {
+                    return Result(firstResult as? T)
+                } else {
+                    return Result(nil)
+                }
+
+            case let .Failure(boxedError):
+                return .Failure(boxedError)
+            }
+
+        case let .Failure(boxedError):
+            return .Failure(boxedError)
+        }
     }
 }

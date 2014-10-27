@@ -8,27 +8,13 @@
 
 import CoreData
 
-/// Key used to defined mapping in CoreData user info
-let MappingUserInfoKey = "CDKMap"
-
-/// Maximum of numbered MappingUserInfoKey
-let MaxNumberedMappings = 10
-
-/// Value extracted from source that can be imported
-enum ImportableValue {
-    // Some value is found
-    case Some(AnyObject)
-
-    // Value should be set to null
-    case Null
-
-    // No value is found
-    case None
-}
-
 extension NSPropertyDescription
 {
-    /// Possible dictionary keys that could contain data for this property
+    /**
+    Keys that could contain data for this property as defined by the model
+    
+    :returns: Array of keys to look for when mapping data into this property
+    */
     var mappings: [String] {
         var _mappings = [String]()
 
@@ -56,7 +42,13 @@ extension NSPropertyDescription
         return _mappings
     }
 
-    /// Looks at the available mappings and takes the preferred value out of the given dictionary based on those mappings
+    /**
+    Looks at the available mappings and takes the preferred value out of the given dictionary based on those mappings
+
+    :param: dictionary Data to import from
+    
+    :returns: Value to import
+    */
     func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> ImportableValue {
         for keyPath in mappings {
             if let value: AnyObject = (dictionary as NSDictionary).valueForKeyPath(keyPath) {
