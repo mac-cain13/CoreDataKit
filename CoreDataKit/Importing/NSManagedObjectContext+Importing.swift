@@ -13,13 +13,12 @@ extension NSManagedObjectContext
     /**
     Import dictionary into the given type of entity, will do lookups in the context to find the object to import
     
+    :see: Importing documentation at [TODO]
+
     :param: entity      Type of entity to import
     :param: dictionary  Data to import
-    :param: error       Error if not succesful
     
-    :returns: Managed object of the given entity type with the data imported on it or nil on failure
-    
-    :see: Importing documentation at [TODO]
+    :returns: Result with managed object of the given entity type with the data imported on it
     */
     public func importEntity<T: NSManagedObject where T:NamedManagedObject>(entity: T.Type, dictionary: [String : AnyObject]) -> Result<T> {
         switch entityDescription(entity) {
@@ -31,7 +30,16 @@ extension NSManagedObjectContext
         }
     }
 
-    /// Import dictionary into an entity based on entity description
+    /**
+    Import dictionary into an entity based on entity description, will do lookups in the context to find the object to import
+
+    :see: Importing documentation at [TODO]
+
+    :param: entityDescription Description of entity to import
+    :param: dictionary        Data to import
+
+    :returns: Result with managed object of the given entity type with the data imported on it
+    */
     func importEntity<T:NSManagedObject>(entityDescription: NSEntityDescription, dictionary: [String : AnyObject]) -> Result<T> {
 
         switch entityDescription.identifyingAttribute() {
@@ -67,6 +75,14 @@ extension NSManagedObjectContext
         }
     }
 
+    /**
+    Find or create an instance of this managed object to use for import
+    
+    :param: entityDescription Description of entity to import
+    :param: identifyingValue  The identifying value of the object
+    
+    :return: Result with the object to perform the import on
+    */
     private func objectForImport<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject) -> Result<T> {
         let findResult: Result<T?> = findEntityByIdentifyingAttribute(entityDescription, identifyingValue: identifyingValue)
         switch findResult {
@@ -82,7 +98,14 @@ extension NSManagedObjectContext
         }
     }
 
-    /// Find entity based on the identifying attribute
+    /**
+    Find entity based on the identifying attribute
+
+    :param: entityDescription Description of entity to find
+    :param: identifyingValue  The identifying value of the object
+    
+    :returns: Result with the optional object that is found, nil on not found
+    */
     func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject) -> Result<T?> {
         switch entityDescription.identifyingAttribute() {
         case let .Success(boxedAttribute):

@@ -11,14 +11,13 @@ import CoreData
 extension NSManagedObject
 {
     /**
-    Import dictionary into this managed object
+    Import a dictionary into this managed object
 
     :param: dictionary The dictionary to import
-    :param: error      If not succesful the error
     
-    :returns: Wheter the import was performed (true if performed, false when cancelled by callback)
+    :returns: Result wheter the import was performed
     */
-    public func importDictionary(dictionary: [String : AnyObject]) -> Result<Void> {
+    public func importDictionary(dictionary: [String: AnyObject]) -> Result<Void> {
         if shouldImport(dictionary) {
             let transformedDictionary = willImport(dictionary)
             let importResult = performImport(transformedDictionary)
@@ -31,6 +30,8 @@ extension NSManagedObject
         return Result(error)
     }
 
+// MARK: Steps in the import process
+
     /**
     Will be called before import to determine wheter this dictionary should be imported into this object or not
     
@@ -40,7 +41,7 @@ extension NSManagedObject
 
     :return: Wheter to import or not
     */
-    public func shouldImport(dictionary: [String : AnyObject]) -> Bool {
+    public func shouldImport(dictionary: [String: AnyObject]) -> Bool {
         return true
     }
 
@@ -53,11 +54,17 @@ extension NSManagedObject
 
     :return: The dictionary that will be used in the rest of the import process
     */
-    public func willImport(dictionary: [String : AnyObject]) -> [String : AnyObject] {
+    public func willImport(dictionary: [String: AnyObject]) -> [String: AnyObject] {
         return dictionary
     }
 
-    /// The real import logic
+    /**
+    Performs the import process
+
+    :param: dictionary The dictionary to import
+    
+    :returns: Result wheter the import succeeded
+    */
     private func performImport(dictionary: [String : AnyObject]) -> Result<Void> {
         if let context = managedObjectContext {
             for _propertyDescription in entity.properties {
@@ -66,18 +73,18 @@ extension NSManagedObject
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
                     switch performImportAttribute(attributeDescription, dictionary: dictionary) {
-                    case let .Failure(boxedError):
-                        return .Failure(boxedError)
                     case .Success:
-                        break
+                        break // Continue to next property
+                    case let .Failure(boxedError):
+                        return .Failure(boxedError) // Abort import
                     }
 
                 case let relationshipDescription as NSRelationshipDescription:
                     switch performImportRelationship(relationshipDescription, dictionary: dictionary)  {
-                    case let .Failure(boxedError):
-                        return .Failure(boxedError)
                     case .Success:
-                        break
+                        break // Continue to next property
+                    case let .Failure(boxedError):
+                        return .Failure(boxedError) // Abort import
                     }
 
                 case is NSFetchedPropertyDescription:
@@ -89,16 +96,35 @@ extension NSManagedObject
                     return Result(error)
                 }
             }
+
+            return Result()
         } else {
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ContextNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Managed object not inserted in context, objects must be inserted before importing"])
             return Result(error)
         }
-
-        return Result()
     }
 
-    /// Helper to perform importing on attributes
-    private func performImportAttribute(attribute: NSAttributeDescription, dictionary: [String : AnyObject]) -> Result<Void> {
+    /**
+    Called after import is performed
+    
+    :param: dictionary The dictionary that was imported, this is the dictionary returned by willImport
+    :param: result Whether the import succeeded
+    */
+    public func didImport(dictionary: [String : AnyObject], result: Result<Void>) {
+        // No-op
+    }
+
+// MARK: Import helpers
+
+    /**
+    Performs the import of one attribute
+
+    :param: attribute The attribute to perform the import on
+    :param: dictionary The dictionary to import from
+
+    :returns: Result wheter import succeeded
+    */
+    private func performImportAttribute(attribute: NSAttributeDescription, dictionary: [String: AnyObject]) -> Result<Void> {
         switch attribute.preferredValueFromDictionary(dictionary) {
         case let .Some(value):
             if let transformedValue: AnyObject = attribute.transformValue(value) {
@@ -124,14 +150,21 @@ extension NSManagedObject
         return Result()
     }
 
-    /// Helper to perform importing on relationships
+    /**
+    Performs the import of one attribute
+
+    :param: relationship The relationship to perform the import on
+    :param: dictionary The dictionary to import from
+
+    :returns: Result wheter import succeeded
+    */
     private func performImportRelationship(relationship: NSRelationshipDescription, dictionary: [String : AnyObject]) -> Result<Void> {
         if let destinationEntity = relationship.destinationEntity {
             switch relationship.preferredValueFromDictionary(dictionary) {
             case let .Some(value as [String: AnyObject]):
                 switch managedObjectContext!.importEntity(destinationEntity, dictionary: value) {
                 case let .Success(boxedObject):
-                    return updateRelationshipWithValue(boxedObject.value, relationship: relationship)
+                    return updateRelationship(relationship, withValue: boxedObject.value)
 
                 case let .Failure(boxedError):
                     return .Failure(boxedError)
@@ -144,7 +177,7 @@ extension NSManagedObject
             case let .Some(value):
                 switch managedObjectContext!.findEntityByIdentifyingAttribute(destinationEntity, identifyingValue: value) {
                 case let .Success(boxedObject):
-                    return updateRelationshipWithValue(boxedObject.value, relationship: relationship)
+                    return updateRelationship(relationship, withValue: boxedObject.value)
 
                 case let .Failure(boxedError):
                     return .Failure(boxedError)
@@ -152,7 +185,7 @@ extension NSManagedObject
 
             case .Null:
                 if (relationship.optional) {
-                    return updateRelationshipWithValue(nil, relationship: relationship)
+                    return updateRelationship(relationship, withValue: nil)
                 } else {
                     let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null"])
                     return Result(error)
@@ -168,16 +201,14 @@ extension NSManagedObject
     }
 
     /**
-    Called after import is performed
-    
-    :param: dictionary The dictionary that is given to the import method
-    */
-    public func didImport(dictionary: [String : AnyObject], result: Result<Void>) {
-        // No-op
-    }
+    Helper to update relationship value, adds or sets the relation to the given value or on nil value clears/deletes the whole relation
 
-    /// Helper to update relationship value, adds or sets the relation to the given value or on nil value clears/deletes the whole relation
-    private func updateRelationshipWithValue(_value: NSManagedObject?, relationship: NSRelationshipDescription) -> Result<Void> {
+    :param: value The value to update the relationship with
+    :param: relationship The relationship to update
+
+    :return: Wheter the update succeeded
+    */
+    private func updateRelationship(relationship: NSRelationshipDescription, withValue _value: NSManagedObject?) -> Result<Void> {
         if (relationship.toMany) {
             if let objectSet = valueForKeyPath(relationship.name) as? NSMutableSet {
                 if let object = _value {
@@ -192,7 +223,7 @@ extension NSManagedObject
         } else {
             setValue(_value, forKeyPath: relationship.name)
         }
-
+        
         return Result()
     }
 }

@@ -10,6 +10,13 @@ import CoreData
 
 extension NSAttributeDescription
 {
+    /**
+    Transform given value to a value that can be saved into this attribute in CoreData
+    
+    :param: value The value to transform
+    
+    :returns: The transformed value or nil if the value can't for into this attribute
+    */
     func transformValue(value: AnyObject) -> AnyObject? {
         switch (attributeType) {
         case .Integer16AttributeType:

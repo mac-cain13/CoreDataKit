@@ -8,26 +8,48 @@
 
 import CoreData
 
+/// Box to wrap any value, used to workaround the mulivalue enums swift bug
 public class Box<T> {
+    /// The value this box contains
     public let value: T
 
-    init(_ _value: T) {
+    /// Initialize a box with the given value
+    internal init(_ _value: T) {
         value = _value
     }
 }
 
+/// The result type used for nearly all failable operations
 public enum Result<T> {
+    /// Indicated success of the operation and contains a boxed result value
     case Success(Box<T>)
+
+    /// Indicates failure of the operation and contains a boxes error value
     case Failure(Box<NSError>)
 
-    init(_ value: T) {
+    /// Initialize with a success value, boxes it for you
+    internal init(_ value: T) {
         self = .Success(Box(value))
     }
 
-    init(_ value: NSError) {
+    /// Initialize with a error value, boxes it for you
+    internal init(_ value: NSError) {
         self = .Failure(Box(value))
     }
 
+    static func withOptionalError(optionalError: NSError?) -> Result<Void> {
+        if let error = optionalError {
+            return Result<Void>(error)
+        }
+
+        return Result<Void>()
+    }
+
+    /**
+    Get the unboxed success value
+    
+    :returns: The unboxed success value or nil on failure
+    */
     public func successValue() -> T? {
         switch self {
         case let .Success(box):
@@ -38,6 +60,11 @@ public enum Result<T> {
         }
     }
 
+    /**
+    Get the unboxed failure value
+
+    :returns: The unboxed failure value or nil on success
+    */
     public func failureValue() -> NSError? {
         switch self {
         case let .Failure(box):
@@ -72,22 +99,22 @@ Blocktype used to perform changes on a `NSManagedObjectContext`.
 
 :param: context The context to perform your changes on
 */
-public typealias PerformBlock = (NSManagedObjectContext) -> CommitAction
+public typealias PerformBlock = NSManagedObjectContext -> CommitAction
 
 /**
 Blocktype used to handle completion.
 
-:param: error The error that occurred or nil if operation was successful
+:param: result Wheter the operation was successful
 */
-public typealias CompletionHandler = (NSError?) -> Void
+public typealias CompletionHandler = Result<Void> -> Void
 
 /**
 Blocktype used to handle completion of `PerformBlock`s.
 
+:param: result       Wheter the operation was successful
 :param: commitAction The type of commit action the block has done
-:param: error        The error that occurred or nil if operation was successful
 */
-public typealias PerformBlockCompletionHandler = (CommitAction, NSError?) -> Void
+public typealias PerformBlockCompletionHandler = (Result<Void>, CommitAction) -> Void
 
 // MARK: - Errors
 
