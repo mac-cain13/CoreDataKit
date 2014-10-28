@@ -18,8 +18,32 @@ _Due to the current lack of [proper infrastructure](http://cocoapods.org) for Sw
 
 ## Usage
 
+The most basic and most used variant to setup a stack backed by an automigrating SQLite store is this:
 ```
-TODO
+// Initialize CoreData stack
+if let persistentStoreCoordinator = NSPersistentStoreCoordinator(automigrating: true) {
+  CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentStoreCoordinator)
+}
+```
+
+From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
+```
+CoreDataKit.performBlockOnBackgroundContext({ context in
+		if let car = context.create(Car.self).successValue() {
+			car.color = "Hammerhead Silver"
+			car.model = "Aston Martin DB9"
+		}
+
+		return .SaveToPersistentStore
+	}, completionHandler: { result, _ in
+        switch result {
+        case .Success:
+        	println("Car saved, time to update the interface!")
+          
+        case let .Failure(boxedError):
+          	println("Saving Harvey Specters car failed with error: \(boxedError.value)")
+        }
+    })
 ```
 
 ## Contributing
