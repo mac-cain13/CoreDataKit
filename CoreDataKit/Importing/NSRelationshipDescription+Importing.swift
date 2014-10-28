@@ -9,6 +9,8 @@
 import CoreData
 
 extension NSRelationshipDescription {
+
+    /// Type of the relation as defined in the model
     var relationType: RelationType {
         if let relationTypeString = userInfo?[RelationTypeUserInfoKey] as? String {
             return RelationType.fromString(relationTypeString)

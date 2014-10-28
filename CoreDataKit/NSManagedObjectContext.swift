@@ -47,6 +47,11 @@ extension NSManagedObjectContext
         beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
+    /**
+    Creates child context with this context as its parent
+
+    :returns: Child context
+    */
     public func createChildContext() -> NSManagedObjectContext {
         return NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: self)
     }
@@ -151,12 +156,8 @@ extension NSManagedObjectContext
     */
     public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) -> Result<T>
     {
-        switch entityDescription(entity) {
-        case let .Success(boxedDescription):
-            return create(boxedDescription.value)
-
-        case let .Failure(boxedError):
-            return .Failure(boxedError)
+        return entityDescription(entity).flatMap {
+            self.create($0)
         }
     }
 
@@ -273,12 +274,8 @@ extension NSManagedObjectContext
     :returns: Result with array of entities found, empty array on no results
     */
     public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil) -> Result<[T]> {
-        switch entityDescription(entity) {
-        case let .Success(boxedDescription):
-            return find(boxedDescription.value, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
-
-        case let .Failure(boxedError):
-            return .Failure(boxedError)
+        return entityDescription(entity).flatMap {
+            self.find($0, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
         }
     }
 

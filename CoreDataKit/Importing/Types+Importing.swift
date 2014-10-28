@@ -26,8 +26,10 @@ let MaxNumberedMappings = 10
 
 // MARK: Relations
 
+/// Key used on relation to define type of the relation in CoreData user info
 let RelationTypeUserInfoKey = "CDKRelationType"
 
+/// Values used with RelationTypeUserInfoKey to alter relation type
 enum RelationType: String {
     case RelatedById = "CDKRelatedById"
     case WithoutId = "CDKWithoutId"
