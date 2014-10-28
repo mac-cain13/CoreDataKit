@@ -8,14 +8,42 @@
 
 import Foundation
 
+// MARK: - User info values
+
 /// Key used on entity to define the identifying attribute in CoreData user info
 let IdentifierUserInfoKey = "CDKId"
+
+// MARK: Mapping
 
 /// Key used on property to define mapping in CoreData user info
 let MappingUserInfoKey = "CDKMap"
 
+/// Value used with MappingUserInfoKey to disable all mapping behaviour
+let SuppressMappingUserInfoValue = "CDKNoMapping"
+
 /// Maximum of numbered MappingUserInfoKeys on an property
 let MaxNumberedMappings = 10
+
+// MARK: Relations
+
+let RelationTypeUserInfoKey = "CDKRelationType"
+
+enum RelationType: String {
+    case RelatedById = "CDKRelatedById"
+    case WithoutId = "CDKWithoutId"
+
+    static func fromString(string: String) -> RelationType {
+        switch string {
+        case RelationType.WithoutId.rawValue:
+            return .WithoutId
+
+        default:
+            return .RelatedById
+        }
+    }
+}
+
+// MARK: - Importable value
 
 /// Value extracted from source that can be imported into a managed object
 enum ImportableValue {

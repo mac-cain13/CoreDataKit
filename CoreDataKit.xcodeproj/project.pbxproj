@@ -21,6 +21,9 @@
 		D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */; };
 		D566F6AE19F0DCA0003C503F /* NSPropertyDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D566F6AD19F0DCA0003C503F /* NSPropertyDescription.swift */; };
 		D566F6B219F0F277003C503F /* JsonDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D566F6B119F0F277003C503F /* JsonDecode.swift */; };
+		D56E1EAA19FF7409006A280C /* EmployeesNestedWithoutIdRelation.json in Resources */ = {isa = PBXBuildFile; fileRef = D56E1EA919FF7409006A280C /* EmployeesNestedWithoutIdRelation.json */; };
+		D56E1EAC19FF749B006A280C /* EmployeeWithRelationWithouId.swift in Sources */ = {isa = PBXBuildFile; fileRef = D56E1EAB19FF749B006A280C /* EmployeeWithRelationWithouId.swift */; };
+		D56E1EAE19FF749B006A280C /* Salary.swift in Sources */ = {isa = PBXBuildFile; fileRef = D56E1EAD19FF749B006A280C /* Salary.swift */; };
 		D58D29D919F83604006D3B07 /* EmployeesNestedRelation.json in Resources */ = {isa = PBXBuildFile; fileRef = D58D29D819F83604006D3B07 /* EmployeesNestedRelation.json */; };
 		D595F67F19EEDE6000D73790 /* Employee.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F67E19EEDE6000D73790 /* Employee.swift */; };
 		D595F68119EEE17B00D73790 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = D595F67B19EEDE3100D73790 /* Model.xcdatamodeld */; };
@@ -29,6 +32,7 @@
 		D595F68719EF0ED800D73790 /* Types.swift in Sources */ = {isa = PBXBuildFile; fileRef = D595F68619EF0ED800D73790 /* Types.swift */; };
 		D5B474B819F012F9004132F8 /* NSEntityDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B474B719F012F9004132F8 /* NSEntityDescription.swift */; };
 		D5B474BA19F0181F004132F8 /* NSAttributeDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5B474B919F0181F004132F8 /* NSAttributeDescription.swift */; };
+		D5C4B96719FEBB390058F0AC /* NSRelationshipDescription+Importing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C4B96619FEBB390058F0AC /* NSRelationshipDescription+Importing.swift */; };
 		D5C6C63F19EEC6D60035BFFF /* NSManagedObjectContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */; };
 		D5D7C6C81958B8CF0048B576 /* CoreDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5D7C6BC1958B8CF0048B576 /* CoreDataKit.framework */; };
 		D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */; };
@@ -67,6 +71,9 @@
 		D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataStackTests.swift; sourceTree = "<group>"; };
 		D566F6AD19F0DCA0003C503F /* NSPropertyDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPropertyDescription.swift; sourceTree = "<group>"; };
 		D566F6B119F0F277003C503F /* JsonDecode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JsonDecode.swift; sourceTree = "<group>"; };
+		D56E1EA919FF7409006A280C /* EmployeesNestedWithoutIdRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = EmployeesNestedWithoutIdRelation.json; sourceTree = "<group>"; };
+		D56E1EAB19FF749B006A280C /* EmployeeWithRelationWithouId.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmployeeWithRelationWithouId.swift; sourceTree = "<group>"; };
+		D56E1EAD19FF749B006A280C /* Salary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Salary.swift; sourceTree = "<group>"; };
 		D58D29D819F83604006D3B07 /* EmployeesNestedRelation.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = EmployeesNestedRelation.json; sourceTree = "<group>"; };
 		D595F67C19EEDE3100D73790 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		D595F67E19EEDE6000D73790 /* Employee.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Employee.swift; sourceTree = "<group>"; };
@@ -75,6 +82,7 @@
 		D595F68619EF0ED800D73790 /* Types.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Types.swift; sourceTree = "<group>"; };
 		D5B474B719F012F9004132F8 /* NSEntityDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSEntityDescription.swift; sourceTree = "<group>"; };
 		D5B474B919F0181F004132F8 /* NSAttributeDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSAttributeDescription.swift; sourceTree = "<group>"; };
+		D5C4B96619FEBB390058F0AC /* NSRelationshipDescription+Importing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSRelationshipDescription+Importing.swift"; sourceTree = "<group>"; };
 		D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSManagedObjectContextTests.swift; sourceTree = "<group>"; };
 		D5D7C6BC1958B8CF0048B576 /* CoreDataKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CoreDataKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5D7C6C01958B8CF0048B576 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -120,6 +128,7 @@
 				D5253DA019F12F1C00E8B4AF /* NSManagedObject+Importing.swift */,
 				D5253DA219F1398600E8B4AF /* NSManagedObjectContext+Importing.swift */,
 				D566F6AD19F0DCA0003C503F /* NSPropertyDescription.swift */,
+				D5C4B96619FEBB390058F0AC /* NSRelationshipDescription+Importing.swift */,
 			);
 			path = Importing;
 			sourceTree = "<group>";
@@ -129,15 +138,18 @@
 			children = (
 				D595F67B19EEDE3100D73790 /* Model.xcdatamodeld */,
 				D5FE0FC519F4E0D3008DC1ED /* Car.swift */,
+				D56E1EAD19FF749B006A280C /* Salary.swift */,
 				D595F67E19EEDE6000D73790 /* Employee.swift */,
 				D5FE0FC319F29FFD008DC1ED /* EmployeeImportable.swift */,
 				D5253DA619F1591000E8B4AF /* EmployeeIncorrectEntityName.swift */,
 				D5FE0FC719F4E0D4008DC1ED /* EmployeeWithRelations.swift */,
+				D56E1EAB19FF749B006A280C /* EmployeeWithRelationWithouId.swift */,
 				D5FE0FBD19F28340008DC1ED /* Employees.json */,
 				D532100D19F8D63D007C9DCD /* EmployeesWithNull.json */,
 				D532100F19F8DA4D007C9DCD /* EmployeesWithOmittedField.json */,
 				D58D29D819F83604006D3B07 /* EmployeesNestedRelation.json */,
 				D5FE0FCB19F4EAC6008DC1ED /* EmployeesReferencedRelation.json */,
+				D56E1EA919FF7409006A280C /* EmployeesNestedWithoutIdRelation.json */,
 			);
 			path = Fixtures;
 			sourceTree = "<group>";
@@ -317,6 +329,7 @@
 				D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */,
 				D5FE0FCC19F4EAC6008DC1ED /* EmployeesReferencedRelation.json in Resources */,
 				D532101019F8DA4D007C9DCD /* EmployeesWithOmittedField.json in Resources */,
+				D56E1EAA19FF7409006A280C /* EmployeesNestedWithoutIdRelation.json in Resources */,
 				D58D29D919F83604006D3B07 /* EmployeesNestedRelation.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -330,6 +343,7 @@
 			files = (
 				D5B474BA19F0181F004132F8 /* NSAttributeDescription.swift in Sources */,
 				D566F6B219F0F277003C503F /* JsonDecode.swift in Sources */,
+				D5C4B96719FEBB390058F0AC /* NSRelationshipDescription+Importing.swift in Sources */,
 				D5253DA319F1398600E8B4AF /* NSManagedObjectContext+Importing.swift in Sources */,
 				D595F68519EF0EA100D73790 /* CoreDataStack.swift in Sources */,
 				D5253DA119F12F1C00E8B4AF /* NSManagedObject+Importing.swift in Sources */,
@@ -361,6 +375,8 @@
 				D595F67F19EEDE6000D73790 /* Employee.swift in Sources */,
 				D5C6C63F19EEC6D60035BFFF /* NSManagedObjectContextTests.swift in Sources */,
 				D595F68119EEE17B00D73790 /* Model.xcdatamodeld in Sources */,
+				D56E1EAC19FF749B006A280C /* EmployeeWithRelationWithouId.swift in Sources */,
+				D56E1EAE19FF749B006A280C /* Salary.swift in Sources */,
 				D5FE0FC019F286DF008DC1ED /* NSManagedObject+ImportingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

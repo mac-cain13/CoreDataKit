@@ -72,19 +72,13 @@ extension NSManagedObject
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
-                    switch performImportAttribute(attributeDescription, dictionary: dictionary) {
-                    case .Success:
-                        break // Continue to next property
-                    case let .Failure(boxedError):
-                        return .Failure(boxedError) // Abort import
+                    if let error = performImportAttribute(attributeDescription, dictionary: dictionary).failureValue() {
+                        return Result(error) // Abort import
                     }
 
                 case let relationshipDescription as NSRelationshipDescription:
-                    switch performImportRelationship(relationshipDescription, dictionary: dictionary)  {
-                    case .Success:
-                        break // Continue to next property
-                    case let .Failure(boxedError):
-                        return .Failure(boxedError) // Abort import
+                    if let error = performImportRelationship(relationshipDescription, dictionary: dictionary).failureValue()  {
+                        return Result(error) // Abort import
                     }
 
                 case is NSFetchedPropertyDescription:
@@ -135,12 +129,7 @@ extension NSManagedObject
             }
 
         case .Null:
-            if (attribute.optional) {
-                setValue(nil, forKeyPath: attribute.name)
-            } else {
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "CoreData value is not optional, so null is not a valid option for attribute \(entity.name).\(attribute.name)"])
-                return Result(error)
-            }
+            setValue(nil, forKeyPath: attribute.name) // We just set it to nil, maybe there is a default value in the model
 
         case .None:
             // Not found in dictionary, do not change value
@@ -160,43 +149,67 @@ extension NSManagedObject
     */
     private func performImportRelationship(relationship: NSRelationshipDescription, dictionary: [String : AnyObject]) -> Result<Void> {
         if let destinationEntity = relationship.destinationEntity {
-            switch relationship.preferredValueFromDictionary(dictionary) {
-            case let .Some(value as [String: AnyObject]):
-                switch managedObjectContext!.importEntity(destinationEntity, dictionary: value) {
-                case let .Success(boxedObject):
-                    return updateRelationship(relationship, withValue: boxedObject.value)
+            let importableValue = relationship.preferredValueFromDictionary(dictionary)
 
-                case let .Failure(boxedError):
-                    return .Failure(boxedError)
-                }
+            switch relationship.relationType {
+            case .RelatedById:
+                return performImportRelatedByIdRelationship(relationship, importableValue: importableValue, destinationEntity: destinationEntity)
 
-            case let .Some(value as [AnyObject]):
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported"])
-                return Result(error)
-
-            case let .Some(value):
-                switch managedObjectContext!.findEntityByIdentifyingAttribute(destinationEntity, identifyingValue: value) {
-                case let .Success(boxedObject):
-                    return updateRelationship(relationship, withValue: boxedObject.value)
-
-                case let .Failure(boxedError):
-                    return .Failure(boxedError)
-                }
-
-            case .Null:
-                if (relationship.optional) {
-                    return updateRelationship(relationship, withValue: nil)
-                } else {
-                    let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null"])
-                    return Result(error)
-                }
-
-            case .None:
-                return Result() // Not found in dictionary, do not change value
+            case .WithoutId:
+                return performImportWithoutIdRelationship(relationship, importableValue: importableValue, destinationEntity: destinationEntity)
             }
         } else {
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Relationship \(self.entity.name).\(relationship.name) has no destination entity defined"])
             return Result(error)
+        }
+    }
+
+    private func performImportRelatedByIdRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
+        switch importableValue {
+        case let .Some(value as [String: AnyObject]):
+            return managedObjectContext!.importEntity(destinationEntity, dictionary: value).flatMap {
+                self.updateRelationship(relationship, withValue: $0)
+            }
+
+        case let .Some(value as [AnyObject]):
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.RelatedById)"])
+            return Result(error)
+
+        case let .Some(value):
+            return managedObjectContext!.findEntityByIdentifyingAttribute(destinationEntity, identifyingValue: value).flatMap {
+                self.updateRelationship(relationship, withValue: $0)
+            }
+
+        case .Null:
+            return updateRelationship(relationship, withValue: nil)
+
+        case .None:
+            return Result() // Not found in dictionary, do not change value
+        }
+    }
+
+    private func performImportWithoutIdRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
+        return managedObjectContext!.create(destinationEntity).flatMap { destinationObject in
+            switch importableValue {
+            case let .Some(value as [String: AnyObject]):
+                return destinationObject.importDictionary(value).flatMap {
+                    self.updateRelationship(relationship, withValue: destinationObject)
+                }
+
+            case let .Some(value as [AnyObject]):
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.WithoutId)"])
+                return Result(error)
+
+            case let .Some(value):
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Referenced relationships not yet supported with relation type \(RelationType.WithoutId)"])
+                return Result(error)
+
+            case .Null:
+                return self.updateRelationship(relationship, withValue: nil)
+                
+            case .None:
+                return Result() // Not found in dictionary, do not change value
+            }
         }
     }
 
@@ -221,7 +234,14 @@ extension NSManagedObject
                 return Result(error)
             }
         } else {
-            setValue(_value, forKeyPath: relationship.name)
+            if let value = _value {
+                setValue(value, forKeyPath: relationship.name)
+            } else if (relationship.optional) {
+                setValue(nil, forKeyPath: relationship.name)
+            } else {
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null"])
+                return Result(error)
+            }
         }
         
         return Result()

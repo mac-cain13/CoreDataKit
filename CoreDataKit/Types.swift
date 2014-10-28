@@ -37,6 +37,13 @@ public enum Result<T> {
         self = .Failure(Box(value))
     }
 
+    /**
+    Create Result from optional error, failure with error if optional contains a value. Void success Result otherwise.
+    
+    :param: optionalError The error to create result from
+    
+    :returns: Result containing the error or Success when no error present
+    */
     static func withOptionalError(optionalError: NSError?) -> Result<Void> {
         if let error = optionalError {
             return Result<Void>(error)
@@ -73,6 +80,30 @@ public enum Result<T> {
         default:
             return nil
         }
+    }
+
+    func map<U>(f: T -> U) -> Result<U> {
+        switch self {
+        case let .Success(x):
+            return .Success(Box(f(x.value)))
+
+        case let .Failure(x):
+            return .Failure(x)
+        }
+    }
+
+    static func flatten<T>(result: Result<Result<T>>) -> Result<T> {
+        switch result {
+        case let .Success(x):
+            return x.value
+
+        case let .Failure(x):
+            return .Failure(x)
+        }
+    }
+
+    func flatMap<U>(f: T -> Result<U>) -> Result<U> {
+        return Result.flatten(map(f))
     }
 }
 

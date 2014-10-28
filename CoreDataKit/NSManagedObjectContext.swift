@@ -103,7 +103,7 @@ extension NSManagedObjectContext
             }
 
         case let (_, _, .Some(completionHandler)):
-            dispatch_async(dispatch_get_main_queue()) { completionHandler(Result<Void>.withOptionalError(optionalError)) }
+            dispatch_async(dispatch_get_main_queue()) { completionHandler(Result<Void>.withOptionalError(optionalError)) } 
 
         default:
             break

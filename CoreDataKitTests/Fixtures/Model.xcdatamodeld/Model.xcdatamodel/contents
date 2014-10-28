@@ -39,10 +39,27 @@
             <entry key="CDKId" value="name"/>
         </userInfo>
     </entity>
+    <entity name="EmployeeWithRelationWithouId" representedClassName="EmployeeWithRelationWithouId" syncable="YES">
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <relationship name="salary" maxCount="1" deletionRule="Cascade" destinationEntity="Salary" inverseName="employee" inverseEntity="Salary" syncable="YES">
+            <userInfo>
+                <entry key="CDKRelationType" value="CDKWithoutId"/>
+            </userInfo>
+        </relationship>
+        <userInfo>
+            <entry key="CDKId" value="name"/>
+        </userInfo>
+    </entity>
+    <entity name="Salary" representedClassName="Salary" syncable="YES">
+        <attribute name="amount" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="employee" maxCount="1" deletionRule="Nullify" destinationEntity="EmployeeWithRelationWithouId" inverseName="salary" inverseEntity="EmployeeWithRelationWithouId" syncable="YES"/>
+    </entity>
     <elements>
         <element name="Car" positionX="-36" positionY="18" width="128" height="88"/>
         <element name="Employee" positionX="-63" positionY="-18" width="128" height="60"/>
         <element name="EmployeeImportable" positionX="-63" positionY="-9" width="128" height="90"/>
         <element name="EmployeeWithRelations" positionX="-54" positionY="9" width="128" height="88"/>
+        <element name="EmployeeWithRelationWithouId" positionX="-45" positionY="27" width="128" height="73"/>
+        <element name="Salary" positionX="-36" positionY="36" width="128" height="73"/>
     </elements>
 </model>

@@ -21,13 +21,7 @@ extension NSManagedObjectContext
     :returns: Result with managed object of the given entity type with the data imported on it
     */
     public func importEntity<T: NSManagedObject where T:NamedManagedObject>(entity: T.Type, dictionary: [String : AnyObject]) -> Result<T> {
-        switch entityDescription(entity) {
-        case let .Success(boxedDescription):
-            return importEntity(boxedDescription.value, dictionary: dictionary)
-
-        case let .Failure(boxedError):
-            return .Failure(boxedError)
-        }
+        return entityDescription(entity).flatMap { self.importEntity($0, dictionary: dictionary) }
     }
 
     /**
@@ -42,36 +36,22 @@ extension NSManagedObjectContext
     */
     func importEntity<T:NSManagedObject>(entityDescription: NSEntityDescription, dictionary: [String : AnyObject]) -> Result<T> {
 
-        switch entityDescription.identifyingAttribute() {
-        case let .Success(boxedAttribute):
-            switch boxedAttribute.value.preferredValueFromDictionary(dictionary) {
+        return entityDescription.identifyingAttribute().flatMap { identifyingAttribute in
+            switch identifyingAttribute.preferredValueFromDictionary(dictionary) {
             case let .Some(value):
-                let importObjectResult: Result<T> = objectForImport(entityDescription, identifyingValue: value)
-                switch importObjectResult {
-                case let .Success(boxedImportedObject):
-                    switch boxedImportedObject.value.importDictionary(dictionary) {
-                    case .Success:
-                        return .Success(boxedImportedObject)
-
-                    case let .Failure(error):
-                        return .Failure(error)
-                    }
-
-                case let .Failure(boxedError):
-                    return .Failure(boxedError)
+                let importObjectResult: Result<T> = self.objectForImport(entityDescription, identifyingValue: value)
+                return importObjectResult.flatMap { object in
+                    return object.importDictionary(dictionary).map { object }
                 }
 
             case .Null:
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "Value 'null' in import dictionary for identifying atribute '\(entityDescription.name).\(boxedAttribute.value.name)', dictionary: \(dictionary)"])
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "Value 'null' in import dictionary for identifying atribute '\(entityDescription.name).\(identifyingAttribute.name)', dictionary: \(dictionary)"])
                 return Result(error)
 
             case .None:
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "No value in import dictionary for identifying atribute '\(entityDescription.name).\(boxedAttribute.value.name)', dictionary: \(dictionary)"])
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "No value in import dictionary for identifying atribute '\(entityDescription.name).\(identifyingAttribute.name)', dictionary: \(dictionary)"])
                 return Result(error)
             }
-
-        case let .Failure(boxedError):
-            return .Failure(boxedError)
         }
     }
 
@@ -107,26 +87,19 @@ extension NSManagedObjectContext
     :returns: Result with the optional object that is found, nil on not found
     */
     func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject) -> Result<T?> {
-        switch entityDescription.identifyingAttribute() {
-        case let .Success(boxedAttribute):
-            let predicate = NSPredicate(format: "%K = %@", argumentArray: [boxedAttribute.value.name, identifyingValue])
-            switch find(entityDescription, predicate: predicate, sortDescriptors: nil, limit: nil) {
-            case let .Success(boxedResults):
-                if (boxedResults.value.count > 1) {
-                    let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(boxedResults.value.count) results"])
+
+        return entityDescription.identifyingAttribute().flatMap { identifyingAttribute in
+            let predicate = NSPredicate(format: "%K = %@", argumentArray: [identifyingAttribute.name, identifyingValue])
+            return self.find(entityDescription, predicate: predicate).flatMap {
+                if ($0.count > 1) {
+                    let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \($0.count) results"])
                     return Result(error)
-                } else if let firstResult = boxedResults.value.first {
+                } else if let firstResult = $0.first {
                     return Result(firstResult as? T)
                 } else {
                     return Result(nil)
                 }
-
-            case let .Failure(boxedError):
-                return .Failure(boxedError)
             }
-
-        case let .Failure(boxedError):
-            return .Failure(boxedError)
         }
     }
 }

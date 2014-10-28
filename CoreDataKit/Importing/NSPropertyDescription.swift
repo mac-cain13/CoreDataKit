@@ -20,7 +20,11 @@ extension NSPropertyDescription
 
         // Fetch the unnumbered mapping
         if let unnumberedMapping = userInfo?[MappingUserInfoKey] as? String {
-            _mappings.append(unnumberedMapping)
+            if SuppressMappingUserInfoValue == unnumberedMapping {
+                return [String]()
+            } else {
+                _mappings.append(unnumberedMapping)
+            }
         }
 
         // Fetch the numbered mappings

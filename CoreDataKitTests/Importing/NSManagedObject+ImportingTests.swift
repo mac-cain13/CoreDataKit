@@ -159,6 +159,21 @@ class NSManagedObjectTests: TestCase {
         }
     }
 
+    func testImportNestedWithoutIdRelation() {
+        if let jsonObject = loadJSONFile("EmployeesNestedWithoutIdRelation")? as? [String: AnyObject] {
+            switch coreDataStack.rootContext.importEntity(EmployeeWithRelationWithouId.self, dictionary: jsonObject) {
+            case let .Failure(boxedError):
+                XCTFail("Unexpected error \(boxedError.value)")
+
+            case let .Success(boxedObject):
+                XCTAssertEqual(boxedObject.value.name, "Jessica Pearson", "Unexpected name")
+                XCTAssertEqual(boxedObject.value.salary.amount, 123456789, "Unexpected salary")
+            }
+        } else {
+            XCTFail("Missing EmployeesNestedWithoutIdRelation.json fixture")
+        }
+    }
+
     private func loadJSONFile(filename: String) -> AnyObject? {
         for bundle in NSBundle.allBundles() {
             if let fileURL = bundle.URLForResource(filename, withExtension: "json") {
