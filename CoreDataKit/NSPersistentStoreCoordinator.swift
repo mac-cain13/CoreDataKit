@@ -26,7 +26,7 @@ extension NSPersistentStoreCoordinator
         let _URL = optionalURL ?? NSPersistentStore.URLForSQLiteStoreName("CoreDataKit")
 
         // Initialize coordinator if we have all data
-        switch ((_managedObjectModel, _URL)) {
+        switch (_managedObjectModel, _URL) {
         case let (.Some(managedObjectModel), .Some(URL)):
             self.init(managedObjectModel: managedObjectModel)
             self.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating)
