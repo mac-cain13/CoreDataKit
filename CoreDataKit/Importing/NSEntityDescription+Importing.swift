@@ -1,5 +1,5 @@
 //
-//  NSEntityDescription.swift
+//  NSEntityDescription+Importing.swift
 //  CoreDataKit
 //
 //  Created by Mathijs Kadijk on 16-10-14.

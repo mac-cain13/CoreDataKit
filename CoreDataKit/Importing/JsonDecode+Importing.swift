@@ -1,5 +1,5 @@
 //
-//  JsonDecoders.swift
+//  JsonDecode+Importing.swift
 //  CoreDataKit
 //
 //  Created by Mathijs Kadijk on 17-10-14.
