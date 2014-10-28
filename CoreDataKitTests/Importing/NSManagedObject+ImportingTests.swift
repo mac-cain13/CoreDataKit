@@ -19,8 +19,8 @@ class NSManagedObjectTests: TestCase {
                     XCTFail("Unexpected error")
 
                 case let .Success(boxedImportResult):
-                    XCTAssertEqual(boxedImportResult.value.name, jsonObject["checkName"] as String, "Unexpected name")
-                    XCTAssertEqual(boxedImportResult.value.age, jsonObject["checkAge"] as Int, "Unexpected age")
+                    XCTAssertEqual(boxedImportResult().name, jsonObject["checkName"] as String, "Unexpected name")
+                    XCTAssertEqual(boxedImportResult().age, jsonObject["checkAge"] as Int, "Unexpected age")
                 }
             }
         } else {
@@ -35,9 +35,9 @@ class NSManagedObjectTests: TestCase {
             XCTFail("Unexpected error")
 
         case let .Success(boxedObject):
-            boxedObject.value.name = "Haircolor Nulled"
-            boxedObject.value.age = 100
-            boxedObject.value.haircolor = "Yellow"
+            boxedObject().name = "Haircolor Nulled"
+            boxedObject().age = 100
+            boxedObject().haircolor = "Yellow"
         }
 
         if let jsonObject = loadJSONFile("EmployeesWithNull")? as? [String: AnyObject] {
@@ -46,9 +46,9 @@ class NSManagedObjectTests: TestCase {
                 XCTFail("Unexpected error")
 
             case let .Success(boxedImportedObject):
-                XCTAssertEqual(boxedImportedObject.value.name, "Haircolor Nulled", "Unexpected name")
-                XCTAssertEqual(boxedImportedObject.value.age, 100, "Unexpected age")
-                XCTAssertNil(boxedImportedObject.value.haircolor, "Unexpected haircolor")
+                XCTAssertEqual(boxedImportedObject().name, "Haircolor Nulled", "Unexpected name")
+                XCTAssertEqual(boxedImportedObject().age, 100, "Unexpected age")
+                XCTAssertNil(boxedImportedObject().haircolor, "Unexpected haircolor")
             }
         } else {
             XCTFail("Missing EmployeesWithNull.json fixture")
@@ -62,9 +62,9 @@ class NSManagedObjectTests: TestCase {
             XCTFail("Unexpected error")
 
         case let .Success(boxedObject):
-            boxedObject.value.name = "Haircolor Omitted"
-            boxedObject.value.age = 100
-            boxedObject.value.haircolor = "Yellow"
+            boxedObject().name = "Haircolor Omitted"
+            boxedObject().age = 100
+            boxedObject().haircolor = "Yellow"
         }
 
         if let jsonObject = loadJSONFile("EmployeesWithOmittedField")? as? [String: AnyObject] {
@@ -73,9 +73,9 @@ class NSManagedObjectTests: TestCase {
                 XCTFail("Unexpected error")
 
             case let .Success(boxedImportedObject):
-                XCTAssertEqual(boxedImportedObject.value.name, "Haircolor Omitted", "Unexpected name")
-                XCTAssertEqual(boxedImportedObject.value.age, 200, "Unexpected age")
-                if let haircolor = boxedImportedObject.value.haircolor {
+                XCTAssertEqual(boxedImportedObject().name, "Haircolor Omitted", "Unexpected name")
+                XCTAssertEqual(boxedImportedObject().age, 200, "Unexpected age")
+                if let haircolor = boxedImportedObject().haircolor {
                     XCTAssertEqual(haircolor, "Yellow", "Unexpected haircolor")
                 } else {
                     XCTFail("Missing haircolor")
@@ -93,11 +93,11 @@ class NSManagedObjectTests: TestCase {
                 XCTFail("Unexpected error")
 
             case let .Success(boxedImportedObject):
-                XCTAssertEqual(boxedImportedObject.value.name, "Mike Ross", "Unexpected name")
-                XCTAssertEqual(boxedImportedObject.value.age, 32, "Unexpected age")
-                XCTAssertEqual(boxedImportedObject.value.cars.count, 1, "Unexpected count of cars")
+                XCTAssertEqual(boxedImportedObject().name, "Mike Ross", "Unexpected name")
+                XCTAssertEqual(boxedImportedObject().age, 32, "Unexpected age")
+                XCTAssertEqual(boxedImportedObject().cars.count, 1, "Unexpected count of cars")
 
-                if let car = boxedImportedObject.value.cars.anyObject() as? Car {
+                if let car = boxedImportedObject().cars.anyObject() as? Car {
                     XCTAssertEqual(car.plate, "YY-YY-YY", "Unexpected plate")
                     XCTAssertEqual(car.color, "red", "Unexpected color")
                 }
@@ -114,8 +114,8 @@ class NSManagedObjectTests: TestCase {
             XCTFail("Unexpected error")
 
         case let .Success(boxedObject):
-            boxedObject.value.plate = "ZZ-ZZ-ZZ"
-            boxedObject.value.color = "brown"
+            boxedObject().plate = "ZZ-ZZ-ZZ"
+            boxedObject().color = "brown"
         }
 
         if let jsonObject = loadJSONFile("EmployeesReferencedRelation")? as? [String: AnyObject] {
@@ -124,11 +124,11 @@ class NSManagedObjectTests: TestCase {
                 XCTFail("Unexpected error")
 
             case let .Success(boxedObject):
-                XCTAssertEqual(boxedObject.value.name, "Mike Ross", "Unexpected name")
-                XCTAssertEqual(boxedObject.value.age, 23, "Unexpected age")
-                XCTAssertEqual(boxedObject.value.cars.count, 1, "Unexpected count of cars")
+                XCTAssertEqual(boxedObject().name, "Mike Ross", "Unexpected name")
+                XCTAssertEqual(boxedObject().age, 23, "Unexpected age")
+                XCTAssertEqual(boxedObject().cars.count, 1, "Unexpected count of cars")
 
-                if let car = boxedObject.value.cars.anyObject() as? Car {
+                if let car = boxedObject().cars.anyObject() as? Car {
                     XCTAssertEqual(car.plate, "ZZ-ZZ-ZZ", "Unexpected plate")
                     XCTAssertEqual(car.color, "brown", "Unexpected color")
                 }
@@ -145,11 +145,11 @@ class NSManagedObjectTests: TestCase {
                 XCTFail("Unexpected error")
 
             case let .Success(boxedObject):
-                XCTAssertEqual(boxedObject.value.name, "Mike Ross", "Unexpected name")
-                XCTAssertEqual(boxedObject.value.age, 23, "Unexpected age")
-                XCTAssertEqual(boxedObject.value.cars.count, 0, "Unexpected count of cars")
+                XCTAssertEqual(boxedObject().name, "Mike Ross", "Unexpected name")
+                XCTAssertEqual(boxedObject().age, 23, "Unexpected age")
+                XCTAssertEqual(boxedObject().cars.count, 0, "Unexpected count of cars")
 
-                if let car = boxedObject.value.cars.anyObject() as? Car {
+                if let car = boxedObject().cars.anyObject() as? Car {
                     XCTAssertEqual(car.plate, "YY-YY-YY", "Unexpected plate")
                     XCTAssertEqual(car.color, "red", "Unexpected color")
                 }
@@ -162,12 +162,12 @@ class NSManagedObjectTests: TestCase {
     func testImportNestedWithoutIdRelation() {
         if let jsonObject = loadJSONFile("EmployeesNestedWithoutIdRelation")? as? [String: AnyObject] {
             switch coreDataStack.rootContext.importEntity(EmployeeWithRelationWithoutId.self, dictionary: jsonObject) {
-            case let .Failure(boxedError):
-                XCTFail("Unexpected error \(boxedError.value)")
+            case let .Failure(error):
+                XCTFail("Unexpected error \(error)")
 
             case let .Success(boxedObject):
-                XCTAssertEqual(boxedObject.value.name, "Jessica Pearson", "Unexpected name")
-                XCTAssertEqual(boxedObject.value.salary.amount, 123456789, "Unexpected salary")
+                XCTAssertEqual(boxedObject().name, "Jessica Pearson", "Unexpected name")
+                XCTAssertEqual(boxedObject().salary.amount, 123456789, "Unexpected salary")
             }
         } else {
             XCTFail("Missing EmployeesNestedWithoutIdRelation.json fixture")

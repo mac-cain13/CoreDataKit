@@ -8,33 +8,22 @@
 
 import CoreData
 
-/// Box to wrap any value, used to workaround the mulivalue enums swift bug
-public class Box<T> {
-    /// The value this box contains
-    public let value: T
-
-    /// Initialize a box with the given value
-    internal init(_ _value: T) {
-        value = _value
-    }
-}
-
 /// The result type used for nearly all failable operations
 public enum Result<T> {
     /// Indicated success of the operation and contains a boxed result value
-    case Success(Box<T>)
+    case Success(@autoclosure () -> T)
 
     /// Indicates failure of the operation and contains a boxes error value
-    case Failure(Box<NSError>)
+    case Failure(NSError)
 
     /// Initialize with a success value, boxes it for you
     internal init(_ value: T) {
-        self = .Success(Box(value))
+        self = .Success(value)
     }
 
     /// Initialize with a error value, boxes it for you
     internal init(_ value: NSError) {
-        self = .Failure(Box(value))
+        self = .Failure(value)
     }
 
     /**
@@ -59,8 +48,8 @@ public enum Result<T> {
     */
     public func successValue() -> T? {
         switch self {
-        case let .Success(box):
-            return box.value
+        case let .Success(value):
+            return value()
 
         default:
             return nil
@@ -74,8 +63,8 @@ public enum Result<T> {
     */
     public func failureValue() -> NSError? {
         switch self {
-        case let .Failure(box):
-            return box.value
+        case let .Failure(error):
+            return error
 
         default:
             return nil
@@ -85,7 +74,7 @@ public enum Result<T> {
     public func map<U>(f: T -> U) -> Result<U> {
         switch self {
         case let .Success(x):
-            return .Success(Box(f(x.value)))
+            return .Success(f(x()))
 
         case let .Failure(x):
             return .Failure(x)
@@ -95,7 +84,7 @@ public enum Result<T> {
     public static func flatten<T>(result: Result<Result<T>>) -> Result<T> {
         switch result {
         case let .Success(x):
-            return x.value
+            return x()
 
         case let .Failure(x):
             return .Failure(x)
