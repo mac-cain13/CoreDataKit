@@ -82,7 +82,7 @@ public enum Result<T> {
         }
     }
 
-    func map<U>(f: T -> U) -> Result<U> {
+    public func map<U>(f: T -> U) -> Result<U> {
         switch self {
         case let .Success(x):
             return .Success(Box(f(x.value)))
@@ -92,7 +92,7 @@ public enum Result<T> {
         }
     }
 
-    static func flatten<T>(result: Result<Result<T>>) -> Result<T> {
+    public static func flatten<T>(result: Result<Result<T>>) -> Result<T> {
         switch result {
         case let .Success(x):
             return x.value
@@ -102,7 +102,7 @@ public enum Result<T> {
         }
     }
 
-    func flatMap<U>(f: T -> Result<U>) -> Result<U> {
+    public func flatMap<U>(f: T -> Result<U>) -> Result<U> {
         return Result.flatten(map(f))
     }
 }
