@@ -12,6 +12,6 @@ import CoreData
 class Salary: NSManagedObject {
 
     @NSManaged var amount: NSDecimalNumber
-    @NSManaged var employee: EmployeeWithRelationWithouId
+    @NSManaged var employee: EmployeeWithRelationWithoutId
 
 }

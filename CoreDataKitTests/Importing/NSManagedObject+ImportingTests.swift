@@ -161,7 +161,7 @@ class NSManagedObjectTests: TestCase {
 
     func testImportNestedWithoutIdRelation() {
         if let jsonObject = loadJSONFile("EmployeesNestedWithoutIdRelation")? as? [String: AnyObject] {
-            switch coreDataStack.rootContext.importEntity(EmployeeWithRelationWithouId.self, dictionary: jsonObject) {
+            switch coreDataStack.rootContext.importEntity(EmployeeWithRelationWithoutId.self, dictionary: jsonObject) {
             case let .Failure(boxedError):
                 XCTFail("Unexpected error \(boxedError.value)")
 
