@@ -209,6 +209,7 @@ extension NSManagedObject
                 return self.updateRelationship(relationship, withValue: nil)
                 
             case .None:
+                self.managedObjectContext!.delete(destinationObject)
                 return Result() // Not found in dictionary, do not change value
             }
         }
