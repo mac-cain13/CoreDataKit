@@ -25,8 +25,19 @@ public class CoreDataStack: NSObject {
     */
     public init(persistentStoreCoordinator _persistentStoreCoordinator: NSPersistentStoreCoordinator) {
         persistentStoreCoordinator = _persistentStoreCoordinator
+
         rootContext = NSManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
+        rootContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+
         mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
+
+        super.init()
+
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "rootContextDidSave:", name: NSManagedObjectContextDidSaveNotification, object: rootContext)
+    }
+
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
     }
 
 // MARK: Convenience methods
@@ -41,5 +52,17 @@ public class CoreDataStack: NSObject {
     */
     public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
         rootContext.createChildContext().performBlock(block, completionHandler: completionHandler)
+    }
+
+// MARK: Notification observers
+
+    func rootContextDidSave(notification: NSNotification) {
+        if NSThread.isMainThread() {
+            mainThreadContext.mergeChangesFromContextDidSaveNotification(notification)
+        } else {
+            dispatch_async(dispatch_get_main_queue()) {
+                self.rootContextDidSave(notification)
+            }
+        }
     }
 }
