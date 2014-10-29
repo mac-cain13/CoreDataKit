@@ -9,51 +9,65 @@
 import UIKit
 import CoreData
 
-class TableViewFetchedResultsControllerDelegate: NSFetchedResultsControllerDelegate {
-    var sectionAnimation: UITableViewRowAnimation = .Fade
-    var rowAnimation: UITableViewRowAnimation = .Fade
+/**
+Simple implementation of NSFetchedResultsControllerDelegate for use with a UITableView
 
-    let tableView: UITableView
+:discussion: Be aware that the NSFetchedResultsController will not retain your delegate object. So you have to keep a reference to this object somewhere.
+*/
+public class TableViewFetchedResultsControllerDelegate: NSFetchedResultsControllerDelegate {
+    var sectionAnimation: UITableViewRowAnimation = .Automatic
+    var rowAnimation: UITableViewRowAnimation = .Automatic
 
-    init(tableView: UITableView) {
+    weak var tableView: UITableView?
+
+    /**
+    Initialize a delegate
+    
+    :param: tableView The table view to perform the changed the NSFetchedResultsController reports on
+    */
+    public init(tableView: UITableView) {
         self.tableView = tableView
     }
 
-    func controllerWillChangeContent(controller: NSFetchedResultsController) {
-        tableView.beginUpdates()
+    /// Implementation of NSFetchedResultsControllerDelegate
+    public func controllerWillChangeContent(controller: NSFetchedResultsController) {
+        tableView?.beginUpdates()
     }
 
-    func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
+    /// Implementation of NSFetchedResultsControllerDelegate
+    public func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
         switch type {
         case .Insert:
-            tableView.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: sectionAnimation)
+            tableView?.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: sectionAnimation)
 
         case .Delete:
-            tableView.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: sectionAnimation)
+            tableView?.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: sectionAnimation)
 
         default:
             break // Noop
         }
     }
 
-    func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    /// Implementation of NSFetchedResultsControllerDelegate
+    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
-            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
+            tableView?.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
 
         case .Delete:
-            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
+            tableView?.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
 
         case .Move:
-            tableView.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
-            tableView.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
+            tableView?.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
+            tableView?.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
 
         case .Update:
-            tableView.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
+            tableView?.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
         }
     }
 
-    func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        tableView.endUpdates()
+    /// Implementation of NSFetchedResultsControllerDelegate
+    public func controllerDidChangeContent(controller: NSFetchedResultsController) {
+        tableView?.endUpdates()
     }
 }
