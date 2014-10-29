@@ -72,12 +72,12 @@ extension NSManagedObject
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
-                    if let error = performImportAttribute(attributeDescription, dictionary: dictionary).failureValue() {
+                    if let error = performImportAttribute(attributeDescription, dictionary: dictionary).error() {
                         return Result(error) // Abort import
                     }
 
                 case let relationshipDescription as NSRelationshipDescription:
-                    if let error = performImportRelationship(relationshipDescription, dictionary: dictionary).failureValue()  {
+                    if let error = performImportRelationship(relationshipDescription, dictionary: dictionary).error()  {
                         return Result(error) // Abort import
                     }
 

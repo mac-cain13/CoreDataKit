@@ -46,7 +46,7 @@ public enum Result<T> {
     
     :returns: The unboxed success value or nil on failure
     */
-    public func successValue() -> T? {
+    public func value() -> T? {
         switch self {
         case let .Success(value):
             return value()
@@ -57,11 +57,11 @@ public enum Result<T> {
     }
 
     /**
-    Get the unboxed failure value
+    Get the error
 
     :returns: The unboxed failure value or nil on success
     */
-    public func failureValue() -> NSError? {
+    public func error() -> NSError? {
         switch self {
         case let .Failure(error):
             return error

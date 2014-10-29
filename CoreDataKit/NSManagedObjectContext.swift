@@ -96,7 +96,7 @@ extension NSManagedObjectContext
     
     :param: completionHandler  Completion block to run after changes are saved
     */
-    public func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler? = nil)
+    func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler? = nil)
     {
         var optionalError: NSError?
         save(&optionalError)
@@ -216,7 +216,83 @@ extension NSManagedObjectContext
         return Result()
     }
 
-// MARK: - Finding
+// MARK: - Fetching
+
+    /**
+    Create a fetch request
+    
+    :param: entity          Type of entity to search for
+    :param: predicate       Predicate to filter on
+    :param: sortDescriptors Sort descriptors to sort on
+    :param: limit           Maximum number of items to return
+    :param: offset          The number of items to skip in the result
+    
+    :returns: NSFetchRequest configured with the given parameters
+    */
+    public func createFetchRequest(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> NSFetchRequest {
+        let fetchRequest = NSFetchRequest()
+        fetchRequest.entity = entityDescription
+        fetchRequest.predicate = predicate
+        fetchRequest.sortDescriptors = sortDescriptors
+        fetchRequest.fetchLimit = limit ?? 0
+        fetchRequest.fetchOffset = offset ?? 0
+        fetchRequest.returnsObjectsAsFaults = true
+
+        return fetchRequest
+    }
+
+    /**
+    Execute a fetch request
+    
+    :param: fetchRequest The request to execute on this context
+    
+    :returns: Result with array of entities found, empty array on no results
+    */
+    public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) -> Result<[T]> {
+        var optionalError: NSError?
+        let optionalResults = executeFetchRequest(fetchRequest, error: &optionalError)?.map { $0 as T }
+
+        switch (optionalResults, optionalError) {
+        case let (.Some(results), .None):
+            return Result(results)
+
+        case let (.None, .Some(error)):
+            return Result(error)
+
+        default:
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSManagedObjectContext.executeFetchRequest returned invalid combination of return value (\(optionalResults)) and error (\(optionalError))"])
+            return Result(error)
+        }
+    }
+
+// MARK: Fetched result controller
+
+    /**
+    Create a fetched results controller
+    
+    :discussion: Be aware that when you change to request but use the same cache as before stuff can mess up!
+    
+    :param: fetchRequest        Underlaying fetch request for the controller
+    :param: delegate            Delegate, the controller will only observe changes when a delegate is present
+    :param: sectionNameKeyPath  Keypath to section the results on
+    :param: cacheName           Name of the cache to use, nil for no cache
+    
+    :returns: Fetched results controller that already has performed the fetch
+    */
+    public func fetchedResultController(fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate?, sectionNameKeyPath: String?, cacheName: String?) -> Result<NSFetchedResultsController> {
+        let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
+        resultsController.delegate = delegate
+
+        var optionalError: NSError?
+        resultsController.performFetch(&optionalError)
+        if let error = optionalError {
+            return Result(error)
+        }
+
+        return Result(resultsController)
+    }
+
+// MARK: Find helpers
 
     /**
     Looks the given managed object up in this context
@@ -225,7 +301,7 @@ extension NSManagedObjectContext
 
     :returns: Result with the given object in this context
     */
-    public func convert<T:NSManagedObject>(managedObject: T) -> Result<T> {
+    public func find<T:NSManagedObject>(managedObject: T) -> Result<T> {
         var optionalError: NSError?
 
         // First make sure we have a permanent ID for this object
@@ -253,27 +329,17 @@ extension NSManagedObjectContext
     }
 
     /**
-    Find all entities of a certain type
-    
-    :param: entity Type of entity to search for
-
-    :returns: Result with array of entities found, empty array on no results
-    */
-    public func all<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) -> Result<[T]> {
-        return find(entity)
-    }
-
-    /**
     Find entities of a certain type in this context
     
     :param: entity          Type of entity to search for
     :param: predicate       Predicate to filter on
     :param: sortDescriptors Sort descriptors to sort on
     :param: limit           Maximum number of items to return
+    :param: offset          The number of items to skip in the result
     
     :returns: Result with array of entities found, empty array on no results
     */
-    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil) -> Result<[T]> {
+    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
         return entityDescription(entity).flatMap {
             self.find($0, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
         }
@@ -289,27 +355,8 @@ extension NSManagedObjectContext
 
     :returns: Result with array of entities found, empty array on no results
     */
-    func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil) -> Result<[T]> {
-        let fetchRequest = NSFetchRequest()
-        fetchRequest.entity = entityDescription
-        fetchRequest.predicate = predicate
-        fetchRequest.sortDescriptors = sortDescriptors
-        fetchRequest.fetchLimit = limit ?? 0
-        fetchRequest.returnsObjectsAsFaults = true
-
-        var optionalError: NSError?
-        let optionalResults = executeFetchRequest(fetchRequest, error: &optionalError)?.map { $0 as T }
-
-        switch (optionalResults, optionalError) {
-        case let (.Some(results), .None):
-            return Result(results)
-
-        case let (.None, .Some(error)):
-            return Result(error)
-
-        default:
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSManagedObjectContext.executeFetchRequest returned invalid combination of return value (\(optionalResults)) and error (\(optionalError))"])
-            return Result(error)
-        }
+    func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
+        let fetchRequest = createFetchRequest(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
+        return executeFetchRequest(fetchRequest)
     }
 }
