@@ -220,13 +220,30 @@ extension NSManagedObjectContext
 
     /**
     Create a fetch request
-    
+
     :param: entity          Type of entity to search for
     :param: predicate       Predicate to filter on
     :param: sortDescriptors Sort descriptors to sort on
     :param: limit           Maximum number of items to return
     :param: offset          The number of items to skip in the result
-    
+
+    :returns: Result with NSFetchRequest configured with the given parameters
+    */
+    public func createFetchRequest<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<NSFetchRequest> {
+        return entityDescription(entity).map {
+            return self.createFetchRequest($0, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit, offset: offset)
+        }
+    }
+
+    /**
+    Create a fetch request
+
+    :param: entity          Type of entity to search for
+    :param: predicate       Predicate to filter on
+    :param: sortDescriptors Sort descriptors to sort on
+    :param: limit           Maximum number of items to return
+    :param: offset          The number of items to skip in the result
+
     :returns: NSFetchRequest configured with the given parameters
     */
     public func createFetchRequest(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> NSFetchRequest {
@@ -279,7 +296,7 @@ extension NSManagedObjectContext
     
     :returns: Fetched results controller that already has performed the fetch
     */
-    public func fetchedResultController(fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate?, sectionNameKeyPath: String?, cacheName: String?) -> Result<NSFetchedResultsController> {
+    public func fetchedResultsController(fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate? = nil, sectionNameKeyPath: String? = nil, cacheName: String? = nil) -> Result<NSFetchedResultsController> {
         let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
         resultsController.delegate = delegate
 
