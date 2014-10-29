@@ -205,6 +205,7 @@ extension NSManagedObject
                 return Result(error)
 
             case .Null:
+                self.managedObjectContext!.delete(destinationObject)
                 return self.updateRelationship(relationship, withValue: nil)
                 
             case .None:
