@@ -29,21 +29,21 @@ if let persistentStoreCoordinator = NSPersistentStoreCoordinator(automigrating: 
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```
 CoreDataKit.performBlockOnBackgroundContext({ context in
-		if let car = context.create(Car.self).successValue() {
-			car.color = "Hammerhead Silver"
-			car.model = "Aston Martin DB9"
-		}
+	if let car = context.create(Car.self).successValue() {
+		car.color = "Hammerhead Silver"
+		car.model = "Aston Martin DB9"
+	}
 
-		return .SaveToPersistentStore
-	}, completionHandler: { result, _ in
-        switch result {
-        case .Success:
-        	println("Car saved, time to update the interface!")
-          
-        case let .Failure(boxedError):
-          	println("Saving Harvey Specters car failed with error: \(boxedError.value)")
-        }
-    })
+	return .SaveToPersistentStore
+}, completionHandler: { result, _ in
+    switch result {
+    case .Success:
+    	println("Car saved, time to update the interface!")
+      
+    case let .Failure(error):
+      	println("Saving Harvey Specters car failed with error: \(error)")
+    }
+})
 ```
 
 ## Contributing
