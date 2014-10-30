@@ -99,7 +99,7 @@ extension NSPersistentStoreCoordinator
             // Check for version mismatch
             if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
-                println("[CoreDataKit] Model mismatch, removing persistent store...")
+                CoreDataKit.sharedLogger(.WARN, "[CoreDataKit] Model mismatch, removing persistent store...")
                 if let urlString = URL.absoluteString {
                     let shmFile = urlString.stringByAppendingString("-shm")
                     let walFile = urlString.stringByAppendingString("-wal")
@@ -108,15 +108,21 @@ extension NSPersistentStoreCoordinator
                     NSFileManager.defaultManager().removeItemAtPath(walFile, error: nil)
                 }
 
-                addStore()
+                if let error = addStore().error() {
+                    CoreDataKit.sharedLogger(.ERROR, "[CoreDataKit] Failed to add SQLite persistent store: \(error)")
+                }
             }
             // Workaround for "Migration failed after first pass" error
             else if automigrating {
-                println("[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
+                CoreDataKit.sharedLogger(.WARN, "[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 2), dispatch_get_main_queue()) {
-                    addStore()
-                    return
+                    if let error = addStore().error() {
+                        CoreDataKit.sharedLogger(.ERROR, "[CoreDataKit] Failed to add SQLite persistent store: \(error)")
+                    }
                 }
+            }
+            else {
+                CoreDataKit.sharedLogger(.ERROR, "[CoreDataKit] Failed to add SQLite persistent store: \(error)")
             }
         }
     }

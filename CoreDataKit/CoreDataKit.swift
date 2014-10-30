@@ -8,6 +8,15 @@
 
 import CoreData
 
+public enum LogLevel {
+    case DEBUG
+    case INFO
+    case WARN
+    case ERROR
+}
+
+public typealias Logger = (LogLevel, String) -> Void
+
 /**
 `CoreDataKit` helps with setup of the CoreData stack
 */
@@ -15,6 +24,7 @@ public class CoreDataKit : NSObject
 {
     private struct Holder {
         static var sharedStack: CoreDataStack?
+        static var sharedLogger: Logger = { _, message in println("[CoreDataKit] \(message)") }
     }
 
     /**
@@ -29,6 +39,21 @@ public class CoreDataKit : NSObject
 
         set {
             Holder.sharedStack = newValue
+        }
+    }
+
+    /**
+    Shared logger used by CoreDataKit to log messages.
+    
+    :discussion: Default logger prints messages to console, but you can use this to use your own logger
+    */
+    public class var sharedLogger: Logger {
+        get {
+            return Holder.sharedLogger
+        }
+
+        set {
+            Holder.sharedLogger = newValue
         }
     }
 
