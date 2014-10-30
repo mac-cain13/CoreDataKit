@@ -19,7 +19,7 @@ extension NSPersistentStoreCoordinator
     :param: URL                URL to save the SQLite store at, pass nil to use default
     :param: managedObjectModel Managed object model to initialize the store with, pass nil to use all models in the main bundle
     */
-    public convenience init?(automigrating: Bool, URL optionalURL: NSURL? = nil, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel? = nil) {
+    public convenience init?(automigrating: Bool, deleteOnMismatch: Bool = false, URL optionalURL: NSURL? = nil, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel? = nil) {
 
         // Fallback on the defaults
         let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
@@ -29,7 +29,7 @@ extension NSPersistentStoreCoordinator
         switch (_managedObjectModel, _URL) {
         case let (.Some(managedObjectModel), .Some(URL)):
             self.init(managedObjectModel: managedObjectModel)
-            self.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating)
+            self.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating, deleteOnMismatch: deleteOnMismatch)
 
         default:
             self.init()
@@ -70,9 +70,9 @@ extension NSPersistentStoreCoordinator
     :param: URL           Location of the store
     :param: automigrating Whether the store should automigrate itself
     */
-    func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool)
+    private func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool, deleteOnMismatch: Bool)
     {
-        let addStore: () -> Void = {
+        let addStore: () -> Result<NSPersistentStore> = {
             let options = [
                 NSMigratePersistentStoresAutomaticallyOption: automigrating,
                 NSInferMappingModelAutomaticallyOption: automigrating,
@@ -80,20 +80,44 @@ extension NSPersistentStoreCoordinator
             ];
 
             var optionalError: NSError?
-            self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options, error: &optionalError)
+            let optionalStore = self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options, error: &optionalError)
 
-            if let error = optionalError {
-                println("[CoreDataKit] Error while adding SQLite persistent store: \(error)")
+            switch (optionalStore, optionalError) {
+            case let (.Some(store), .None):
+                return Result(store)
+
+            case let (.None, .Some(error)):
+                return Result(error)
+
+            default:
+                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSPersistentStoreCoordinator.addPersistentStoreWithType returned invalid combination of return value (\(optionalStore)) and error (\(optionalError))"])
+                return Result(error)
             }
         }
 
-        addStore()
+        if let error = addStore().error() {
+            // Check for version mismatch
+            if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
-        // Workaround for "Migration failed after first pass" error
-        if (automigrating && 0 == self.persistentStores.count)
-        {
-            println("[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 2), dispatch_get_main_queue(), addStore)
+                println("[CoreDataKit] Model mismatch, removing persistent store...")
+                if let urlString = URL.absoluteString {
+                    let shmFile = urlString.stringByAppendingString("-shm")
+                    let walFile = urlString.stringByAppendingString("-wal")
+                    NSFileManager.defaultManager().removeItemAtURL(URL, error: nil)
+                    NSFileManager.defaultManager().removeItemAtPath(shmFile, error: nil)
+                    NSFileManager.defaultManager().removeItemAtPath(walFile, error: nil)
+                }
+
+                addStore()
+            }
+            // Workaround for "Migration failed after first pass" error
+            else if automigrating {
+                println("[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 2), dispatch_get_main_queue()) {
+                    addStore()
+                    return
+                }
+            }
         }
     }
 }
