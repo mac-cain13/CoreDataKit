@@ -369,11 +369,26 @@ extension NSManagedObjectContext
     :param: predicate       Predicate to filter on
     :param: sortDescriptors Sort descriptors to sort on
     :param: limit           Maximum number of items to return
+    :param: offset          The number of items to skip in the result
 
     :returns: Result with array of entities found, empty array on no results
     */
     func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
         let fetchRequest = createFetchRequest(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
         return executeFetchRequest(fetchRequest)
+    }
+
+    /**
+    Get the first entity that matched the given parameters
+
+    :param: entity          Type of entity to search for
+    :param: predicate       Predicate to filter on
+    :param: sortDescriptors Sort descriptors to sort on
+    :param: offset          The number of items to skip in the result
+
+    :returns: Result with the entity or result with nil if the entity is not found
+    */
+    public func findFirst<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, offset: Int? = nil) -> Result<T?> {
+        return find(entity, predicate: predicate, sortDescriptors: sortDescriptors, limit: 1, offset: offset).map { $0.first }
     }
 }
