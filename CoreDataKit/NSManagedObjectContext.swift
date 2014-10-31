@@ -73,17 +73,25 @@ extension NSManagedObjectContext
             let commitAction = block(self)
             switch (commitAction) {
             case .DoNothing:
-                completionHandler?(Result(), commitAction)
+                completionHandler?(Result(commitAction))
 
             case .SaveToParentContext:
                 var optionalError: NSError?
                 self.save(&optionalError)
-                completionHandler?(Result<Void>.withOptionalError(optionalError), commitAction)
+                if let error = optionalError {
+                    completionHandler?(Result(error))
+                } else {
+                    completionHandler?(Result(commitAction))
+                }
 
             case .SaveToPersistentStore:
-                self.saveToPersistentStore {
-                    completionHandler?($0, commitAction)
-                    return
+                self.saveToPersistentStore { result in
+                    switch result {
+                    case .Success:
+                        completionHandler?(Result(commitAction))
+                    case let .Failure(error):
+                        completionHandler?(Result(error))
+                    }
                 }
             }
         }
