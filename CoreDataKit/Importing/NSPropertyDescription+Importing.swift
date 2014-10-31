@@ -33,7 +33,7 @@ extension NSPropertyDescription
                 _mappings.append(numberedMapping)
 
                 if i == MaxNumberedMappings+1 {
-                    println("[CoreDataKit] Warning: Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported, you defined more for \(entity.name).\(name)")
+                    CoreDataKit.sharedLogger(.WARN, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported, you defined more for \(entity.name).\(name)")
                 }
             }
         }

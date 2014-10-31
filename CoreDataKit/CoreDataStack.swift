@@ -54,6 +54,16 @@ public class CoreDataStack: NSObject {
         rootContext.createChildContext().performBlock(block, completionHandler: completionHandler)
     }
 
+    /**
+    Dumps some debug info about this stack to the console
+    */
+    public func debugDump() {
+        println("Stores: \(persistentStoreCoordinator.persistentStores)")
+        println(" - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
+        println("  - Root context: \(rootContext.debugDescription)")
+        println("   - Main thread context: \(mainThreadContext.debugDescription)")
+    }
+
 // MARK: Notification observers
 
     func rootContextDidSave(notification: NSNotification) {
