@@ -38,7 +38,7 @@
 		D5D7C6C81958B8CF0048B576 /* CoreDataKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5D7C6BC1958B8CF0048B576 /* CoreDataKit.framework */; };
 		D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */; };
 		D5D7C6D91958B9300048B576 /* CoreDataKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D7C6D81958B9300048B576 /* CoreDataKit.swift */; };
-		D5D8E81C1A0363A300991FEA /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D8E81B1A0363A300991FEA /* Observable.swift */; };
+		D5D8E81C1A0363A300991FEA /* ManagedObjectObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D8E81B1A0363A300991FEA /* ManagedObjectObserver.swift */; };
 		D5EDACE319EF950B00FAC712 /* NSPersistentStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */; };
 		D5FE0FBE19F28340008DC1ED /* Employees.json in Resources */ = {isa = PBXBuildFile; fileRef = D5FE0FBD19F28340008DC1ED /* Employees.json */; };
 		D5FE0FC019F286DF008DC1ED /* NSManagedObject+ImportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */; };
@@ -93,7 +93,7 @@
 		D5D7C6CD1958B8CF0048B576 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataKitTests.swift; sourceTree = "<group>"; };
 		D5D7C6D81958B9300048B576 /* CoreDataKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoreDataKit.swift; sourceTree = "<group>"; };
-		D5D8E81B1A0363A300991FEA /* Observable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
+		D5D8E81B1A0363A300991FEA /* ManagedObjectObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserver.swift; sourceTree = "<group>"; };
 		D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreTests.swift; sourceTree = "<group>"; };
 		D5FE0FBD19F28340008DC1ED /* Employees.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Employees.json; sourceTree = "<group>"; };
 		D5FE0FBF19F286DF008DC1ED /* NSManagedObject+ImportingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObject+ImportingTests.swift"; sourceTree = "<group>"; };
@@ -182,7 +182,7 @@
 				D595F68619EF0ED800D73790 /* Types.swift */,
 				D5D7C6D81958B9300048B576 /* CoreDataKit.swift */,
 				D595F68419EF0EA100D73790 /* CoreDataStack.swift */,
-				D5D8E81B1A0363A300991FEA /* Observable.swift */,
+				D5D8E81B1A0363A300991FEA /* ManagedObjectObserver.swift */,
 				D5253DA419F1491E00E8B4AF /* NamedManagedObject.swift */,
 				D553FD961959505800E71FCE /* NSManagedObjectContext.swift */,
 				D55152D0196A739500857453 /* NSPersistentStore.swift */,
@@ -353,7 +353,7 @@
 				D5253DA319F1398600E8B4AF /* NSManagedObjectContext+Importing.swift in Sources */,
 				D595F68519EF0EA100D73790 /* CoreDataStack.swift in Sources */,
 				D5253DA119F12F1C00E8B4AF /* NSManagedObject+Importing.swift in Sources */,
-				D5D8E81C1A0363A300991FEA /* Observable.swift in Sources */,
+				D5D8E81C1A0363A300991FEA /* ManagedObjectObserver.swift in Sources */,
 				D5D7C6D91958B9300048B576 /* CoreDataKit.swift in Sources */,
 				D55152D1196A739500857453 /* NSPersistentStore.swift in Sources */,
 				D5BD629F1A01587800098343 /* TableViewFetchedResultsControllerDelegate.swift in Sources */,
