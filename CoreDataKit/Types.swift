@@ -134,7 +134,7 @@ Blocktype used to handle completion of `PerformBlock`s.
 :param: result       Wheter the operation was successful
 :param: commitAction The type of commit action the block has done
 */
-public typealias PerformBlockCompletionHandler = (Result<Void>, CommitAction) -> Void
+public typealias PerformBlockCompletionHandler = Result<CommitAction> -> Void
 
 // MARK: - Errors
 
