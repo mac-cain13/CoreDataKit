@@ -8,43 +8,48 @@
 
 import CoreData
 
-public class ManagedObjectObserver<T:NSManagedObject>: NSFetchedResultsControllerDelegate {
+public class ManagedObjectObserver<T:NSManagedObject>: NSObject, NSFetchedResultsControllerDelegate {
     public typealias ChangeHandler = T -> Void
 
     public let observedObject: T
-    let fetchedResultsController: NSFetchedResultsController
     var subscriptions: [ChangeHandler]
 
-    public init?(observedObject: T, inContext context: NSManagedObjectContext) {
+    public init(observedObject: T, inContext context: NSManagedObjectContext) {
         self.observedObject = observedObject
         self.subscriptions = [ChangeHandler]()
 
-        let predicate = NSPredicate(format: "self = %@", argumentArray: [observedObject.objectID])
-        var sortDescriptors: [NSSortDescriptor] = []
-        if let anyPropertyName = observedObject.entity.properties.first?.name {
-            sortDescriptors = [NSSortDescriptor(key: anyPropertyName, ascending: true)]
+        super.init()
+
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "managedObjectContextObjectsDidChange:", name: NSManagedObjectContextObjectsDidChangeNotification, object: context)
+    }
+
+    deinit {
+        NSNotificationCenter.defaultCenter().removeObserver(self)
+    }
+
+    public func managedObjectContextObjectsDidChange(notification: NSNotification) {
+        let changedObjects = NSMutableSet()
+
+        if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
+            changedObjects.unionSet(updatedObjects)
         }
 
-        let fetchRequest = context.createFetchRequest(observedObject.entity, predicate: predicate, sortDescriptors: sortDescriptors)
-        fetchRequest.returnsObjectsAsFaults = false
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: context, sectionNameKeyPath: nil, cacheName: nil)
-        fetchedResultsController.delegate = self
+        if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
+            changedObjects.unionSet(insertedObjects)
+        }
 
-        var optionalError: NSError?
-        fetchedResultsController.performFetch(&optionalError)
-        if let error = optionalError {
-            CoreDataKit.sharedLogger(.ERROR, "Error during fetch for observer: \(error)")
-            return nil
+        if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
+            changedObjects.unionSet(deletedObjects)
+        }
+
+        if changedObjects.containsObject(observedObject) {
+            for changeHandler in subscriptions {
+                changeHandler(observedObject)
+            }
         }
     }
 
     public func subscribe(changeHandler: ChangeHandler) {
         subscriptions.append(changeHandler)
-    }
-
-    public func controllerDidChangeContent(controller: NSFetchedResultsController) {
-        for changeHandler in subscriptions {
-            changeHandler(observedObject)
-        }
     }
 }
