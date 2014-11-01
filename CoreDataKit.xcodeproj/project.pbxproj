@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D5093C6A19EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5093C6919EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift */; };
+		D5098CDD1A052D9F000CC246 /* ManagedObjectObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5098CDC1A052D9F000CC246 /* ManagedObjectObserverTests.swift */; };
 		D51AFE161965266000287A2D /* NSPersistentStoreCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */; };
 		D5253DA119F12F1C00E8B4AF /* NSManagedObject+Importing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5253DA019F12F1C00E8B4AF /* NSManagedObject+Importing.swift */; };
 		D5253DA319F1398600E8B4AF /* NSManagedObjectContext+Importing.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5253DA219F1398600E8B4AF /* NSManagedObjectContext+Importing.swift */; };
@@ -60,6 +61,7 @@
 
 /* Begin PBXFileReference section */
 		D5093C6919EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreCoordinatorTests.swift; sourceTree = "<group>"; };
+		D5098CDC1A052D9F000CC246 /* ManagedObjectObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserverTests.swift; sourceTree = "<group>"; };
 		D51AFE151965266000287A2D /* NSPersistentStoreCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NSPersistentStoreCoordinator.swift; sourceTree = "<group>"; };
 		D5253DA019F12F1C00E8B4AF /* NSManagedObject+Importing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObject+Importing.swift"; sourceTree = "<group>"; };
 		D5253DA219F1398600E8B4AF /* NSManagedObjectContext+Importing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+Importing.swift"; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				D595F68219EEE23000D73790 /* TestCase.swift */,
 				D5D7C6CE1958B8CF0048B576 /* CoreDataKitTests.swift */,
 				D556DF8C19EF8C71008556A8 /* CoreDataStackTests.swift */,
+				D5098CDC1A052D9F000CC246 /* ManagedObjectObserverTests.swift */,
 				D5C6C63E19EEC6D60035BFFF /* NSManagedObjectContextTests.swift */,
 				D5EDACE219EF950B00FAC712 /* NSPersistentStoreTests.swift */,
 				D5093C6919EF9B5700139262 /* NSPersistentStoreCoordinatorTests.swift */,
@@ -375,6 +378,7 @@
 				D5FE0FC819F4E0D4008DC1ED /* EmployeeWithRelations.swift in Sources */,
 				D5D7C6CF1958B8CF0048B576 /* CoreDataKitTests.swift in Sources */,
 				D5FE0FC619F4E0D3008DC1ED /* Car.swift in Sources */,
+				D5098CDD1A052D9F000CC246 /* ManagedObjectObserverTests.swift in Sources */,
 				D556DF8D19EF8C71008556A8 /* CoreDataStackTests.swift in Sources */,
 				D5FE0FC419F29FFD008DC1ED /* EmployeeImportable.swift in Sources */,
 				D5253DA719F1591000E8B4AF /* EmployeeIncorrectEntityName.swift in Sources */,

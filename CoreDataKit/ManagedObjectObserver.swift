@@ -27,7 +27,31 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject, NSFetchedResult
         NSNotificationCenter.defaultCenter().removeObserver(self)
     }
 
-    public func managedObjectContextObjectsDidChange(notification: NSNotification) {
+    /**
+    Subscribe a block that gets called when the observed object changes
+    
+    :param: changeHandler The handler to call on change
+    
+    :returns: Token you can use to unsubscribe
+    */
+    public func subscribe(changeHandler: ChangeHandler) -> Int {
+        subscriptions.append(changeHandler)
+        return subscriptions.count - 1
+    }
+
+    /**
+    Unsubscribe a previously subscribed block
+    
+    :param: token The token obtained when subscribing
+    */
+    public func unsubscribe(token: Int) {
+        subscriptions[token] = { _ in }
+    }
+
+// MARK: Notification listeners
+
+    /// Notification listener
+    func managedObjectContextObjectsDidChange(notification: NSNotification) {
         let changedObjects = NSMutableSet()
 
         if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
@@ -47,9 +71,5 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject, NSFetchedResult
                 changeHandler(observedObject)
             }
         }
-    }
-
-    public func subscribe(changeHandler: ChangeHandler) {
-        subscriptions.append(changeHandler)
     }
 }
