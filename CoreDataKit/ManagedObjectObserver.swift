@@ -8,23 +8,60 @@
 
 import CoreData
 
-public class ManagedObjectObserver<T:NSManagedObject>: NSObject, NSFetchedResultsControllerDelegate {
-    public typealias ChangeHandler = T -> Void
+public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
+    typealias Subscriber = T -> Void
 
     public let observedObject: T
-    var subscriptions: [ChangeHandler]
+    var subscribers: [Subscriber]
+    var notificationObserver: NSObjectProtocol?
 
-    public init(observedObject: T, inContext context: NSManagedObjectContext) {
-        self.observedObject = observedObject
-        self.subscriptions = [ChangeHandler]()
+    /**
+    Start observing changes on a `NSManagedObject` in a certain context.
+    
+    :param: observeObject   Object to observe
+    :param: inContext       Context to observe the object in
+    */
+    public init(observeObject observedObject: T, inContext context: NSManagedObjectContext) {
+        // Try to convert the observee to the given context, may fail because it's not yet saved
+        self.observedObject = context.find(observedObject).value() ?? observedObject
 
+        self.subscribers = [Subscriber]()
         super.init()
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "managedObjectContextObjectsDidChange:", name: NSManagedObjectContextObjectsDidChangeNotification, object: context)
+        notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: NSOperationQueue.mainQueue()) { notification in
+
+            if self.subscribers.isEmpty {
+                return
+            }
+
+            if let convertedObject = context.find(observedObject).value() {
+                let changedObjects = NSMutableSet()
+
+                if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
+                    changedObjects.unionSet(updatedObjects)
+                }
+
+                if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
+                    changedObjects.unionSet(insertedObjects)
+                }
+
+                if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
+                    changedObjects.unionSet(deletedObjects)
+                }
+
+                if changedObjects.containsObject(convertedObject) {
+                    for subscriber in self.subscribers {
+                        subscriber(convertedObject)
+                    }
+                }
+            }
+        }
     }
 
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        if let observer = notificationObserver {
+            NSNotificationCenter.defaultCenter().removeObserver(observer)
+        }
     }
 
     /**
@@ -34,9 +71,9 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject, NSFetchedResult
     
     :returns: Token you can use to unsubscribe
     */
-    public func subscribe(changeHandler: ChangeHandler) -> Int {
-        subscriptions.append(changeHandler)
-        return subscriptions.count - 1
+    public func subscribe(subscriber: Subscriber) -> Int {
+        subscribers.append(subscriber)
+        return subscribers.count - 1
     }
 
     /**
@@ -45,31 +82,6 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject, NSFetchedResult
     :param: token The token obtained when subscribing
     */
     public func unsubscribe(token: Int) {
-        subscriptions[token] = { _ in }
-    }
-
-// MARK: Notification listeners
-
-    /// Notification listener
-    func managedObjectContextObjectsDidChange(notification: NSNotification) {
-        let changedObjects = NSMutableSet()
-
-        if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
-            changedObjects.unionSet(updatedObjects)
-        }
-
-        if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
-            changedObjects.unionSet(insertedObjects)
-        }
-
-        if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
-            changedObjects.unionSet(deletedObjects)
-        }
-
-        if changedObjects.containsObject(observedObject) {
-            for changeHandler in subscriptions {
-                changeHandler(observedObject)
-            }
-        }
+        subscribers[token] = { _ in }
     }
 }
