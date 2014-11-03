@@ -68,6 +68,13 @@ public class CoreDataStack: NSObject {
 
     func rootContextDidSave(notification: NSNotification) {
         if NSThread.isMainThread() {
+            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as NSSet? {
+                for _object in updatedObjects {
+                    let object = _object as NSManagedObject
+                    mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
+                }
+            }
+
             mainThreadContext.mergeChangesFromContextDidSaveNotification(notification)
         } else {
             dispatch_async(dispatch_get_main_queue()) {

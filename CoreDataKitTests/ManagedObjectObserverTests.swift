@@ -40,6 +40,34 @@ class ManagedObjectObserverTests: TestCase {
         waitForExpectationsWithTimeout(3, handler: nil)
     }
 
+    func testSubscribersCalledWithObjectOnRootContext() {
+        let calledExpectation = expectationWithDescription("Subscriber not called")
+
+        var observable: Employee!
+
+        coreDataStack.performBlockOnBackgroundContext({ context in
+            observable = context.create(Employee.self).value()
+            observable.name = "Scottie"
+
+            return .SaveToPersistentStore
+            }, completionHandler: { _ in
+                observable = self.coreDataStack.rootContext.find(observable).value()
+
+                let observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
+                observer.subscribe { object in
+                    XCTAssertEqual(object.name, "Dana J. Scott", "Unexpected name")
+                    calledExpectation.fulfill()
+                }
+
+                self.coreDataStack.performBlockOnBackgroundContext { context in
+                    observable.name = "Dana J. Scott"
+                    return .SaveToPersistentStore
+                }
+        })
+        
+        waitForExpectationsWithTimeout(3, handler: nil)
+    }
+
     func testNoSubscribers() {
         let calledExpectation = expectationWithDescription("Subscriber not called")
 

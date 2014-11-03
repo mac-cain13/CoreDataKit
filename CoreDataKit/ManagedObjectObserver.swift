@@ -21,9 +21,9 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     :param: observeObject   Object to observe
     :param: inContext       Context to observe the object in
     */
-    public init(observeObject observedObject: T, inContext context: NSManagedObjectContext) {
+    public init(observeObject _observedObject: T, inContext context: NSManagedObjectContext) {
         // Try to convert the observee to the given context, may fail because it's not yet saved
-        self.observedObject = context.find(observedObject).value() ?? observedObject
+        self.observedObject = context.find(_observedObject).value() ?? _observedObject
 
         self.subscribers = [Subscriber]()
         super.init()
@@ -34,11 +34,15 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
                 return
             }
 
-            if let convertedObject = context.find(observedObject).value() {
+            if let convertedObject = context.find(self.observedObject).value() {
                 let changedObjects = NSMutableSet()
 
                 if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
                     changedObjects.unionSet(updatedObjects)
+                }
+
+                if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
+                    changedObjects.unionSet(refreshedObjects)
                 }
 
                 if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
