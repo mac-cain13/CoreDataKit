@@ -28,7 +28,7 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
         self.subscribers = [Subscriber]()
         super.init()
 
-        notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: NSOperationQueue.mainQueue()) { notification in
+        notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: NSOperationQueue.mainQueue()) { [unowned self] notification in
 
             if self.subscribers.isEmpty {
                 return
