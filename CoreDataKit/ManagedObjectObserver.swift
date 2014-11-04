@@ -8,8 +8,29 @@
 
 import CoreData
 
+public enum ObservedAction<T:NSManagedObject> {
+    case Updated(T)
+    case Refreshed(T)
+    case Inserted(T)
+    case Deleted
+
+    public func value() -> T? {
+        switch self {
+        case let .Updated(val):
+            return val
+        case let .Refreshed(val):
+            return val
+        case let .Inserted(val):
+            return val
+
+        case .Deleted:
+            return nil
+        }
+    }
+}
+
 public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
-    typealias Subscriber = T -> Void
+    typealias Subscriber = ObservedAction<T> -> Void
 
     public let observedObject: T
     var subscribers: [Subscriber]
@@ -35,27 +56,27 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
             }
 
             if let convertedObject = context.find(self.observedObject).value() {
-                let changedObjects = NSMutableSet()
-
                 if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
-                    changedObjects.unionSet(updatedObjects)
+                    if updatedObjects.containsObject(convertedObject) {
+                        self.notifySubscribers(.Updated(convertedObject))
+                    }
                 }
 
                 if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
-                    changedObjects.unionSet(refreshedObjects)
+                    if refreshedObjects.containsObject(convertedObject) {
+                        self.notifySubscribers(.Refreshed(convertedObject))
+                    }
                 }
 
                 if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
-                    changedObjects.unionSet(insertedObjects)
+                    if insertedObjects.containsObject(convertedObject) {
+                        self.notifySubscribers(.Inserted(convertedObject))
+                    }
                 }
 
                 if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
-                    changedObjects.unionSet(deletedObjects)
-                }
-
-                if changedObjects.containsObject(convertedObject) {
-                    for subscriber in self.subscribers {
-                        subscriber(convertedObject)
+                    if deletedObjects.containsObject(convertedObject) {
+                        self.notifySubscribers(.Deleted)
                     }
                 }
             }
@@ -65,6 +86,12 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     deinit {
         if let observer = notificationObserver {
             NSNotificationCenter.defaultCenter().removeObserver(observer)
+        }
+    }
+
+    private func notifySubscribers(action: ObservedAction<T>) {
+        for subscriber in self.subscribers {
+            subscriber(action)
         }
     }
 

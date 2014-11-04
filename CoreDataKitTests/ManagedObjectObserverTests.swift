@@ -26,8 +26,8 @@ class ManagedObjectObserverTests: TestCase {
             observable = self.coreDataStack.mainThreadContext.find(observable).value()
 
             let observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
-            observer.subscribe { object in
-                XCTAssertEqual(object.name, "Dana J. Scott", "Unexpected name")
+            observer.subscribe { observedAction in
+                XCTAssertEqual(observedAction.value()!.name, "Dana J. Scott", "Unexpected name")
                 calledExpectation.fulfill()
             }
 
@@ -55,7 +55,7 @@ class ManagedObjectObserverTests: TestCase {
 
                 let observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
                 observer.subscribe { object in
-                    XCTAssertEqual(object.name, "Dana J. Scott", "Unexpected name")
+                    XCTAssertEqual(object.value()!.name, "Dana J. Scott", "Unexpected name")
                     calledExpectation.fulfill()
                 }
 
