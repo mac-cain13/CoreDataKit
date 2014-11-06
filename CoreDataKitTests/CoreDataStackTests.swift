@@ -23,4 +23,8 @@ class CoreDataStackTests: TestCase {
         XCTAssertNotNil(coreDataStack.mainThreadContext.parentContext, "Missing parent context")
         XCTAssertEqual(coreDataStack.mainThreadContext.parentContext!, coreDataStack.rootContext, "Incorrect parent context")
     }
+
+    func testDumpStack() {
+        coreDataStack.dumpStack()
+    }
 }
