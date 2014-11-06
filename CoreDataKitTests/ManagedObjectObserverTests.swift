@@ -15,6 +15,7 @@ class ManagedObjectObserverTests: TestCase {
     func testSubscribersCalled() {
         let calledExpectation = expectationWithDescription("Subscriber not called")
 
+        var observer: ManagedObjectObserver<Employee>?
         var observable: Employee!
 
         coreDataStack.performBlockOnBackgroundContext({ context in
@@ -25,8 +26,8 @@ class ManagedObjectObserverTests: TestCase {
         }, completionHandler: { _ in
             observable = self.coreDataStack.mainThreadContext.find(observable).value()
 
-            let observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
-            observer.subscribe { observedAction in
+            observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
+            observer?.subscribe { observedAction in
                 XCTAssertEqual(observedAction.value()!.name, "Dana J. Scott", "Unexpected name")
                 calledExpectation.fulfill()
             }
@@ -43,6 +44,7 @@ class ManagedObjectObserverTests: TestCase {
     func testSubscribersCalledWithObjectOnRootContext() {
         let calledExpectation = expectationWithDescription("Subscriber not called")
 
+        var observer: ManagedObjectObserver<Employee>?
         var observable: Employee!
 
         coreDataStack.performBlockOnBackgroundContext({ context in
@@ -53,8 +55,8 @@ class ManagedObjectObserverTests: TestCase {
             }, completionHandler: { _ in
                 observable = self.coreDataStack.rootContext.find(observable).value()
 
-                let observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
-                observer.subscribe { object in
+                observer = ManagedObjectObserver(observeObject: observable as Employee, inContext: self.coreDataStack.mainThreadContext)
+                observer?.subscribe { object in
                     XCTAssertEqual(object.value()!.name, "Dana J. Scott", "Unexpected name")
                     calledExpectation.fulfill()
                 }
