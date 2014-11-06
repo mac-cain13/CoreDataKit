@@ -57,11 +57,11 @@ public class CoreDataStack: NSObject {
     /**
     Dumps some debug info about this stack to the console
     */
-    public func debugDump() {
-        println("Stores: \(persistentStoreCoordinator.persistentStores)")
-        println(" - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
-        println("  - Root context: \(rootContext.debugDescription)")
-        println("   - Main thread context: \(mainThreadContext.debugDescription)")
+    public func dumpStack() {
+        CoreDataKit.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
+        CoreDataKit.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
+        CoreDataKit.sharedLogger(.DEBUG, "  - Root context: \(rootContext.debugDescription)")
+        CoreDataKit.sharedLogger(.DEBUG, "   - Main thread context: \(mainThreadContext.debugDescription)")
     }
 
 // MARK: Notification observers
