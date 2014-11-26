@@ -8,10 +8,12 @@
 
 import Foundation
 import CoreData
+import CoreDataKit
 
-class Salary: NSManagedObject {
+class Salary: NSManagedObject, NamedManagedObject {
 
     @NSManaged var amount: NSDecimalNumber
     @NSManaged var employee: EmployeeWithRelationWithoutId
 
+    class var entityName: String { return "Salary" }
 }
