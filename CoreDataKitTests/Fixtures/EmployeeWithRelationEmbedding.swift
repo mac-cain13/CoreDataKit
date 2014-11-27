@@ -1,5 +1,5 @@
 //
-//  EmployeeWithRelationWithoutId.swift
+//  EmployeeWithRelationEmbedding.swift
 //  CoreDataKit
 //
 //  Created by Mathijs Kadijk on 28-10-14.
@@ -10,10 +10,10 @@ import Foundation
 import CoreData
 import CoreDataKit
 
-class EmployeeWithRelationWithoutId: NSManagedObject, NamedManagedObject {
+class EmployeeWithRelationEmbedding: NSManagedObject, NamedManagedObject {
 
     @NSManaged var name: String
     @NSManaged var salary: Salary
 
-    class var entityName: String { return "EmployeeWithRelationWithoutId" }
+    class var entityName: String { return "EmployeeWithRelationEmbedding" }
 }

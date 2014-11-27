@@ -35,7 +35,7 @@ enum RelationType: String {
     case RelatedById = "CDKRelatedById"
 
     /// Relation that doesn't use a ID of some sort
-    case WithoutId = "CDKWithoutId"
+    case Embedding = "CDKEmbedding"
 
     static func fromString(string: String) -> RelationType {
         return RelationType(rawValue: string) ?? .RelatedById
