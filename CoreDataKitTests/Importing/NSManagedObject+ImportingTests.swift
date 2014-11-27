@@ -174,7 +174,8 @@ class NSManagedObjectTests: TestCase {
         }
     }
 
-    func testUpdateNestedWithoutIdRelation() {
+    /// This test covers https://github.com/mac-cain13/CoreDataKit/issues/4
+    func testOldValueIsDeletedWhenWithoutIdRelationIsUpdated() {
         let count = coreDataStack.rootContext.find(Salary.self).value()?.count ?? -1
         XCTAssertEqual(count, 0, "Salary on start incorrect")
 
