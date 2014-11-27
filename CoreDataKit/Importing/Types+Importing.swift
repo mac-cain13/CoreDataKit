@@ -38,13 +38,7 @@ enum RelationType: String {
     case WithoutId = "CDKWithoutId"
 
     static func fromString(string: String) -> RelationType {
-        switch string {
-        case RelationType.WithoutId.rawValue:
-            return .WithoutId
-
-        default:
-            return .RelatedById
-        }
+        return RelationType(rawValue: string) ?? .RelatedById
     }
 }
 
