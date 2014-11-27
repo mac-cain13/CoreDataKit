@@ -18,11 +18,20 @@ let IdentifierUserInfoKey = "CDKId"
 /// Key used on property to define mapping in CoreData user info
 let MappingUserInfoKey = "CDKMap"
 
-/// Value used with MappingUserInfoKey to disable all mapping behaviour
-let SuppressMappingUserInfoValue = "CDKNoMapping"
-
 /// Maximum of numbered MappingUserInfoKeys on an property
-let MaxNumberedMappings = 10
+let MaxNumberedMappings = 9
+
+/// Key used on property to define mapping strategy in CoreData user info
+let MapStrategyUserInfoKey = "CDKMapStrategy"
+
+/// Type of mapping to use
+enum MapStrategy: String {
+    /// Stategy to use default mapping behaviour with the available MappingUserInfoKey and fallbacks
+    case Mapping = "CDKStandardMapping"
+
+    /// Strategy to disable all mapping behaviour
+    case NoMapping = "CDKNoMapping"
+}
 
 // MARK: Relations
 
@@ -36,10 +45,6 @@ enum RelationType: String {
 
     /// Relation that doesn't use a ID of some sort
     case Embedding = "CDKEmbedding"
-
-    static func fromString(string: String) -> RelationType {
-        return RelationType(rawValue: string) ?? .RelatedById
-    }
 }
 
 // MARK: - Importable value

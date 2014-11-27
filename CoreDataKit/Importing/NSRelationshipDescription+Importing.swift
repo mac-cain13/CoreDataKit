@@ -12,10 +12,17 @@ extension NSRelationshipDescription {
 
     /// Type of the relation as defined in the model
     var relationType: RelationType {
+        let fallbackRelationType = RelationType.RelatedById
+
         if let relationTypeString = userInfo?[RelationTypeUserInfoKey] as? String {
-            return RelationType.fromString(relationTypeString)
+            if let relationType = RelationType(rawValue: relationTypeString) {
+                return relationType
+            } else {
+                CoreDataKit.sharedLogger(.ERROR, "Unsupported \(RelationTypeUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackRelationType.rawValue) relation type")
+                return fallbackRelationType
+            }
         }
 
-        return RelationType.RelatedById
+        return fallbackRelationType
     }
 }
