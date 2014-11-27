@@ -168,7 +168,7 @@ extension NSManagedObject
         switch importableValue {
         case let .Some(value as [String: AnyObject]):
             return managedObjectContext!.importEntity(destinationEntity, dictionary: value).flatMap {
-                self.updateRelationship(relationship, withValue: $0)
+                self.updateRelationship(relationship, withValue: $0, deleteCurrent: false)
             }
 
         case let .Some(value as [AnyObject]):
@@ -177,11 +177,11 @@ extension NSManagedObject
 
         case let .Some(value):
             return managedObjectContext!.findEntityByIdentifyingAttribute(destinationEntity, identifyingValue: value).flatMap {
-                self.updateRelationship(relationship, withValue: $0)
+                self.updateRelationship(relationship, withValue: $0, deleteCurrent: false)
             }
 
         case .Null:
-            return updateRelationship(relationship, withValue: nil)
+            return updateRelationship(relationship, withValue: nil, deleteCurrent: false)
 
         case .None:
             return Result() // Not found in dictionary, do not change value
@@ -189,29 +189,27 @@ extension NSManagedObject
     }
 
     private func performImportWithoutIdRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
-        return managedObjectContext!.create(destinationEntity).flatMap { destinationObject in
-            switch importableValue {
-            case let .Some(value as [String: AnyObject]):
+        switch importableValue {
+        case let .Some(value as [String: AnyObject]):
+            return managedObjectContext!.create(destinationEntity).flatMap { destinationObject in
                 return destinationObject.importDictionary(value).flatMap {
-                    self.updateRelationship(relationship, withValue: destinationObject)
+                    return self.updateRelationship(relationship, withValue: destinationObject, deleteCurrent: true)
                 }
-
-            case let .Some(value as [AnyObject]):
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.WithoutId)"])
-                return Result(error)
-
-            case let .Some(value):
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Referenced relationships not yet supported with relation type \(RelationType.WithoutId)"])
-                return Result(error)
-
-            case .Null:
-                self.managedObjectContext!.delete(destinationObject)
-                return self.updateRelationship(relationship, withValue: nil)
-                
-            case .None:
-                self.managedObjectContext!.delete(destinationObject)
-                return Result() // Not found in dictionary, do not change value
             }
+
+        case let .Some(value as [AnyObject]):
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.WithoutId)"])
+            return Result(error)
+
+        case let .Some(value):
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Referenced relationships not yet supported with relation type \(RelationType.WithoutId)"])
+            return Result(error)
+
+        case .Null:
+            return self.updateRelationship(relationship, withValue: nil, deleteCurrent: true)
+            
+        case .None:
+            return Result() // Not found in dictionary, do not change value
         }
     }
 
@@ -223,9 +221,17 @@ extension NSManagedObject
 
     :return: Wheter the update succeeded
     */
-    private func updateRelationship(relationship: NSRelationshipDescription, withValue _value: NSManagedObject?) -> Result<Void> {
+    private func updateRelationship(relationship: NSRelationshipDescription, withValue _value: NSManagedObject?, deleteCurrent: Bool) -> Result<Void> {
         if (relationship.toMany) {
             if let objectSet = valueForKeyPath(relationship.name) as? NSMutableSet {
+                if (deleteCurrent) {
+                    for object in objectSet {
+                        if let managedObject = object as? NSManagedObject {
+                            managedObjectContext!.delete(managedObject)
+                        }
+                    }
+                }
+
                 if let object = _value {
                     objectSet.addObject(object)
                 } else {
@@ -236,6 +242,12 @@ extension NSManagedObject
                 return Result(error)
             }
         } else {
+            if (deleteCurrent) {
+                if let currentRelatedObject = self.valueForKeyPath(relationship.name) as? NSManagedObject {
+                    managedObjectContext!.delete(currentRelatedObject)
+                }
+            }
+
             if let value = _value {
                 setValue(value, forKeyPath: relationship.name)
             } else if (relationship.optional) {
