@@ -152,8 +152,8 @@ extension NSManagedObject
             let importableValue = relationship.preferredValueFromDictionary(dictionary)
 
             switch relationship.relationType {
-            case .RelatedById:
-                return performImportRelatedByIdRelationship(relationship, importableValue: importableValue, destinationEntity: destinationEntity)
+            case .Reference:
+                return performImportReferenceRelationship(relationship, importableValue: importableValue, destinationEntity: destinationEntity)
 
             case .Embedding:
                 return performImportEmbeddingRelationship(relationship, importableValue: importableValue, destinationEntity: destinationEntity)
@@ -164,7 +164,7 @@ extension NSManagedObject
         }
     }
 
-    private func performImportRelatedByIdRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
+    private func performImportReferenceRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
         switch importableValue {
         case let .Some(value as [String: AnyObject]):
             return managedObjectContext!.importEntity(destinationEntity, dictionary: value).flatMap {
@@ -172,7 +172,7 @@ extension NSManagedObject
             }
 
         case let .Some(value as [AnyObject]):
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.RelatedById)"])
+            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)"])
             return Result(error)
 
         case let .Some(value):

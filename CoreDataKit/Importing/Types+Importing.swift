@@ -41,7 +41,7 @@ let RelationTypeUserInfoKey = "CDKRelationType"
 /// Values used with RelationTypeUserInfoKey to alter relation type
 enum RelationType: String {
     /// Relation that is referenced by a primary key like ID
-    case RelatedById = "CDKRelatedById"
+    case Reference = "CDKReference"
 
     /// Relation that doesn't use a ID of some sort
     case Embedding = "CDKEmbedding"
