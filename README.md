@@ -46,6 +46,27 @@ CoreDataKit.performBlockOnBackgroundContext({ context in
 })
 ```
 
+### Using promises
+
+If you prefer using promises, instead of the callback style of this library, you can use the  [Promissum](https://github.com/tomlokhorst/Promissum) library with CoreDataKit. Using the [CoreDataKit+Promise](https://github.com/tomlokhorst/Promissum/blob/master/extensions/PromissumExtensions/CoreDataKit%2BPromise.swift) extension, the example from above can be rewritten as such:
+```
+let createPromise = CoreDataKit.performBlockOnBackgroundContextPromise { context in
+	if let car = context.create(Car.self).value() {
+		car.color = "Hammerhead Silver"
+		car.model = "Aston Martin DB9"
+	}
+
+	return .SaveToPersistentStore
+}
+
+createPromise.then { _ in
+	println("Car saved, time to update the interface!")
+}.catch { error in
+	println("Saving Harvey Specters car failed with error: \(error)")
+}
+```
+
+
 ## Contributing
 
 We'll love contributions, please report bugs in the issue tracker, create pull request (please branch of `develop`) and suggest new great features (also in the issue tracker).
