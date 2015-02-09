@@ -80,7 +80,7 @@ extension NSPersistentStoreCoordinator
             ];
 
             var optionalError: NSError?
-            let optionalStore = self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options, error: &optionalError)
+            let optionalStore = self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options as? [NSObject : AnyObject], error: &optionalError)
 
             switch (optionalStore, optionalError) {
             case let (.Some(store), .None):

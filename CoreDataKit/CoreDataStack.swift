@@ -68,9 +68,9 @@ public class CoreDataStack: NSObject {
 
     func rootContextDidSave(notification: NSNotification) {
         if NSThread.isMainThread() {
-            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as NSSet? {
+            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as! NSSet? {
                 for _object in updatedObjects {
-                    let object = _object as NSManagedObject
+                    let object = _object as! NSManagedObject
                     mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
                 }
             }

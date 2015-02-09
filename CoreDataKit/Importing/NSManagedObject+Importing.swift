@@ -26,7 +26,7 @@ extension NSManagedObject
             return importResult
         }
 
-        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ImportCancelled.rawValue, userInfo: [NSLocalizedDescriptionKey: "Import of entity \(self.entity.name?) cancelled because shouldImport returned false"])
+        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ImportCancelled.rawValue, userInfo: [NSLocalizedDescriptionKey: "Import of entity \(self.entity.name) cancelled because shouldImport returned false"])
         return Result(error)
     }
 
@@ -68,7 +68,7 @@ extension NSManagedObject
     private func performImport(dictionary: [String : AnyObject]) -> Result<Void> {
         if let context = managedObjectContext {
             for _propertyDescription in entity.properties {
-                let propertyDescription = _propertyDescription as NSPropertyDescription
+                let propertyDescription = _propertyDescription as! NSPropertyDescription
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:

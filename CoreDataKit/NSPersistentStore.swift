@@ -19,7 +19,7 @@ extension NSPersistentStore
     */
     public class func URLForSQLiteStoreName(storeName: String) -> NSURL?
     {
-        assert(countElements(storeName) > 0, "Store name must be longer then zero characters.")
+        assert(count(storeName) > 0, "Store name must be longer then zero characters.")
 
         let optionalSupportDirectoryURL = NSFileManager.defaultManager().URLForDirectory(.ApplicationSupportDirectory, inDomain: .AllDomainsMask, appropriateForURL: nil, create: true, error: nil)
 
