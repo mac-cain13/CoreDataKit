@@ -13,7 +13,7 @@ extension NSPropertyDescription
     var mapStrategy: MapStrategy {
         let fallbackStrategy = MapStrategy.Mapping
 
-        if let mappingStrategyString = userInfo?[MappingUserInfoKey] as? String {
+        if let mappingStrategyString = userInfo?[MapStrategyUserInfoKey] as? String {
             if let strategy = MapStrategy(rawValue: mappingStrategyString) {
                 return strategy
             } else {
