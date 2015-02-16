@@ -12,24 +12,29 @@ public class CoreDataStack: NSObject {
     /// Persistent store coordinator used as backing for the contexts
     public let persistentStoreCoordinator: NSPersistentStoreCoordinator
 
-    /// Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue
+    /// Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue; Do not use directly
     public let rootContext: NSManagedObjectContext
 
-    /// Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread
+    /// Context with concurrency type `NSMainQueueConcurrencyType`; Use only for read actions directly tied to the UI (e.g. NSFetchedResultsController)
     public let mainThreadContext: NSManagedObjectContext
+
+    /// Child context of `rootContext` with concurrency type `PrivateQueueConcurrencyType`; Perform all read/write actions on this context
+    public let backgroundContext: NSManagedObjectContext
 
     /**
     Create a stack based on the given `NSPersistentStoreCoordinator`.
 
     :param: persistentStoreCoordinator The coordinator that will be coordinate the persistent store of this stack
     */
-    public init(persistentStoreCoordinator _persistentStoreCoordinator: NSPersistentStoreCoordinator) {
-        persistentStoreCoordinator = _persistentStoreCoordinator
+    public init(persistentStoreCoordinator: NSPersistentStoreCoordinator) {
+        self.persistentStoreCoordinator = persistentStoreCoordinator
 
-        rootContext = NSManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
-        rootContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+        self.rootContext = NSManagedObjectContext(persistentStoreCoordinator: self.persistentStoreCoordinator)
+        self.rootContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
-        mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
+        self.mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
+
+        self.backgroundContext = rootContext.createChildContext()
 
         super.init()
 
@@ -43,7 +48,7 @@ public class CoreDataStack: NSObject {
 // MARK: Convenience methods
 
     /**
-    Creates a child context with the root context as parent and performs the given block on the created context.
+    Performs the given block on the `backgroundContect`
     
     :param: block       Block that performs the changes on the given context that should be saved
     :param: completion  Completion block to run after changes are saved
@@ -51,7 +56,7 @@ public class CoreDataStack: NSObject {
     :see: NSManagedObjectContext.performBlock()
     */
     public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
-        rootContext.createChildContext().performBlock(block, completionHandler: completionHandler)
+        backgroundContext.performBlock(block, completionHandler: completionHandler)
     }
 
     /**
@@ -60,8 +65,9 @@ public class CoreDataStack: NSObject {
     public func dumpStack() {
         CoreDataKit.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
         CoreDataKit.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "  - Root context: \(rootContext.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "   - Main thread context: \(mainThreadContext.debugDescription)")
+        CoreDataKit.sharedLogger(.DEBUG, " |- Root context: \(rootContext.debugDescription)")
+        CoreDataKit.sharedLogger(.DEBUG, "  |- Main thread context: \(mainThreadContext.debugDescription)")
+        CoreDataKit.sharedLogger(.DEBUG, "  |- Background context: \(backgroundContext.debugDescription)")
     }
 
 // MARK: Notification observers
