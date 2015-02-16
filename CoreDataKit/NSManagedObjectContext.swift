@@ -59,7 +59,7 @@ extension NSManagedObjectContext
 // MARK: - Saving
 
     /**
-    Performs the given block on a child context and persists changes performed on the given context to the persistent store. After saving the `CompletionHandler` block is called and passed a `NSError` object when an error occured or nil when saving was successfull. The `CompletionHandler` will always be called on the main thread.
+    Performs the given block on a child context and persists changes performed on the given context to the persistent store. After saving the `CompletionHandler` block is called and passed a `NSError` object when an error occured or nil when saving was successfull. The `CompletionHandler` will always be called on the thread the context performs it's operations on.
 
     :discussion: Do not nest save operations with this method, since the nested save will also save to the persistent store this will give unexpected results. Also the nested calls will not perform their changes on nested contexts, so the changes will not appear in the outer call as you'd expect to.
 
@@ -78,20 +78,14 @@ extension NSManagedObjectContext
             case .SaveToParentContext:
                 var optionalError: NSError?
                 self.save(&optionalError)
-                if let error = optionalError {
-                    completionHandler?(Result(error))
-                } else {
-                    completionHandler?(Result(commitAction))
-                }
+
+                let result = optionalError.map { Result($0) } ?? Result(commitAction)
+                completionHandler?(result)
 
             case .SaveToPersistentStore:
-                self.saveToPersistentStore { result in
-                    switch result {
-                    case .Success:
-                        completionHandler?(Result(commitAction))
-                    case let .Failure(error):
-                        completionHandler?(Result(error))
-                    }
+                self.saveToPersistentStore {
+                  let result = $0.map { commitAction }
+                  completionHandler?(result)
                 }
             }
         }
@@ -104,22 +98,19 @@ extension NSManagedObjectContext
     
     :param: completionHandler  Completion block to run after changes are saved
     */
-    func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler? = nil)
+    func saveToPersistentStore(completionHandler: CompletionHandler? = nil)
     {
         var optionalError: NSError?
         save(&optionalError)
 
-        switch (optionalError, self.parentContext, optionalCompletionHandler) {
-        case let (.None, .Some(parentContext), _):
+        switch (optionalError, self.parentContext) {
+        case let (.None, .Some(parentContext)):
             parentContext.performBlock {
-                parentContext.saveToPersistentStore(optionalCompletionHandler)
+                parentContext.saveToPersistentStore(completionHandler)
             }
 
-        case let (_, _, .Some(completionHandler)):
-            dispatch_async(dispatch_get_main_queue()) { completionHandler(Result<Void>.withOptionalError(optionalError)) } 
-
         default:
-            break
+          completionHandler?(Result<Void>.withOptionalError(optionalError))
         }
     }
 
