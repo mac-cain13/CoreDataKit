@@ -64,18 +64,18 @@ public class CoreDataKit : NSObject
         return sharedStack!.persistentStoreCoordinator
     }
 
-    /// Root context that is directly associated with the `persistentStoreCoordinator` and does it work on a background queue of the shared stack
-    public class var rootContext: NSManagedObjectContext {
-        return sharedStack!.rootContext
+    /// Child context of `rootContext` with concurrency type `PrivateQueueConcurrencyType`; Perform all read/write actions on this context
+    public class var backgroundContext: NSManagedObjectContext {
+        return sharedStack!.backgroundContext
     }
 
-    /// Context with concurrency type `NSMainQueueConcurrencyType` for use on the main thread of the shared stack
+    /// Context with concurrency type `NSMainQueueConcurrencyType`; Use only for read actions directly tied to the UI (e.g. NSFetchedResultsController)
     public class var mainThreadContext: NSManagedObjectContext {
         return sharedStack!.mainThreadContext
     }
 
     /**
-    Creates a child context with the root context of the shared stack as parent and performs the given block on the created context.
+    Performs the given block on the `backgroundContect`
 
     :param: block       Block that performs the changes on the given context that should be saved
     :param: completion  Completion block to run after changes are saved
