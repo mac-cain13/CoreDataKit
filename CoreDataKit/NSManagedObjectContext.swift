@@ -25,7 +25,7 @@ extension NSManagedObjectContext
         performBlockAndWait { [unowned self] in
             self.persistentStoreCoordinator = persistentStoreCoordinator
         }
-        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
+//        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
     /**
@@ -44,7 +44,7 @@ extension NSManagedObjectContext
         performBlockAndWait { [unowned self] in
             self.parentContext = parentContext
         }
-        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
+//        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
     /**
@@ -76,6 +76,7 @@ extension NSManagedObjectContext
                 completionHandler?(Result(commitAction))
 
             case .SaveToParentContext:
+                self.obtainPermanentIDsForInsertedObjects()
                 var optionalError: NSError?
                 self.save(&optionalError)
 
@@ -100,6 +101,8 @@ extension NSManagedObjectContext
     */
     func saveToPersistentStore(completionHandler: CompletionHandler? = nil)
     {
+        obtainPermanentIDsForInsertedObjects()
+
         var optionalError: NSError?
         save(&optionalError)
 
@@ -119,10 +122,12 @@ extension NSManagedObjectContext
     /// Installs a notification handler on the will save event that calls `obtainPermanentIDsForInsertedObjects()`
     func beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     {
-        NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextWillSaveNotification, object: self, queue: NSOperationQueue.mainQueue()) { [weak self] _ in
-            self?.obtainPermanentIDsForInsertedObjects()
-            return
-        }
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "obtainPermanentIDsForInsertedObjectsOnContextWillSave", name: NSManagedObjectContextWillSaveNotification, object: self)
+    }
+
+    func obtainPermanentIDsForInsertedObjectsOnContextWillSave(notification: NSNotification)
+    {
+        obtainPermanentIDsForInsertedObjects()
     }
 
     /**
@@ -300,12 +305,18 @@ extension NSManagedObjectContext
         resultsController.delegate = delegate
 
         var optionalError: NSError?
-        resultsController.performFetch(&optionalError)
-        if let error = optionalError {
-            return Result(error)
+        var result: Result<NSFetchedResultsController>?
+
+        performBlockAndWait {
+          resultsController.performFetch(&optionalError)
+          if let error = optionalError {
+              result = Result(error)
+          }
+
+          result = Result(resultsController)
         }
 
-        return Result(resultsController)
+        return result!
     }
 
 // MARK: Find helpers
@@ -317,19 +328,19 @@ extension NSManagedObjectContext
 
     :returns: Result with the given object in this context
     */
-    public func find<T:NSManagedObject>(managedObject: T) -> Result<T> {
+    public func find<T:NSManagedObject>(entity: T.Type, managedObjectID: NSManagedObjectID) -> Result<T> {
         var optionalError: NSError?
 
         // First make sure we have a permanent ID for this object
-        if (managedObject.objectID.temporaryID) {
-            obtainPermanentIDsForObjects([managedObject], error: &optionalError)
+//        if (managedObjectID.temporaryID) {
+//            obtainPermanentIDsForObjects([managedObject], error: &optionalError)
+//
+//            if let error = optionalError {
+//                return Result(error)
+//            }
+//        }
 
-            if let error = optionalError {
-                return Result(error)
-            }
-        }
-
-        let optionalManagedObjectInContext = existingObjectWithID(managedObject.objectID, error: &optionalError)
+        let optionalManagedObjectInContext = existingObjectWithID(managedObjectID, error: &optionalError)
 
         switch (optionalManagedObjectInContext, optionalError) {
         case let (.Some(managedObjectInContext), .None):
