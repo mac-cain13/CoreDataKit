@@ -34,16 +34,17 @@ public class CoreDataStack: NSObject {
 
         self.mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
 
-        self.backgroundContext = rootContext.createChildContext()
+        self.backgroundContext = self.mainThreadContext.createChildContext()
 
         super.init()
 
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: "rootContextDidSave:", name: NSManagedObjectContextDidSaveNotification, object: rootContext)
+        // TODO: In de huidige setup, nobody cares, want main context zit tussen de saves in en krijgt vanzelf de notificaties
+        //NSNotificationCenter.defaultCenter().addObserver(self, selector: "rootContextDidSave:", name: NSManagedObjectContextDidSaveNotification, object: rootContext)
     }
 
-    deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
-    }
+//    deinit {
+//        NSNotificationCenter.defaultCenter().removeObserver(self)
+//    }
 
 // MARK: Convenience methods
 
@@ -70,26 +71,26 @@ public class CoreDataStack: NSObject {
         CDK.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
         CDK.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
         CDK.sharedLogger(.DEBUG, " |- Root context: \(rootContext.debugDescription)")
-        CDK.sharedLogger(.DEBUG, "  |- Main thread context: \(mainThreadContext.debugDescription)")
-        CDK.sharedLogger(.DEBUG, "  |- Background context: \(backgroundContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "    |- Main thread context: \(mainThreadContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "       |- Background context: \(backgroundContext.debugDescription)")
     }
 
 // MARK: Notification observers
 
-    func rootContextDidSave(notification: NSNotification) {
-        if NSThread.isMainThread() {
-            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
-                for _object in updatedObjects {
-                    let object = _object as! NSManagedObject
-                    mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
-                }
-            }
-
-            mainThreadContext.mergeChangesFromContextDidSaveNotification(notification)
-        } else {
-            dispatch_async(dispatch_get_main_queue()) {
-                self.rootContextDidSave(notification)
-            }
-        }
-    }
+//    func rootContextDidSave(notification: NSNotification) {
+//        if NSThread.isMainThread() {
+//            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
+//                for _object in updatedObjects {
+//                    let object = _object as! NSManagedObject
+//                    mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
+//                }
+//            }
+//
+//            mainThreadContext.mergeChangesFromContextDidSaveNotification(notification)
+//        } else {
+//            dispatch_async(dispatch_get_main_queue()) {
+//                self.rootContextDidSave(notification)
+//            }
+//        }
+//    }
 }
