@@ -25,7 +25,7 @@ extension NSManagedObjectContext
         performBlockAndWait { [unowned self] in
             self.persistentStoreCoordinator = persistentStoreCoordinator
         }
-        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
+//        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
     /**
@@ -44,7 +44,7 @@ extension NSManagedObjectContext
         performBlockAndWait { [unowned self] in
             self.parentContext = parentContext
         }
-        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
+//        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
 
     /**
@@ -59,7 +59,7 @@ extension NSManagedObjectContext
 // MARK: - Saving
 
     /**
-    Performs the given block on a child context and persists changes performed on the given context to the persistent store. After saving the `CompletionHandler` block is called and passed a `NSError` object when an error occured or nil when saving was successfull. The `CompletionHandler` will always be called on the main thread.
+    Performs the given block on a child context and persists changes performed on the given context to the persistent store. After saving the `CompletionHandler` block is called and passed a `NSError` object when an error occured or nil when saving was successfull. The `CompletionHandler` will always be called on the thread the context performs it's operations on.
 
     :discussion: Do not nest save operations with this method, since the nested save will also save to the persistent store this will give unexpected results. Also the nested calls will not perform their changes on nested contexts, so the changes will not appear in the outer call as you'd expect to.
 
@@ -76,22 +76,17 @@ extension NSManagedObjectContext
                 completionHandler?(Result(commitAction))
 
             case .SaveToParentContext:
+                self.obtainPermanentIDsForInsertedObjects()
                 var optionalError: NSError?
                 self.save(&optionalError)
-                if let error = optionalError {
-                    completionHandler?(Result(error))
-                } else {
-                    completionHandler?(Result(commitAction))
-                }
+
+                let result = optionalError.map { Result($0) } ?? Result(commitAction)
+                completionHandler?(result)
 
             case .SaveToPersistentStore:
-                self.saveToPersistentStore { result in
-                    switch result {
-                    case .Success:
-                        completionHandler?(Result(commitAction))
-                    case let .Failure(error):
-                        completionHandler?(Result(error))
-                    }
+                self.saveToPersistentStore {
+                  let result = $0.map { commitAction }
+                  completionHandler?(result)
                 }
             }
         }
@@ -104,22 +99,21 @@ extension NSManagedObjectContext
     
     :param: completionHandler  Completion block to run after changes are saved
     */
-    func saveToPersistentStore(completionHandler optionalCompletionHandler: CompletionHandler? = nil)
+    func saveToPersistentStore(completionHandler: CompletionHandler? = nil)
     {
+        obtainPermanentIDsForInsertedObjects()
+
         var optionalError: NSError?
         save(&optionalError)
 
-        switch (optionalError, self.parentContext, optionalCompletionHandler) {
-        case let (.None, .Some(parentContext), _):
+        switch (optionalError, self.parentContext) {
+        case let (.None, .Some(parentContext)):
             parentContext.performBlock {
-                parentContext.saveToPersistentStore(optionalCompletionHandler)
+                parentContext.saveToPersistentStore(completionHandler)
             }
 
-        case let (_, _, .Some(completionHandler)):
-            dispatch_async(dispatch_get_main_queue()) { completionHandler(Result<Void>.withOptionalError(optionalError)) } 
-
         default:
-            break
+          completionHandler?(Result<Void>.withOptionalError(optionalError))
         }
     }
 
@@ -128,10 +122,12 @@ extension NSManagedObjectContext
     /// Installs a notification handler on the will save event that calls `obtainPermanentIDsForInsertedObjects()`
     func beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     {
-        NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextWillSaveNotification, object: self, queue: NSOperationQueue.mainQueue()) { [weak self] _ in
-            self?.obtainPermanentIDsForInsertedObjects()
-            return
-        }
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: "obtainPermanentIDsForInsertedObjectsOnContextWillSave", name: NSManagedObjectContextWillSaveNotification, object: self)
+    }
+
+    func obtainPermanentIDsForInsertedObjectsOnContextWillSave(notification: NSNotification)
+    {
+        obtainPermanentIDsForInsertedObjects()
     }
 
     /**
@@ -309,12 +305,18 @@ extension NSManagedObjectContext
         resultsController.delegate = delegate
 
         var optionalError: NSError?
-        resultsController.performFetch(&optionalError)
-        if let error = optionalError {
-            return Result(error)
+        var result: Result<NSFetchedResultsController>?
+
+        performBlockAndWait {
+          resultsController.performFetch(&optionalError)
+          if let error = optionalError {
+              result = Result(error)
+          }
+
+          result = Result(resultsController)
         }
 
-        return Result(resultsController)
+        return result!
     }
 
 // MARK: Find helpers
@@ -326,19 +328,19 @@ extension NSManagedObjectContext
 
     :returns: Result with the given object in this context
     */
-    public func find<T:NSManagedObject>(managedObject: T) -> Result<T> {
+    public func find<T:NSManagedObject>(entity: T.Type, managedObjectID: NSManagedObjectID) -> Result<T> {
         var optionalError: NSError?
 
         // First make sure we have a permanent ID for this object
-        if (managedObject.objectID.temporaryID) {
-            obtainPermanentIDsForObjects([managedObject], error: &optionalError)
+//        if (managedObjectID.temporaryID) {
+//            obtainPermanentIDsForObjects([managedObject], error: &optionalError)
+//
+//            if let error = optionalError {
+//                return Result(error)
+//            }
+//        }
 
-            if let error = optionalError {
-                return Result(error)
-            }
-        }
-
-        let optionalManagedObjectInContext = existingObjectWithID(managedObject.objectID, error: &optionalError)
+        let optionalManagedObjectInContext = existingObjectWithID(managedObjectID, error: &optionalError)
 
         switch (optionalManagedObjectInContext, optionalError) {
         case let (.Some(managedObjectInContext), .None):

@@ -14,7 +14,7 @@ _Due to the current lack of [proper infrastructure](http://cocoapods.org) for Sw
 4. Ensure that the deployment target of CoreDataKit.framework matches that of the application target.
 5. In the tab bar at the top of that window, open the "Build Phases" panel.
 6. Expand the "Target Dependencies" group, and add `CoreDataKit.framework`.
-7. Click on the `+` button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `Alamofire.framework`.
+7. Click on the `+` button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `CoreDataKit.framework`.
 
 ## Usage
 
@@ -29,7 +29,7 @@ if let persistentStoreCoordinator = NSPersistentStoreCoordinator(automigrating: 
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```
 CoreDataKit.performBlockOnBackgroundContext({ context in
-	if let car = context.create(Car.self).successValue() {
+	if let car = context.create(Car.self).value() {
 		car.color = "Hammerhead Silver"
 		car.model = "Aston Martin DB9"
 	}
@@ -45,6 +45,27 @@ CoreDataKit.performBlockOnBackgroundContext({ context in
     }
 })
 ```
+
+### Using promises
+
+If you prefer using promises, instead of the callback style of this library, you can use the  [Promissum](https://github.com/tomlokhorst/Promissum) library with CoreDataKit. Using the [CoreDataKit+Promise](https://github.com/tomlokhorst/Promissum/blob/master/extensions/PromissumExtensions/CoreDataKit%2BPromise.swift) extension, the example from above can be rewritten as such:
+```
+let createPromise = CoreDataKit.performBlockOnBackgroundContextPromise { context in
+	if let car = context.create(Car.self).value() {
+		car.color = "Hammerhead Silver"
+		car.model = "Aston Martin DB9"
+	}
+
+	return .SaveToPersistentStore
+}
+
+createPromise.then { _ in
+	println("Car saved, time to update the interface!")
+}.catch { error in
+	println("Saving Harvey Specters car failed with error: \(error)")
+}
+```
+
 
 ## Contributing
 

@@ -47,7 +47,7 @@ class NSManagedObjectContextTests: TestCase {
         let countFRq = NSFetchRequest(entityName: "Employee")
         XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
 
-        coreDataStack.rootContext.createChildContext().performBlock({ (context) -> CommitAction in
+        coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
             let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
             employee.name = "Mike Ross"
 
@@ -67,7 +67,7 @@ class NSManagedObjectContextTests: TestCase {
         let countFRq = NSFetchRequest(entityName: "Employee")
         XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
 
-        coreDataStack.rootContext.createChildContext().performBlock({ (context) -> CommitAction in
+        coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
             NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context)
             return .SaveToParentContext
         }, completionHandler: { (result) -> Void in

@@ -159,9 +159,9 @@ class NSManagedObjectTests: TestCase {
         }
     }
 
-    func testImportNestedWithoutIdRelation() {
-        if let jsonObject = loadJSONFile("EmployeesNestedWithoutIdRelation")? as? [String: AnyObject] {
-            switch coreDataStack.rootContext.importEntity(EmployeeWithRelationWithoutId.self, dictionary: jsonObject) {
+    func testImportNestedEmbeddingRelation() {
+        if let jsonObject = loadJSONFile("EmployeesNestedEmbeddingRelation")? as? [String: AnyObject] {
+            switch coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject) {
             case let .Failure(error):
                 XCTFail("Unexpected error \(error)")
 
@@ -170,7 +170,32 @@ class NSManagedObjectTests: TestCase {
                 XCTAssertEqual(boxedObject().salary.amount, 123456789, "Unexpected salary")
             }
         } else {
-            XCTFail("Missing EmployeesNestedWithoutIdRelation.json fixture")
+            XCTFail("Missing EmployeesNestedEmbeddingRelation.json fixture")
+        }
+    }
+
+    /// This test covers https://github.com/mac-cain13/CoreDataKit/issues/4
+    func testOldValueIsDeletedWhenEmbeddingRelationIsUpdated() {
+        let count = coreDataStack.rootContext.find(Salary.self).value()?.count ?? -1
+        XCTAssertEqual(count, 0, "Salary on start incorrect")
+
+        if let jsonObject = loadJSONFile("EmployeesNestedEmbeddingRelation")? as? [String: AnyObject] {
+            switch coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject) {
+            case let .Failure(error):
+                XCTFail("Unexpected error \(error)")
+
+            case let .Success(boxedObject):
+                switch coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject) {
+                case let .Failure(error):
+                    XCTFail("Unexpected error \(error)")
+
+                case let .Success(boxedObject):
+                    let count = coreDataStack.rootContext.find(Salary.self).value()?.count ?? -1
+                    XCTAssertEqual(count, 1, "Unexpected Salary count")
+                }
+            }
+        } else {
+            XCTFail("Missing EmployeesNestedEmbeddingRelation.json fixture")
         }
     }
 

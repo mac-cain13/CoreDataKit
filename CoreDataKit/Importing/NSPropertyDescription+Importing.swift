@@ -10,40 +10,57 @@ import CoreData
 
 extension NSPropertyDescription
 {
+    var mapStrategy: MapStrategy {
+        let fallbackStrategy = MapStrategy.Mapping
+
+        if let mappingStrategyString = userInfo?[MapStrategyUserInfoKey] as? String {
+            if let strategy = MapStrategy(rawValue: mappingStrategyString) {
+                return strategy
+            } else {
+                CoreDataKit.sharedLogger(.ERROR, "Unsupported \(MappingUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackStrategy.rawValue) strategy")
+                return fallbackStrategy
+            }
+        }
+
+        return fallbackStrategy
+    }
+
     /**
     Keys that could contain data for this property as defined by the model
     
     :returns: Array of keys to look for when mapping data into this property
     */
     var mappings: [String] {
-        var _mappings = [String]()
+        switch mapStrategy {
+        case .NoMapping:
+            return [String]()
 
-        // Fetch the unnumbered mapping
-        if let unnumberedMapping = userInfo?[MappingUserInfoKey] as? String {
-            if SuppressMappingUserInfoValue == unnumberedMapping {
-                return [String]()
-            } else {
+        case .Mapping:
+            var _mappings = [String]()
+
+            // Fetch the unnumbered mapping
+            if let unnumberedMapping = userInfo?[MappingUserInfoKey] as? String {
                 _mappings.append(unnumberedMapping)
             }
-        }
 
-        // Fetch the numbered mappings
-        for i in 0...MaxNumberedMappings+1 {
-            if let numberedMapping = userInfo?[MappingUserInfoKey + ".\(i)"] as? String {
-                _mappings.append(numberedMapping)
+            // Fetch the numbered mappings
+            for i in 0...MaxNumberedMappings+1 {
+                if let numberedMapping = userInfo?[MappingUserInfoKey + ".\(i)"] as? String {
+                    _mappings.append(numberedMapping)
 
-                if i == MaxNumberedMappings+1 {
-                    CoreDataKit.sharedLogger(.WARN, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported, you defined more for \(entity.name).\(name)")
+                    if i == MaxNumberedMappings+1 {
+                        CoreDataKit.sharedLogger(.WARN, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported all others are ignored, you defined more for \(entity.name).\(name)")
+                    }
                 }
             }
-        }
 
-        // Fallback to the name of the property as a mapping if no mappings are defined
-        if 0 == _mappings.count {
-            _mappings.append(name)
+            // Fallback to the name of the property as a mapping if no mappings are defined
+            if 0 == _mappings.count {
+                _mappings.append(name)
+            }
+            
+            return _mappings
         }
-
-        return _mappings
     }
 
     /**
