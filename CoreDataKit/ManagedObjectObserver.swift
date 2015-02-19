@@ -35,6 +35,7 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
 
     public let observedObject: T
     let context: NSManagedObjectContext
+    let notificationObserver: NSObjectProtocol?
     var subscribers: [Subscriber]
 
     /**
@@ -51,43 +52,45 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
         self.subscribers = [Subscriber]()
         super.init()
 
-      NSNotificationCenter.defaultCenter().addObserver(self, selector: "processObjectChanges:", name: NSManagedObjectContextObjectsDidChangeNotification, object: context)
-    }
+      notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: nil) { [unowned self] notification in
+        context.performBlock {
+          if self.subscribers.isEmpty {
+            return
+          }
 
-    public func processObjectChanges(notification: NSNotification) {
-        if self.subscribers.isEmpty {
-          return
+          if let convertedObject = context.find(T.self, managedObjectID: self.observedObject.objectID).value() {
+            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
+              if updatedObjects.containsObject(convertedObject) {
+                self.notifySubscribers(.Updated(convertedObject))
+              }
+            }
+
+            if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
+              if refreshedObjects.containsObject(convertedObject) {
+                self.notifySubscribers(.Refreshed(convertedObject))
+              }
+            }
+
+            if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
+              if insertedObjects.containsObject(convertedObject) {
+                self.notifySubscribers(.Inserted(convertedObject))
+              }
+            }
+
+            if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
+              if deletedObjects.containsObject(convertedObject) {
+                self.notifySubscribers(.Deleted)
+              }
+            }
+          }
         }
-
-        if let convertedObject = context.find(T.self, managedObjectID: self.observedObject.objectID).value() {
-          if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
-            if updatedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Updated(convertedObject))
-            }
-          }
-
-          if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
-            if refreshedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Refreshed(convertedObject))
-            }
-          }
-
-          if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
-            if insertedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Inserted(convertedObject))
-            }
-          }
-
-          if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
-            if deletedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Deleted)
-            }
-          }
-        }
+      }
     }
 
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        if let notificationObserver = notificationObserver {
+            NSNotificationCenter.defaultCenter().removeObserver(notificationObserver)
+        }
     }
 
     private func notifySubscribers(action: ObservedAction<T>) {
