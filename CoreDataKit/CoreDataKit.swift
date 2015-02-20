@@ -8,14 +8,14 @@
 
 import CoreData
 
-public enum LogLevel {
+public enum CDKLogLevel {
     case DEBUG
     case INFO
     case WARN
     case ERROR
 }
 
-public typealias Logger = (LogLevel, String) -> Void
+public typealias Logger = (CDKLogLevel, String) -> Void
 
 /**
 `CoreDataKit` helps with setup of the CoreData stack

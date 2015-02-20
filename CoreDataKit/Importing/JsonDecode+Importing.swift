@@ -8,36 +8,37 @@
 
 import Foundation
 
-extension String {
-    static func decode(json : AnyObject) -> String? {
-        return json as? String
-    }
-}
-
-extension Bool {
-    static func decode(json : AnyObject) -> Bool? {
-        return json as? Bool
-    }
-}
-
-extension Int {
-    static func decode(json : AnyObject) -> Int? {
-        return json as? Int
-    }
-}
-
-extension Int64 {
-    static func decode(json : AnyObject) -> Int64? {
-        let number = json as? NSNumber
-        return number.map { $0.longLongValue }
-    }
-}
-
-extension Double {
-    static func decode(json : AnyObject) -> Double? {
-        return json as? Double
-    }
-}
+// We use the decode functions from the JsonDecode+Importing.swift file
+//extension String {
+//    static func decode(json : AnyObject) -> String? {
+//        return json as? String
+//    }
+//}
+//
+//extension Bool {
+//    static func decode(json : AnyObject) -> Bool? {
+//        return json as? Bool
+//    }
+//}
+//
+//extension Int {
+//    static func decode(json : AnyObject) -> Int? {
+//        return json as? Int
+//    }
+//}
+//
+//extension Int64 {
+//    static func decode(json : AnyObject) -> Int64? {
+//        let number = json as? NSNumber
+//        return number.map { $0.longLongValue }
+//    }
+//}
+//
+//extension Double {
+//    static func decode(json : AnyObject) -> Double? {
+//        return json as? Double
+//    }
+//}
 
 extension NSData {
     class func decode(json: AnyObject) -> NSData? {
