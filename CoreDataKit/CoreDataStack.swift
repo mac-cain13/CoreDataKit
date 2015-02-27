@@ -63,11 +63,11 @@ public class CoreDataStack: NSObject {
     Dumps some debug info about this stack to the console
     */
     public func dumpStack() {
-        CoreDataKit.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
-        CoreDataKit.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, " |- Root context: \(rootContext.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "  |- Main thread context: \(mainThreadContext.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "  |- Background context: \(backgroundContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
+        CDK.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
+        CDK.sharedLogger(.DEBUG, " |- Root context: \(rootContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "  |- Main thread context: \(mainThreadContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "  |- Background context: \(backgroundContext.debugDescription)")
     }
 
 // MARK: Notification observers
