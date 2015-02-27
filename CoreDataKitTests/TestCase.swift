@@ -25,7 +25,7 @@ class TestCase: XCTestCase {
 
         // Setup the shared stack
         dispatch_once(&Holder.token) {
-            CoreDataKit.sharedStack = self.setupCoreDataStack(managedObjectModel)
+            CDK.sharedStack = self.setupCoreDataStack(managedObjectModel)
         }
 
         // Setup the stack for this test

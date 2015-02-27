@@ -16,16 +16,16 @@ extension CoreDataStack {
         let entityUserInfoKeys = [IdentifierUserInfoKey]
 
         for (entityName, _entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
-            CoreDataKit.sharedLogger(.DEBUG, " ")
+            CDK.sharedLogger(.DEBUG, " ")
 
             let entity = _entity as NSEntityDescription
-            CoreDataKit.sharedLogger(.DEBUG, "\(entityName):")
+            CDK.sharedLogger(.DEBUG, "\(entityName):")
 
             for (_key, value) in entity.userInfo! {
                 let key = _key as String
 
                 if !contains(entityUserInfoKeys, key) {
-                    CoreDataKit.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
+                    CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
                 }
             }
 
@@ -59,7 +59,7 @@ extension CoreDataStack {
         let relationshipType = (property as? NSRelationshipDescription)?.relationType.rawValue
         let relationshipTypeDescription = relationshipType == nil ? "" : " → \(relationshipType!)"
 
-        CoreDataKit.sharedLogger(.DEBUG, "\(identifying)\(indexed)\(property.name)\(optional) → \(property.mappings)\(relationshipTypeDescription)")
+        CDK.sharedLogger(.DEBUG, "\(identifying)\(indexed)\(property.name)\(optional) → \(property.mappings)\(relationshipTypeDescription)")
 
         for (_key, value) in property.userInfo! {
             let key = _key as String
@@ -67,7 +67,7 @@ extension CoreDataStack {
             if !contains(propertyUserInfoKeys, key) {
                 if (property is NSAttributeDescription && !contains(attributeUserInfoKeys, key)) ||
                     (property is NSRelationshipDescription && !contains(relationshipUserInfoKeys, key)) {
-                    CoreDataKit.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
+                    CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
                 }
             }
         }
