@@ -18,7 +18,7 @@ extension NSRelationshipDescription {
             if let relationType = RelationType(rawValue: relationTypeString) {
                 return relationType
             } else {
-                CoreDataKit.sharedLogger(.ERROR, "Unsupported \(RelationTypeUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackRelationType.rawValue) relation type")
+                CDK.sharedLogger(.ERROR, "Unsupported \(RelationTypeUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackRelationType.rawValue) relation type")
                 return fallbackRelationType
             }
         }
