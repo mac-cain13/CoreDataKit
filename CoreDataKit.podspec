@@ -10,7 +10,7 @@ CoreDataKit takes care of the hard and verbose parts of CoreData. It manages chi
                    DESC
 
   s.authors           = { "Mathijs Kadijk" => "mkadijk@gmail.com" }
-  s.social_media_url  = "https://github.com/mac-cain13"
+  s.social_media_url  = "http://twitter.com/mac_cain13"
   s.homepage          = "https://github.com/mac-cain13/CoreDataKit"
 
   s.source          = { :git => "https://github.com/mac-cain13/CoreDataKit.git", :tag => s.version }
