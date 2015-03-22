@@ -1,5 +1,5 @@
 //
-//  CoreDataKit.swift
+//  CDK.swift
 //  CoreDataKit
 //
 //  Created by Mathijs Kadijk on 23-06-14.
@@ -18,9 +18,9 @@ public enum LogLevel {
 public typealias Logger = (LogLevel, String) -> Void
 
 /**
-`CoreDataKit` helps with setup of the CoreData stack
+`CDK` helps with setup of the CoreData stack
 */
-public class CoreDataKit : NSObject
+public class CDK : NSObject
 {
     private struct Holder {
         static var sharedStack: CoreDataStack?
@@ -28,7 +28,7 @@ public class CoreDataKit : NSObject
     }
 
     /**
-    Property to hold a shared instance of CoreDataKit, all the convenience class properties access and unwrap this shared instance. So make sure to set the shared instance before doing anything else.
+    Property to hold a shared instance of CoreDataStack, all the convenience class properties access and unwrap this shared instance. So make sure to set the shared instance before doing anything else.
     
     :discussion: This is the only property you have to set to setup CoreDataKit, changing the shared instace is not supported.
     */

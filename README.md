@@ -22,13 +22,13 @@ The most basic and most used variant to setup a stack backed by an automigrating
 ```
 // Initialize CoreData stack
 if let persistentStoreCoordinator = NSPersistentStoreCoordinator(automigrating: true) {
-  CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentStoreCoordinator)
+  CDK.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentStoreCoordinator)
 }
 ```
 
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```
-CoreDataKit.performBlockOnBackgroundContext({ context in
+CDK.performBlockOnBackgroundContext({ context in
 	if let car = context.create(Car.self).value() {
 		car.color = "Hammerhead Silver"
 		car.model = "Aston Martin DB9"
@@ -50,7 +50,7 @@ CoreDataKit.performBlockOnBackgroundContext({ context in
 
 If you prefer using promises, instead of the callback style of this library, you can use the  [Promissum](https://github.com/tomlokhorst/Promissum) library with CoreDataKit. Using the [CoreDataKit+Promise](https://github.com/tomlokhorst/Promissum/blob/master/extensions/PromissumExtensions/CoreDataKit%2BPromise.swift) extension, the example from above can be rewritten as such:
 ```
-let createPromise = CoreDataKit.performBlockOnBackgroundContextPromise { context in
+let createPromise = CDK.performBlockOnBackgroundContextPromise { context in
 	if let car = context.create(Car.self).value() {
 		car.color = "Hammerhead Silver"
 		car.model = "Aston Martin DB9"
@@ -65,7 +65,6 @@ createPromise.then { _ in
 	println("Saving Harvey Specters car failed with error: \(error)")
 }
 ```
-
 
 ## Contributing
 

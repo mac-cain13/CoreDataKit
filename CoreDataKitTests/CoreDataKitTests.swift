@@ -12,20 +12,20 @@ import CoreDataKit
 
 class CoreDataKitTests: TestCase {
     func testPersistentStoreCoordinator() {
-        XCTAssertEqual(CoreDataKit.persistentStoreCoordinator, CoreDataKit.sharedStack!.persistentStoreCoordinator, "Incorrect persistent coordinator")
+        XCTAssertEqual(CDK.persistentStoreCoordinator, CDK.sharedStack!.persistentStoreCoordinator, "Incorrect persistent coordinator")
     }
 
     func testBackgroundContext() {
-        XCTAssertNotNil(CoreDataKit.backgroundContext.persistentStoreCoordinator, "Missing persistent coordinator")
-        XCTAssertEqual(CoreDataKit.backgroundContext.persistentStoreCoordinator!, CoreDataKit.persistentStoreCoordinator, "Incorrect persistent coordinator")
-        XCTAssertNotNil(CoreDataKit.backgroundContext.parentContext, "Missing parent context")
-        XCTAssertEqual(CoreDataKit.backgroundContext.parentContext!, CoreDataKit.sharedStack!.rootContext, "Incorrect parent context")
+        XCTAssertNotNil(CDK.backgroundContext.persistentStoreCoordinator, "Missing persistent coordinator")
+        XCTAssertEqual(CDK.backgroundContext.persistentStoreCoordinator!, CDK.persistentStoreCoordinator, "Incorrect persistent coordinator")
+        XCTAssertNotNil(CDK.backgroundContext.parentContext, "Missing parent context")
+        XCTAssertEqual(CDK.backgroundContext.parentContext!, CDK.sharedStack!.rootContext, "Incorrect parent context")
     }
 
     func testMainThreadContext() {
-        XCTAssertNotNil(CoreDataKit.mainThreadContext.persistentStoreCoordinator, "Missing persistent coordinator")
-        XCTAssertEqual(CoreDataKit.mainThreadContext.persistentStoreCoordinator!, CoreDataKit.persistentStoreCoordinator, "Incorrect persistent coordinator")
-        XCTAssertNotNil(CoreDataKit.mainThreadContext.parentContext, "Missing parent context")
-        XCTAssertEqual(CoreDataKit.mainThreadContext.parentContext!, CoreDataKit.sharedStack!.rootContext, "Incorrect parent context")
+        XCTAssertNotNil(CDK.mainThreadContext.persistentStoreCoordinator, "Missing persistent coordinator")
+        XCTAssertEqual(CDK.mainThreadContext.persistentStoreCoordinator!, CDK.persistentStoreCoordinator, "Incorrect persistent coordinator")
+        XCTAssertNotNil(CDK.mainThreadContext.parentContext, "Missing parent context")
+        XCTAssertEqual(CDK.mainThreadContext.parentContext!, CDK.sharedStack!.rootContext, "Incorrect parent context")
     }
 }

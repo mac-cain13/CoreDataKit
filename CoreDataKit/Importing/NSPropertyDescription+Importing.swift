@@ -17,7 +17,7 @@ extension NSPropertyDescription
             if let strategy = MapStrategy(rawValue: mappingStrategyString) {
                 return strategy
             } else {
-                CoreDataKit.sharedLogger(.ERROR, "Unsupported \(MappingUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackStrategy.rawValue) strategy")
+                CDK.sharedLogger(.ERROR, "Unsupported \(MappingUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackStrategy.rawValue) strategy")
                 return fallbackStrategy
             }
         }
@@ -49,7 +49,7 @@ extension NSPropertyDescription
                     _mappings.append(numberedMapping)
 
                     if i == MaxNumberedMappings+1 {
-                        CoreDataKit.sharedLogger(.WARN, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported all others are ignored, you defined more for \(entity.name).\(name)")
+                        CDK.sharedLogger(.WARN, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported all others are ignored, you defined more for \(entity.name).\(name)")
                     }
                 }
             }
