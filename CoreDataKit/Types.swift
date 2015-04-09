@@ -8,7 +8,8 @@
 
 import CoreData
 
-public class Box<T> {
+// Renamed to prevent conflict
+public class CDKBox<T> {
   public let value: T
 
   init(value: T) {
@@ -19,14 +20,14 @@ public class Box<T> {
 /// The result type used for nearly all failable operations
 public enum Result<T> {
     /// Indicated success of the operation and contains a boxed result value
-    case Success(Box<T>)
+    case Success(CDKBox<T>)
 
     /// Indicates failure of the operation and contains a boxes error value
     case Failure(NSError)
 
     /// Initialize with a success value, boxes it for you
     internal init(_ value: T) {
-        self = .Success(Box(value: value))
+        self = .Success(CDKBox(value: value))
     }
 
     /// Initialize with a error value, boxes it for you
@@ -82,7 +83,7 @@ public enum Result<T> {
     public func map<U>(f: T -> U) -> Result<U> {
         switch self {
         case let .Success(x):
-            return .Success(Box(value: f(x.value)))
+            return .Success(CDKBox(value: f(x.value)))
 
         case let .Failure(x):
             return .Failure(x)
