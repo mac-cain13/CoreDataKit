@@ -73,7 +73,7 @@ extension NSPersistentStoreCoordinator
     private func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool, deleteOnMismatch: Bool)
     {
         let addStore: () -> Result<NSPersistentStore> = {
-            let options = [
+            let options: [NSObject: AnyObject] = [
                 NSMigratePersistentStoresAutomaticallyOption: automigrating,
                 NSInferMappingModelAutomaticallyOption: automigrating,
                 NSSQLitePragmasOption: ["journal_mode": "WAL"]
