@@ -35,7 +35,7 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
 
     public let observedObject: T
     let context: NSManagedObjectContext
-    let notificationObserver: NSObjectProtocol?
+    var notificationObserver: NSObjectProtocol?
     var subscribers: [Subscriber]
 
     /**
