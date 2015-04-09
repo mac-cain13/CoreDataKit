@@ -48,7 +48,7 @@ class NSManagedObjectContextTests: TestCase {
         XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
 
         coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
-            let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
+            let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
             employee.name = "Mike Ross"
 
             return .SaveToPersistentStore
@@ -83,7 +83,7 @@ class NSManagedObjectContextTests: TestCase {
 // MARK: Obtaining permanent IDs
 
     func testObtainPermanentIDsForInsertedObjects() {
-        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: coreDataStack.rootContext) as Employee
+        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: coreDataStack.rootContext) as! Employee
         employee.name = "Harvey Specter"
 
         XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
@@ -97,7 +97,7 @@ class NSManagedObjectContextTests: TestCase {
     }
 
     private func testContextObtainsPermanentIDs(context: NSManagedObjectContext) {
-        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as Employee
+        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
         employee.name = "Harvey Specter"
 
         XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
@@ -112,8 +112,8 @@ class NSManagedObjectContextTests: TestCase {
     func testCreate() {
         switch coreDataStack.rootContext.create(Employee.self) {
         case let .Success(boxedEmployee):
-            XCTAssertTrue(boxedEmployee().inserted, "Managed object should be inserted")
-            XCTAssertEqual(boxedEmployee().managedObjectContext!, coreDataStack.rootContext, "Unexpected managed object context")
+            XCTAssertTrue(boxedEmployee.value.inserted, "Managed object should be inserted")
+            XCTAssertEqual(boxedEmployee.value.managedObjectContext!, coreDataStack.rootContext, "Unexpected managed object context")
             break
 
         case .Failure:
@@ -141,16 +141,16 @@ class NSManagedObjectContextTests: TestCase {
             XCTFail("Unexpected error")
 
         case let .Success(boxedEmployee):
-            boxedEmployee().name = "Rachel Zane"
+            boxedEmployee.value.name = "Rachel Zane"
 
             switch coreDataStack.rootContext.find(Employee.self) {
             case .Failure:
                 XCTFail("Unexpected error")
 
             case let .Success(boxedResults):
-                XCTAssertEqual(boxedResults().count, 1, "Incorrect number of results")
+                XCTAssertEqual(boxedResults.value.count, 1, "Incorrect number of results")
 
-                if let firstEmployee = boxedResults().first {
+                if let firstEmployee = boxedResults.value.first {
                     XCTAssertEqual(firstEmployee.name, "Rachel Zane", "Incorrect employee name")
                 }
             }
@@ -163,7 +163,7 @@ class NSManagedObjectContextTests: TestCase {
             XCTFail("Unexpected error")
 
         case let .Success(boxedResults):
-            XCTAssertEqual(boxedResults().count, 0, "Incorrect number of results")
+            XCTAssertEqual(boxedResults.value.count, 0, "Incorrect number of results")
         }
     }
 
@@ -177,9 +177,9 @@ class NSManagedObjectContextTests: TestCase {
 
         switch optionalEmployees {
         case let (.Success(employee0), .Success(employee1), .Success(employee2)):
-            employee0().name = "Rachel Zane 2"
-            employee1().name = "Rachel Zane 1"
-            employee2().name = "Mike Ross"
+            employee0.value.name = "Rachel Zane 2"
+            employee1.value.name = "Rachel Zane 1"
+            employee2.value.name = "Mike Ross"
 
         default:
             XCTFail("Missing managed object")
@@ -192,9 +192,9 @@ class NSManagedObjectContextTests: TestCase {
             XCTFail("Unexpected error")
 
         case let .Success(boxedResults):
-            XCTAssertEqual(boxedResults().count, 2, "Incorrect number of results")
-            XCTAssertEqual(boxedResults()[0].name, "Rachel Zane 1", "Incorrect order")
-            XCTAssertEqual(boxedResults()[1].name, "Rachel Zane 2", "Incorrect order")
+            XCTAssertEqual(boxedResults.value.count, 2, "Incorrect number of results")
+            XCTAssertEqual(boxedResults.value[0].name, "Rachel Zane 1", "Incorrect order")
+            XCTAssertEqual(boxedResults.value[1].name, "Rachel Zane 2", "Incorrect order")
         }
     }
 }

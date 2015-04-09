@@ -55,8 +55,12 @@ public class CoreDataStack: NSObject {
 
     :see: NSManagedObjectContext.performBlock()
     */
-    public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
+    public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
         backgroundContext.performBlock(block, completionHandler: completionHandler)
+    }
+
+    public func performBlockOnBackgroundContext(block: PerformBlock) {
+        backgroundContext.performBlock(block, completionHandler: nil)
     }
 
     /**
@@ -74,9 +78,9 @@ public class CoreDataStack: NSObject {
 
     func rootContextDidSave(notification: NSNotification) {
         if NSThread.isMainThread() {
-            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as NSSet? {
+            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
                 for _object in updatedObjects {
-                    let object = _object as NSManagedObject
+                    let object = _object as! NSManagedObject
                     mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
                 }
             }

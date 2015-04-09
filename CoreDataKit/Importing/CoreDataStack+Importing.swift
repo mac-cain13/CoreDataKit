@@ -18,11 +18,11 @@ extension CoreDataStack {
         for (entityName, _entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
             CDK.sharedLogger(.DEBUG, " ")
 
-            let entity = _entity as NSEntityDescription
+            let entity = _entity as! NSEntityDescription
             CDK.sharedLogger(.DEBUG, "\(entityName):")
 
             for (_key, value) in entity.userInfo! {
-                let key = _key as String
+                let key = _key as! String
 
                 if !contains(entityUserInfoKeys, key) {
                     CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
@@ -35,11 +35,11 @@ extension CoreDataStack {
             }
 
             for (_, attribute) in entity.attributesByName {
-                dumpPropertyDescription(attribute as NSPropertyDescription)
+                dumpPropertyDescription(attribute as! NSPropertyDescription)
             }
 
             for (_, relationship) in entity.relationshipsByName {
-                dumpPropertyDescription(relationship as NSPropertyDescription)
+                dumpPropertyDescription(relationship as! NSPropertyDescription)
             }
         }
     }
@@ -62,7 +62,7 @@ extension CoreDataStack {
         CDK.sharedLogger(.DEBUG, "\(identifying)\(indexed)\(property.name)\(optional) → \(property.mappings)\(relationshipTypeDescription)")
 
         for (_key, value) in property.userInfo! {
-            let key = _key as String
+            let key = _key as! String
 
             if !contains(propertyUserInfoKeys, key) {
                 if (property is NSAttributeDescription && !contains(attributeUserInfoKeys, key)) ||

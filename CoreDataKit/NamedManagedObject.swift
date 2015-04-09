@@ -7,7 +7,7 @@
 //
 
 /// Protocol that enables CoreDataKit to handle entities based on a
-public protocol NamedManagedObject {
+public protocol NamedManagedObject: class {
     /// The name of the entity as it is known in the managed object model
-    class var entityName: String { get }
+    static var entityName: String { get }
 }

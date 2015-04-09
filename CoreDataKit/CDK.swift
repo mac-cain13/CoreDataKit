@@ -82,7 +82,11 @@ public class CDK : NSObject
 
     :see: NSManagedObjectContext.performBlock()
     */
-    public class func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
+    public class func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
         sharedStack!.performBlockOnBackgroundContext(block, completionHandler: completionHandler)
+    }
+
+    public class func performBlockOnBackgroundContext(block: PerformBlock) {
+        sharedStack!.performBlockOnBackgroundContext(block, completionHandler: nil)
     }
 }
