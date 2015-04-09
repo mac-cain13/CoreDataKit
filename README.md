@@ -6,15 +6,15 @@
 
 ## Installation
 
-_Due to the current lack of [proper infrastructure](http://cocoapods.org) for Swift dependency management, using CoreDataKit in your project requires the following steps:_
+[CocoaPods](http://cocoapods.org) is the advised way to include CoreDataKit into your project. A basic [Podfile](http://cocoapods.org/#get_started) including CoreDataKit would look like this:
 
-1. Add CoreDataKit as a [submodule](http://git-scm.com/docs/git-submodule) by opening the Terminal, `cd`-ing into your top-level project directory, and entering the command `git submodule add https://github.com/mac-cain13/CoreDataKit.git`
-2. Open the `CoreDataKit` folder, and drag `CoreDataKit.xcodeproj` into the file navigator of your app project.
-3. In Xcode, navigate to the target configuration window by clicking on the blue project icon, and selecting the application target under the "Targets" heading in the sidebar.
-4. Ensure that the deployment target of CoreDataKit.framework matches that of the application target.
-5. In the tab bar at the top of that window, open the "Build Phases" panel.
-6. Expand the "Target Dependencies" group, and add `CoreDataKit.framework`.
-7. Click on the `+` button at the top left of the panel and select "New Copy Files Phase". Rename this new phase to "Copy Frameworks", set the "Destination" to "Frameworks", and add `CoreDataKit.framework`.
+```
+source 'https://github.com/CocoaPods/Specs.git'
+platform :ios, '8.0'
+use_frameworks!
+
+pod 'CoreDataKit', '~> 0.4'
+```
 
 ## Usage
 
@@ -22,13 +22,13 @@ The most basic and most used variant to setup a stack backed by an automigrating
 ```
 // Initialize CoreData stack
 if let persistentStoreCoordinator = NSPersistentStoreCoordinator(automigrating: true) {
-  CoreDataKit.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentStoreCoordinator)
+  CDK.sharedStack = CoreDataStack(persistentStoreCoordinator: persistentStoreCoordinator)
 }
 ```
 
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```
-CoreDataKit.performBlockOnBackgroundContext({ context in
+CDK.performBlockOnBackgroundContext({ context in
 	if let car = context.create(Car.self).value() {
 		car.color = "Hammerhead Silver"
 		car.model = "Aston Martin DB9"
@@ -50,7 +50,7 @@ CoreDataKit.performBlockOnBackgroundContext({ context in
 
 If you prefer using promises, instead of the callback style of this library, you can use the  [Promissum](https://github.com/tomlokhorst/Promissum) library with CoreDataKit. Using the [CoreDataKit+Promise](https://github.com/tomlokhorst/Promissum/blob/master/extensions/PromissumExtensions/CoreDataKit%2BPromise.swift) extension, the example from above can be rewritten as such:
 ```
-let createPromise = CoreDataKit.performBlockOnBackgroundContextPromise { context in
+let createPromise = CDK.performBlockOnBackgroundContextPromise { context in
 	if let car = context.create(Car.self).value() {
 		car.color = "Hammerhead Silver"
 		car.model = "Aston Martin DB9"
@@ -65,7 +65,6 @@ createPromise.then { _ in
 	println("Saving Harvey Specters car failed with error: \(error)")
 }
 ```
-
 
 ## Contributing
 

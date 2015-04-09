@@ -67,7 +67,7 @@ extension NSManagedObjectContext
         let findResult: Result<T?> = findEntityByIdentifyingAttribute(entityDescription, identifyingValue: identifyingValue)
         switch findResult {
         case let .Success(boxedObject):
-            if let existingObject = boxedObject() {
+            if let existingObject = boxedObject.value {
                 return Result(existingObject)
             } else {
                 return create(entityDescription)

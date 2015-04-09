@@ -8,17 +8,25 @@
 
 import CoreData
 
+public class Box<T> {
+  public let value: T
+
+  init(value: T) {
+    self.value = value
+  }
+}
+
 /// The result type used for nearly all failable operations
 public enum Result<T> {
     /// Indicated success of the operation and contains a boxed result value
-    case Success(@autoclosure () -> T)
+    case Success(Box<T>)
 
     /// Indicates failure of the operation and contains a boxes error value
     case Failure(NSError)
 
     /// Initialize with a success value, boxes it for you
     internal init(_ value: T) {
-        self = .Success(value)
+        self = .Success(Box(value: value))
     }
 
     /// Initialize with a error value, boxes it for you
@@ -48,8 +56,8 @@ public enum Result<T> {
     */
     public func value() -> T? {
         switch self {
-        case let .Success(value):
-            return value()
+        case let .Success(boxedValue):
+            return boxedValue.value
 
         default:
             return nil
@@ -74,7 +82,7 @@ public enum Result<T> {
     public func map<U>(f: T -> U) -> Result<U> {
         switch self {
         case let .Success(x):
-            return .Success(f(x()))
+            return .Success(Box(value: f(x.value)))
 
         case let .Failure(x):
             return .Failure(x)
@@ -84,7 +92,7 @@ public enum Result<T> {
     public static func flatten<T>(result: Result<Result<T>>) -> Result<T> {
         switch result {
         case let .Success(x):
-            return x()
+            return x.value
 
         case let .Failure(x):
             return .Failure(x)

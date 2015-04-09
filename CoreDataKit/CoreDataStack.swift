@@ -56,35 +56,40 @@ public class CoreDataStack: NSObject {
 
     :see: NSManagedObjectContext.performBlock()
     */
-    public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
+    public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
         backgroundContext.performBlock(block, completionHandler: completionHandler)
+    }
+
+    public func performBlockOnBackgroundContext(block: PerformBlock) {
+        backgroundContext.performBlock(block, completionHandler: nil)
     }
 
     /**
     Dumps some debug info about this stack to the console
     */
     public func dumpStack() {
-        CoreDataKit.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
-        CoreDataKit.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "   |- Root context: \(rootContext.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "      |- Main thread context: \(mainThreadContext.debugDescription)")
-        CoreDataKit.sharedLogger(.DEBUG, "         |- Background context: \(backgroundContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
+        CDK.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "   |- Root context: \(rootContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "      |- Main thread context: \(mainThreadContext.debugDescription)")
+        CDK.sharedLogger(.DEBUG, "         |- Background context: \(backgroundContext.debugDescription)")
     }
 
 // MARK: Notification observers
 
 //    func rootContextDidSave(notification: NSNotification) {
-//        mainThreadContext.performBlock { [weak self] in
-//            if let stack = self {
-//                if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as NSSet? {
-//                    for object in updatedObjects {
-//                        if let object = object as? NSManagedObject {
-//                            stack.mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
-//                        }
-//                    }
+//        if NSThread.isMainThread() {
+//            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
+//                for _object in updatedObjects {
+//                    let object = _object as! NSManagedObject
+//                    mainThreadContext.objectWithID(object.objectID).willAccessValueForKey(nil)
 //                }
+//            }
 //
-//                stack.mainThreadContext.mergeChangesFromContextDidSaveNotification(notification)
+//            mainThreadContext.mergeChangesFromContextDidSaveNotification(notification)
+//        } else {
+//            dispatch_async(dispatch_get_main_queue()) {
+//                self.rootContextDidSave(notification)
 //            }
 //        }
 //    }

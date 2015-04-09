@@ -109,7 +109,7 @@ extension NSManagedObjectContext
         switch (optionalError, self.parentContext) {
         case let (.None, .Some(parentContext)):
             parentContext.performBlock {
-                parentContext.saveToPersistentStore(completionHandler)
+                parentContext.saveToPersistentStore(completionHandler: completionHandler)
             }
 
         default:
@@ -139,7 +139,7 @@ extension NSManagedObjectContext
     {
         if (self.insertedObjects.count > 0) {
             var optionalError: NSError?
-            self.obtainPermanentIDsForObjects(self.insertedObjects.allObjects, error: &optionalError)
+            self.obtainPermanentIDsForObjects(Array(self.insertedObjects), error: &optionalError)
 
             if let error = optionalError {
                 return Result(error)
@@ -175,7 +175,7 @@ extension NSManagedObjectContext
     func create<T:NSManagedObject>(entityDescription: NSEntityDescription) -> Result<T>
     {
         if let entityName = entityDescription.name {
-            return Result(NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as T)
+            return Result(NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as! T)
         }
 
         let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description '\(entityDescription)' has no name"])
@@ -271,7 +271,7 @@ extension NSManagedObjectContext
     */
     public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) -> Result<[T]> {
         var optionalError: NSError?
-        let optionalResults = executeFetchRequest(fetchRequest, error: &optionalError)?.map { $0 as T }
+        let optionalResults = executeFetchRequest(fetchRequest, error: &optionalError)?.map { $0 as! T }
 
         switch (optionalResults, optionalError) {
         case let (.Some(results), .None):
@@ -344,7 +344,7 @@ extension NSManagedObjectContext
 
         switch (optionalManagedObjectInContext, optionalError) {
         case let (.Some(managedObjectInContext), .None):
-            return Result(managedObjectInContext as T)
+            return Result(managedObjectInContext as! T)
 
         case let (.None, .Some(error)):
             return Result(error)

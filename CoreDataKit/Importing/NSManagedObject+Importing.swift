@@ -26,7 +26,8 @@ extension NSManagedObject
             return importResult
         }
 
-        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ImportCancelled.rawValue, userInfo: [NSLocalizedDescriptionKey: "Import of entity \(self.entity.name?) cancelled because shouldImport returned false"])
+        let entityName = self.entity.name ?? "nil"
+        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ImportCancelled.rawValue, userInfo: [NSLocalizedDescriptionKey: "Import of entity \(entityName) cancelled because shouldImport returned false"])
         return Result(error)
     }
 
@@ -68,7 +69,7 @@ extension NSManagedObject
     private func performImport(dictionary: [String : AnyObject]) -> Result<Void> {
         if let context = managedObjectContext {
             for _propertyDescription in entity.properties {
-                let propertyDescription = _propertyDescription as NSPropertyDescription
+                let propertyDescription = _propertyDescription as! NSPropertyDescription
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
@@ -191,7 +192,8 @@ extension NSManagedObject
     private func performImportEmbeddingRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
         switch importableValue {
         case let .Some(value as [String: AnyObject]):
-            return managedObjectContext!.create(destinationEntity).flatMap { destinationObject in
+            let createResult = managedObjectContext!.create(destinationEntity)
+            return createResult.flatMap { destinationObject in
                 return destinationObject.importDictionary(value).flatMap {
                     return self.updateRelationship(relationship, withValue: destinationObject, deleteCurrent: true)
                 }
