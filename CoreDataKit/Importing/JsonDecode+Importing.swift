@@ -46,23 +46,23 @@ extension NSData {
     }
 }
 
-extension NSDate {
-    struct DateFormatter {
-        static let withTimeZone : NSDateFormatter = {
-            let formatter = NSDateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-
-            return formatter
-            }()
-    }
-
-    class func decode(json : AnyObject) -> NSDate? {
-        if let date = json as? NSDate {
-            return date
-        } else if let dateString = json as? String {
-            return DateFormatter.withTimeZone.dateFromString(dateString)
-        }
-
-        return nil
-    }
-}
+//extension NSDate {
+//    struct DateFormatter {
+//        static let withTimeZone : NSDateFormatter = {
+//            let formatter = NSDateFormatter()
+//            formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+//
+//            return formatter
+//            }()
+//    }
+//
+//    class func decode(json : AnyObject) -> NSDate? {
+//        if let date = json as? NSDate {
+//            return date
+//        } else if let dateString = json as? String {
+//            return DateFormatter.withTimeZone.dateFromString(dateString)
+//        }
+//
+//        return nil
+//    }
+//}
