@@ -21,8 +21,8 @@ class NSManagedObjectTests: TestCase {
             do {
                 let result = try coreDataStack.rootContext.importEntity(EmployeeImportable.self, dictionary: jsonObject)
 
-                XCTAssertEqual(result.name, jsonObject["checkName"] as! String, "Unexpected name")
-                XCTAssertEqual(result.age, jsonObject["checkAge"] as! Int, "Unexpected age")
+                XCTAssertEqual(result.name, jsonObject["checkName"] as? String, "Unexpected name")
+                XCTAssertEqual(result.age, jsonObject["checkAge"] as? Int, "Unexpected age")
             }
             catch {
                 XCTFail("Unexpected error")

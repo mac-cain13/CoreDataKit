@@ -90,7 +90,7 @@ extension NSManagedObjectContext
                     try self.save()
                     completionHandler?(arg: { commitAction })
                 } catch let error as NSError {
-                    completionHandler?(arg: { throw error })
+                    completionHandler?(arg: { throw CoreDataKitError.CoreDataError(error) })
                 } catch {
                     fatalError()
                 }
@@ -161,7 +161,12 @@ extension NSManagedObjectContext
     */
     public func obtainPermanentIDsForInsertedObjects() throws {
         if (self.insertedObjects.count > 0) {
-            try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
+            do {
+                try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
+            }
+            catch let error as NSError {
+                throw CoreDataKitError.CoreDataError(error)
+            }
         }
     }
 
@@ -193,7 +198,7 @@ extension NSManagedObjectContext
             return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as! T
         }
 
-        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description '\(entityDescription)' has no name"])
+        let error = CoreDataKitError.ContextError(description: "Entity description '\(entityDescription)' has no name")
         throw error
     }
 
@@ -210,7 +215,7 @@ extension NSManagedObjectContext
             return entityDescription
         }
 
-        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description for entity name '\(entity.entityName)' not found"])
+        let error = CoreDataKitError.ContextError(description: "Entity description for entity name '\(entity.entityName)' not found")
         throw error
     }
 
@@ -224,7 +229,13 @@ extension NSManagedObjectContext
     - returns: Result wheter the delete was successful
     */
     public func delete(managedObject: NSManagedObject) throws {
-        try obtainPermanentIDsForObjects([managedObject])
+        do {
+            try self.obtainPermanentIDsForObjects([managedObject])
+        }
+        catch let error as NSError {
+            throw CoreDataKitError.CoreDataError(error)
+        }
+
         deleteObject(managedObject)
     }
 
@@ -277,9 +288,13 @@ extension NSManagedObjectContext
     - returns: Result with array of entities found, empty array on no results
     */
     public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) throws -> [T] {
-
-        let anyObjects = try executeFetchRequest(fetchRequest)
-        return anyObjects.map { $0 as! T }
+        do {
+            let anyObjects = try executeFetchRequest(fetchRequest)
+            return anyObjects.map { $0 as! T }
+        }
+        catch let error as NSError {
+            throw CoreDataKitError.CoreDataError(error)
+        }
     }
 
 // MARK: Fetched result controller
@@ -311,7 +326,12 @@ extension NSManagedObjectContext
         }
 
         if let error = error {
-            throw error
+            if let error = error as? NSError {
+                throw CoreDataKitError.CoreDataError(error)
+            }
+            else {
+                throw error
+            }
         }
 
         return resultsController
@@ -337,8 +357,13 @@ extension NSManagedObjectContext
 //            }
 //        }
 
-        let managedObjectInContext = try existingObjectWithID(managedObjectID)
-        return managedObjectInContext as! T
+        do {
+            let managedObjectInContext = try existingObjectWithID(managedObjectID)
+            return managedObjectInContext as! T
+        }
+        catch let error as NSError {
+            throw CoreDataKitError.CoreDataError(error)
+        }
     }
 
     /**

@@ -45,11 +45,11 @@ extension NSManagedObjectContext
             return object
 
         case .Null:
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "Value 'null' in import dictionary for identifying atribute '\(entityDescription.name).\(identifyingAttribute.name)', dictionary: \(dictionary)"])
+            let error = CoreDataKitError.ImportError(description: "Value 'null' in import dictionary for identifying atribute '\(entityDescription.name).\(identifyingAttribute.name)', dictionary: \(dictionary)")
             throw error
 
         case .None:
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "No value in import dictionary for identifying atribute '\(entityDescription.name).\(identifyingAttribute.name)', dictionary: \(dictionary)"])
+            let error = CoreDataKitError.ImportError(description: "No value in import dictionary for identifying atribute '\(entityDescription.name).\(identifyingAttribute.name)', dictionary: \(dictionary)")
             throw error
         }
     }
@@ -89,7 +89,7 @@ extension NSManagedObjectContext
         let objects = try self.find(entityDescription, predicate: predicate)
 
         if objects.count > 1 {
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnexpectedNumberOfResults.rawValue, userInfo: [NSLocalizedDescriptionKey: "Expected 0...1 result, got \(objects.count) results"])
+            let error = CoreDataKitError.ImportError(description: "Expected 0...1 result, got \(objects.count) results")
             throw error
         }
 

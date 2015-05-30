@@ -58,7 +58,7 @@ extension NSPersistentStoreCoordinator
         }
         else
         {
-            throw NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: nil)
+            throw CoreDataKitError.UnknownError(description: "NSMangedObjectModel should be available")
         }
     }
 
@@ -81,7 +81,12 @@ extension NSPersistentStoreCoordinator
                 NSSQLitePragmasOption: ["journal_mode": "WAL"]
             ];
 
-            try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
+            do {
+                try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
+            }
+            catch let error as NSError {
+                throw CoreDataKitError.CoreDataError(error)
+            }
         }
 
         do {
