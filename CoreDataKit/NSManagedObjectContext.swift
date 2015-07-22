@@ -24,6 +24,7 @@ extension NSManagedObjectContext
         self.init(concurrencyType: .PrivateQueueConcurrencyType)
         performBlockAndWait { [unowned self] in
             self.persistentStoreCoordinator = persistentStoreCoordinator
+            self.undoManager = NSUndoManager()
         }
 //        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
@@ -43,6 +44,7 @@ extension NSManagedObjectContext
         self.init(concurrencyType: concurrencyType)
         performBlockAndWait { [unowned self] in
             self.parentContext = parentContext
+            self.undoManager = NSUndoManager()
         }
 //        beginObtainingPermanentIDsForInsertedObjectsWhenContextWillSave()
     }
@@ -70,7 +72,10 @@ extension NSManagedObjectContext
     */
     public func performBlock(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
         performBlock {
+            self.undoManager?.beginUndoGrouping()
             let commitAction = block(self)
+            self.undoManager?.endUndoGrouping()
+
             switch (commitAction) {
             case .DoNothing:
                 completionHandler?(Result(commitAction))
@@ -88,6 +93,14 @@ extension NSManagedObjectContext
                   let result = $0.map { commitAction }
                   completionHandler?(result)
                 }
+
+            case .Undo:
+              self.undo()
+              completionHandler?(Result(commitAction))
+
+            case .RollbackAllChanges:
+              self.rollback()
+              completionHandler?(Result(commitAction))
             }
         }
     }

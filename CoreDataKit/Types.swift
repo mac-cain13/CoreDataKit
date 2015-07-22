@@ -117,10 +117,10 @@ public enum CommitAction {
     case SaveToPersistentStore
 
     /// Undo changes done in the related PerformBlock, all other changes will remain untouched
-//    case Undo
+    case Undo
 
     /// Rollback all changes on the context, this will revert all unsaved changes in the context
-//    case RollbackAllChanges
+    case RollbackAllChanges
 }
 
 /**
