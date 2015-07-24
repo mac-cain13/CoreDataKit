@@ -97,14 +97,22 @@ class NSManagedObjectContextTests: TestCase {
     }
 
     private func testContextObtainsPermanentIDs(context: NSManagedObjectContext) {
-        let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
+      let saveExpectation = expectationWithDescription("Await save result")
+
+      var employee: Employee!
+      context.performBlock({ context in
+        employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
         employee.name = "Harvey Specter"
 
         XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
-        var optionalError: NSError?
-        context.save(&optionalError)
-        XCTAssertNil(optionalError, "Unexpected error")
+
+        return .SaveToParentContext
+      }, completionHandler: { _ in
         XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
+        saveExpectation.fulfill()
+      })
+
+      waitForExpectationsWithTimeout(3, handler: nil)
     }
 
 // MARK: - Creating

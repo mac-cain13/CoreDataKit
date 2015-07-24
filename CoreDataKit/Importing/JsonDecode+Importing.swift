@@ -8,6 +8,7 @@
 
 import Foundation
 
+// We use the decode functions from the JsonDecode+Importing.swift file
 extension String {
     static func decode(json : AnyObject) -> String? {
         return json as? String
