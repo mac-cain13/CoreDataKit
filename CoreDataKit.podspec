@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CoreDataKit"
-  s.version      = "0.6.0"
+  s.version      = "0.6.1"
   s.license      = "MIT"
 
   s.summary      = "CoreDataKit makes common operations on objects and importing into CoreData a breeze."
@@ -16,6 +16,6 @@ CoreDataKit takes care of the hard and verbose parts of CoreData. It manages chi
   s.source          = { :git => "https://github.com/mac-cain13/CoreDataKit.git", :tag => s.version }
   s.platform        = :ios, "8.0"
   s.requires_arc    = true
-  s.source_files    = "CoreDataKit/*.swift"
+  s.source_files    = "CoreDataKit/**/*.swift"
 
 end
