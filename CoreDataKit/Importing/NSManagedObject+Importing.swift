@@ -68,8 +68,7 @@ extension NSManagedObject
     */
     private func performImport(dictionary: [String : AnyObject]) -> Result<Void> {
         if let context = managedObjectContext {
-            for _propertyDescription in entity.properties {
-                let propertyDescription = _propertyDescription 
+            for propertyDescription in entity.properties {
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
@@ -172,7 +171,7 @@ extension NSManagedObject
                 self.updateRelationship(relationship, withValue: $0, deleteCurrent: false)
             }
 
-        case let .Some(value as [AnyObject]):
+        case .Some(_ as [AnyObject]):
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)"])
             return Result(error)
 
@@ -189,7 +188,7 @@ extension NSManagedObject
         }
     }
 
-    private func performImportEmbeddingRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
+    private func performImportEmbeddingRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription) -> Result<Void> {
         switch importableValue {
         case let .Some(value as [String: AnyObject]):
             let createResult = managedObjectContext!.create(destinationEntity)
@@ -199,11 +198,11 @@ extension NSManagedObject
                 }
             }
 
-        case let .Some(value as [AnyObject]):
+        case .Some(_ as [AnyObject]):
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple nested relationships not yet supported with relation type \(RelationType.Embedding)"])
             return Result(error)
 
-        case let .Some(value):
+        case .Some(_):
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Referenced relationships are not supported with relation type \(RelationType.Embedding)"])
             return Result(error)
 

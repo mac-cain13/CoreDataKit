@@ -15,10 +15,8 @@ extension CoreDataStack {
     public func dumpImportConfiguration() {
         let entityUserInfoKeys = [IdentifierUserInfoKey]
 
-        for (entityName, _entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
+        for (entityName, entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
             CDK.sharedLogger(.DEBUG, " ")
-
-            let entity = _entity 
             CDK.sharedLogger(.DEBUG, "\(entityName):")
 
             for (_key, value) in entity.userInfo! {
@@ -29,17 +27,16 @@ extension CoreDataStack {
                 }
             }
 
-            let optionalIdentifyingAttribute = entity.identifyingAttribute().value()
-            if let identifyingAttibute = optionalIdentifyingAttribute {
+            if let identifyingAttibute = entity.identifyingAttribute().value() {
                 dumpPropertyDescription(identifyingAttibute, asIdentifyingAttribute: true)
             }
 
             for (_, attribute) in entity.attributesByName {
-                dumpPropertyDescription(attribute as NSPropertyDescription)
+                dumpPropertyDescription(attribute)
             }
 
             for (_, relationship) in entity.relationshipsByName {
-                dumpPropertyDescription(relationship as NSPropertyDescription)
+                dumpPropertyDescription(relationship)
             }
         }
     }

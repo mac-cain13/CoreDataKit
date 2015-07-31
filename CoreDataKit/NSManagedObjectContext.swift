@@ -86,17 +86,14 @@ extension NSManagedObjectContext
 
             case .SaveToParentContext:
                 self.obtainPermanentIDsForInsertedObjects()
-                var optionalError: NSError?
                 do {
                     try self.save()
+                    completionHandler?(Result(commitAction))
                 } catch let error as NSError {
-                    optionalError = error
+                    completionHandler?(Result(error))
                 } catch {
                     fatalError()
                 }
-
-                let result = optionalError.map { Result($0) } ?? Result(commitAction)
-                completionHandler?(result)
 
             case .SaveToPersistentStore:
                 self.saveToPersistentStore {
@@ -126,21 +123,19 @@ extension NSManagedObjectContext
     {
         obtainPermanentIDsForInsertedObjects()
 
-        var optionalError: NSError?
         do {
             try save()
-        } catch var error as NSError {
-            optionalError = error
-        }
 
-        switch (optionalError, self.parentContext) {
-        case let (.None, .Some(parentContext)):
-            parentContext.performBlock {
-                parentContext.saveToPersistentStore(completionHandler)
+            if let parentContext = self.parentContext {
+                parentContext.performBlock {
+                    parentContext.saveToPersistentStore(completionHandler)
+                }
             }
-
-        default:
-          completionHandler?(Result<Void>.withOptionalError(optionalError))
+            else {
+                completionHandler?(Result<Void>.withOptionalError(nil))
+            }
+        } catch let error as NSError {
+            completionHandler?(Result<Void>.withOptionalError(error))
         }
     }
 
@@ -165,14 +160,9 @@ extension NSManagedObjectContext
     public func obtainPermanentIDsForInsertedObjects() -> Result<Void>
     {
         if (self.insertedObjects.count > 0) {
-            var optionalError: NSError?
             do {
                 try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
             } catch let error as NSError {
-                optionalError = error
-            }
-
-            if let error = optionalError {
                 return Result(error)
             }
         }
@@ -240,14 +230,9 @@ extension NSManagedObjectContext
     - returns: Result wheter the delete was successful
     */
     public func delete(managedObject: NSManagedObject) -> Result<Void> {
-        var optionalError: NSError?
         do {
             try obtainPermanentIDsForObjects([managedObject])
         } catch let error as NSError {
-            optionalError = error
-        }
-
-        if let error = optionalError {
             return Result(error)
         }
 
@@ -305,25 +290,13 @@ extension NSManagedObjectContext
     - returns: Result with array of entities found, empty array on no results
     */
     public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) -> Result<[T]> {
-        var optionalResults: [T]?
-        var optionalError: NSError?
+
         do {
-            let results = try executeFetchRequest(fetchRequest)
-            optionalResults = results.map { $0 as! T }
+            let anyObjects = try executeFetchRequest(fetchRequest)
+            let results = anyObjects.map { $0 as! T }
+            return Result(results)
         }
         catch let error as NSError {
-            optionalError = error
-        }
-
-        switch (optionalResults, optionalError) {
-        case let (.Some(results), .None):
-            return Result(results)
-
-        case let (.None, .Some(error)):
-            return Result(error)
-
-        default:
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSManagedObjectContext.executeFetchRequest returned invalid combination of return value (\(optionalResults)) and error (\(optionalError))"])
             return Result(error)
         }
     }
@@ -346,22 +319,17 @@ extension NSManagedObjectContext
         let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
         resultsController.delegate = delegate
 
-        var optionalError: NSError?
         var result: Result<NSFetchedResultsController>?
 
         performBlockAndWait {
             do {
                 try resultsController.performFetch()
+                result = Result(resultsController)
             } catch let error as NSError {
-                optionalError = error
+                result = Result(error)
             } catch {
                 fatalError()
             }
-          if let error = optionalError {
-              result = Result(error)
-          }
-
-          result = Result(resultsController)
         }
 
         return result!
@@ -388,23 +356,10 @@ extension NSManagedObjectContext
 //            }
 //        }
 
-    let optionalManagedObjectInContext: NSManagedObject?
         do {
-            optionalManagedObjectInContext = try existingObjectWithID(managedObjectID)
-        } catch let error as NSError {
-            optionalError = error
-            optionalManagedObjectInContext = nil
-        }
-
-        switch (optionalManagedObjectInContext, optionalError) {
-        case let (.Some(managedObjectInContext), .None):
+            let managedObjectInContext = try existingObjectWithID(managedObjectID)
             return Result(managedObjectInContext as! T)
-
-        case let (.None, .Some(error)):
-            return Result(error)
-
-        default:
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSManagedObjectContext.existingObjectWithID returned invalid combination of return value (\(optionalManagedObjectInContext)) and error (\(optionalError))"])
+        } catch let error as NSError {
             return Result(error)
         }
     }

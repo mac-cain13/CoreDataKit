@@ -41,10 +41,8 @@ extension NSPersistentStoreCoordinator
     Creates a `NSPersistentStoreCoordinator` with in memory store as backing store.
 
     - parameter managedObjectModel: Managed object model to initialize the store with, pass nil to use all models in the main bundle
-    - parameter error:              When the initializer fails this will contain error information
     */
     public convenience init(managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?) throws {
-        var error: NSError! = NSError(domain: "Migrator", code: 0, userInfo: nil)
         // Fallback on the defaults
         let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
 
@@ -54,14 +52,13 @@ extension NSPersistentStoreCoordinator
             self.init(managedObjectModel: managedObjectModel)
             do {
                 try self.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
-            } catch let error1 as NSError {
-                error = error1
+            } catch let error as NSError {
+                throw error
             }
         }
         else
         {
-            self.init()
-            throw error
+            throw NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: nil)
         }
     }
 
@@ -84,27 +81,13 @@ extension NSPersistentStoreCoordinator
                 NSSQLitePragmasOption: ["journal_mode": "WAL"]
             ];
 
-            var optionalError: NSError?
-            let optionalStore: NSPersistentStore?
             do {
-                optionalStore = try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
-            } catch var error as NSError {
-                optionalError = error
-                optionalStore = nil
+                let store = try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
+                return Result(store)
+            } catch let error as NSError {
+                return Result(error)
             } catch {
                 fatalError()
-            }
-
-            switch (optionalStore, optionalError) {
-            case let (.Some(store), .None):
-                return Result(store)
-
-            case let (.None, .Some(error)):
-                return Result(error)
-
-            default:
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSPersistentStoreCoordinator.addPersistentStoreWithType returned invalid combination of return value (\(optionalStore)) and error (\(optionalError))"])
-                return Result(error)
             }
         }
 
@@ -118,13 +101,7 @@ extension NSPersistentStoreCoordinator
                 let walFile = urlString.stringByAppendingString("-wal")
                 do {
                     try NSFileManager.defaultManager().removeItemAtURL(URL)
-                } catch _ {
-                }
-                do {
                     try NSFileManager.defaultManager().removeItemAtPath(shmFile)
-                } catch _ {
-                }
-                do {
                     try NSFileManager.defaultManager().removeItemAtPath(walFile)
                 } catch _ {
                 }

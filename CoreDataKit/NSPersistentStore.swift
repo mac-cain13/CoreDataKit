@@ -21,17 +21,11 @@ extension NSPersistentStore
     {
         assert(storeName.characters.count > 0, "Store name must be longer then zero characters.")
 
-        let optionalSupportDirectoryURL: NSURL?
         do {
-            optionalSupportDirectoryURL = try NSFileManager.defaultManager().URLForDirectory(.ApplicationSupportDirectory, inDomain: .AllDomainsMask, appropriateForURL: nil, create: true)
-        } catch _ {
-            optionalSupportDirectoryURL = nil
-        }
-
-        if let supportDirectoryURL = optionalSupportDirectoryURL {
+            let supportDirectoryURL = try NSFileManager.defaultManager().URLForDirectory(.ApplicationSupportDirectory, inDomain: .AllDomainsMask, appropriateForURL: nil, create: true)
             return supportDirectoryURL.URLByAppendingPathComponent(storeName + ".sqlite", isDirectory: false)
+        } catch _ {
+            return nil
         }
-
-        return nil
     }
 }
