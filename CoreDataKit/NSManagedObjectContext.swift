@@ -15,9 +15,9 @@ extension NSManagedObjectContext
 
     :discussion: The context will also obtain permanent IDs for `NSManagedObject`s before saving. This will prevent problems where you can't convert objects between two `NSManagedObjectContext`s, so it's advised to create contexts using this method.
 
-    :param: persistentStoreCoordinator Persistent store coordinator to associate with
+    - parameter persistentStoreCoordinator: Persistent store coordinator to associate with
 
-    :returns: Managed object context
+    - returns: Managed object context
     */
     public convenience init(persistentStoreCoordinator: NSPersistentStoreCoordinator)
     {
@@ -36,10 +36,10 @@ extension NSManagedObjectContext
 
     :discussion: The context will also obtain permanent IDs for `NSManagedObject`s before saving. This will prevent problems where you can't convert objects between two `NSManagedObjectContext`s, so it's advised to create context using this method.
 
-    :param: concurrencyType Concurrency type to use, must be `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`
-    :param: parentContext Parent context to associate with
+    - parameter concurrencyType: Concurrency type to use, must be `NSPrivateQueueConcurrencyType` or `NSMainQueueConcurrencyType`
+    - parameter parentContext: Parent context to associate with
 
-    :returns: Managed object context
+    - returns: Managed object context
     */
     public convenience init(concurrencyType: NSManagedObjectContextConcurrencyType, parentContext: NSManagedObjectContext)
     {
@@ -56,7 +56,7 @@ extension NSManagedObjectContext
     /**
     Creates child context with this context as its parent
 
-    :returns: Child context
+    - returns: Child context
     */
     public func createChildContext() -> NSManagedObjectContext {
         return NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: self)
@@ -71,8 +71,8 @@ extension NSManagedObjectContext
 
     :discussion: Please remember that `NSManagedObjects` are not threadsafe and your block is performed on another thread/`NSManagedObjectContext`. Make sure to **always** convert your `NSManagedObjects` to the given `NSManagedObjectContext` with `NSManagedObject.inContext()` or by looking up the `NSManagedObjectID` in the given context. This prevents disappearing data.
 
-    :param: block       Block that performs the changes on the given context that should be saved
-    :param: completion  Completion block to run after changes are saved
+    - parameter block:       Block that performs the changes on the given context that should be saved
+    - parameter completion:  Completion block to run after changes are saved
     */
     public func performBlock(block: PerformBlock, completionHandler: PerformBlockCompletionHandler? = nil) {
         performBlock {
@@ -87,7 +87,13 @@ extension NSManagedObjectContext
             case .SaveToParentContext:
                 self.obtainPermanentIDsForInsertedObjects()
                 var optionalError: NSError?
-                self.save(&optionalError)
+                do {
+                    try self.save()
+                } catch let error as NSError {
+                    optionalError = error
+                } catch {
+                    fatalError()
+                }
 
                 let result = optionalError.map { Result($0) } ?? Result(commitAction)
                 completionHandler?(result)
@@ -114,19 +120,23 @@ extension NSManagedObjectContext
     
     :discussion: Must be called from a perform block action
     
-    :param: completionHandler  Completion block to run after changes are saved
+    - parameter completionHandler:  Completion block to run after changes are saved
     */
     func saveToPersistentStore(completionHandler: CompletionHandler? = nil)
     {
         obtainPermanentIDsForInsertedObjects()
 
         var optionalError: NSError?
-        save(&optionalError)
+        do {
+            try save()
+        } catch var error as NSError {
+            optionalError = error
+        }
 
         switch (optionalError, self.parentContext) {
         case let (.None, .Some(parentContext)):
             parentContext.performBlock {
-                parentContext.saveToPersistentStore(completionHandler: completionHandler)
+                parentContext.saveToPersistentStore(completionHandler)
             }
 
         default:
@@ -156,7 +166,11 @@ extension NSManagedObjectContext
     {
         if (self.insertedObjects.count > 0) {
             var optionalError: NSError?
-            self.obtainPermanentIDsForObjects(Array(self.insertedObjects), error: &optionalError)
+            do {
+                try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
+            } catch let error as NSError {
+                optionalError = error
+            }
 
             if let error = optionalError {
                 return Result(error)
@@ -171,9 +185,9 @@ extension NSManagedObjectContext
     /**
     Create and insert an entity into this context
     
-    :param: entity Type of entity to create
+    - parameter entity: Type of entity to create
     
-    :returns: Result with the created entity
+    - returns: Result with the created entity
     */
     public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) -> Result<T>
     {
@@ -185,9 +199,9 @@ extension NSManagedObjectContext
     /**
     Create and insert entity into this context based on its description
 
-    :param: entityDescription Description of the entity to create
+    - parameter entityDescription: Description of the entity to create
 
-    :returns: Result with the created entity
+    - returns: Result with the created entity
     */
     func create<T:NSManagedObject>(entityDescription: NSEntityDescription) -> Result<T>
     {
@@ -202,9 +216,9 @@ extension NSManagedObjectContext
     /**
     Get description of an entity
 
-    :param: entity Type of entity to describe
+    - parameter entity: Type of entity to describe
 
-    :returns: Result with entity description of the given type
+    - returns: Result with entity description of the given type
     */
     func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) -> Result<NSEntityDescription>
     {
@@ -221,13 +235,17 @@ extension NSManagedObjectContext
     /**
     Delete object from this context
     
-    :param: managedObject Object to delete
+    - parameter managedObject: Object to delete
 
-    :returns: Result wheter the delete was successful
+    - returns: Result wheter the delete was successful
     */
     public func delete(managedObject: NSManagedObject) -> Result<Void> {
         var optionalError: NSError?
-        obtainPermanentIDsForObjects([managedObject], error: &optionalError)
+        do {
+            try obtainPermanentIDsForObjects([managedObject])
+        } catch let error as NSError {
+            optionalError = error
+        }
 
         if let error = optionalError {
             return Result(error)
@@ -242,13 +260,13 @@ extension NSManagedObjectContext
     /**
     Create a fetch request
 
-    :param: entity          Type of entity to search for
-    :param: predicate       Predicate to filter on
-    :param: sortDescriptors Sort descriptors to sort on
-    :param: limit           Maximum number of items to return
-    :param: offset          The number of items to skip in the result
+    - parameter entity:          Type of entity to search for
+    - parameter predicate:       Predicate to filter on
+    - parameter sortDescriptors: Sort descriptors to sort on
+    - parameter limit:           Maximum number of items to return
+    - parameter offset:          The number of items to skip in the result
 
-    :returns: Result with NSFetchRequest configured with the given parameters
+    - returns: Result with NSFetchRequest configured with the given parameters
     */
     public func createFetchRequest<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<NSFetchRequest> {
         return entityDescription(entity).map {
@@ -259,13 +277,13 @@ extension NSManagedObjectContext
     /**
     Create a fetch request
 
-    :param: entity          Type of entity to search for
-    :param: predicate       Predicate to filter on
-    :param: sortDescriptors Sort descriptors to sort on
-    :param: limit           Maximum number of items to return
-    :param: offset          The number of items to skip in the result
+    - parameter entity:          Type of entity to search for
+    - parameter predicate:       Predicate to filter on
+    - parameter sortDescriptors: Sort descriptors to sort on
+    - parameter limit:           Maximum number of items to return
+    - parameter offset:          The number of items to skip in the result
 
-    :returns: NSFetchRequest configured with the given parameters
+    - returns: NSFetchRequest configured with the given parameters
     */
     public func createFetchRequest(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> NSFetchRequest {
         let fetchRequest = NSFetchRequest()
@@ -282,13 +300,20 @@ extension NSManagedObjectContext
     /**
     Execute a fetch request
     
-    :param: fetchRequest The request to execute on this context
+    - parameter fetchRequest: The request to execute on this context
     
-    :returns: Result with array of entities found, empty array on no results
+    - returns: Result with array of entities found, empty array on no results
     */
     public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) -> Result<[T]> {
+        var optionalResults: [T]?
         var optionalError: NSError?
-        let optionalResults = executeFetchRequest(fetchRequest, error: &optionalError)?.map { $0 as! T }
+        do {
+            let results = try executeFetchRequest(fetchRequest)
+            optionalResults = results.map { $0 as! T }
+        }
+        catch let error as NSError {
+            optionalError = error
+        }
 
         switch (optionalResults, optionalError) {
         case let (.Some(results), .None):
@@ -310,12 +335,12 @@ extension NSManagedObjectContext
     
     :discussion: Be aware that when you change to request but use the same cache as before stuff can mess up!
     
-    :param: fetchRequest        Underlaying fetch request for the controller
-    :param: delegate            Delegate, the controller will only observe changes when a delegate is present
-    :param: sectionNameKeyPath  Keypath to section the results on
-    :param: cacheName           Name of the cache to use, nil for no cache
+    - parameter fetchRequest:        Underlaying fetch request for the controller
+    - parameter delegate:            Delegate, the controller will only observe changes when a delegate is present
+    - parameter sectionNameKeyPath:  Keypath to section the results on
+    - parameter cacheName:           Name of the cache to use, nil for no cache
     
-    :returns: Fetched results controller that already has performed the fetch
+    - returns: Fetched results controller that already has performed the fetch
     */
     public func fetchedResultsController(fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate? = nil, sectionNameKeyPath: String? = nil, cacheName: String? = nil) -> Result<NSFetchedResultsController> {
         let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
@@ -325,7 +350,13 @@ extension NSManagedObjectContext
         var result: Result<NSFetchedResultsController>?
 
         performBlockAndWait {
-          resultsController.performFetch(&optionalError)
+            do {
+                try resultsController.performFetch()
+            } catch let error as NSError {
+                optionalError = error
+            } catch {
+                fatalError()
+            }
           if let error = optionalError {
               result = Result(error)
           }
@@ -341,9 +372,9 @@ extension NSManagedObjectContext
     /**
     Looks the given managed object up in this context
     
-    :param: managedObject Object from other context
+    - parameter managedObject: Object from other context
 
-    :returns: Result with the given object in this context
+    - returns: Result with the given object in this context
     */
     public func find<T:NSManagedObject>(entity: T.Type, managedObjectID: NSManagedObjectID) -> Result<T> {
         var optionalError: NSError?
@@ -357,7 +388,13 @@ extension NSManagedObjectContext
 //            }
 //        }
 
-        let optionalManagedObjectInContext = existingObjectWithID(managedObjectID, error: &optionalError)
+    let optionalManagedObjectInContext: NSManagedObject?
+        do {
+            optionalManagedObjectInContext = try existingObjectWithID(managedObjectID)
+        } catch let error as NSError {
+            optionalError = error
+            optionalManagedObjectInContext = nil
+        }
 
         switch (optionalManagedObjectInContext, optionalError) {
         case let (.Some(managedObjectInContext), .None):
@@ -375,13 +412,13 @@ extension NSManagedObjectContext
     /**
     Find entities of a certain type in this context
     
-    :param: entity          Type of entity to search for
-    :param: predicate       Predicate to filter on
-    :param: sortDescriptors Sort descriptors to sort on
-    :param: limit           Maximum number of items to return
-    :param: offset          The number of items to skip in the result
+    - parameter entity:          Type of entity to search for
+    - parameter predicate:       Predicate to filter on
+    - parameter sortDescriptors: Sort descriptors to sort on
+    - parameter limit:           Maximum number of items to return
+    - parameter offset:          The number of items to skip in the result
     
-    :returns: Result with array of entities found, empty array on no results
+    - returns: Result with array of entities found, empty array on no results
     */
     public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
         return entityDescription(entity).flatMap {
@@ -392,13 +429,13 @@ extension NSManagedObjectContext
     /**
     Find entities of a certain type in this context based on its description
 
-    :param: entity          Type of entity to search for
-    :param: predicate       Predicate to filter on
-    :param: sortDescriptors Sort descriptors to sort on
-    :param: limit           Maximum number of items to return
-    :param: offset          The number of items to skip in the result
+    - parameter entity:          Type of entity to search for
+    - parameter predicate:       Predicate to filter on
+    - parameter sortDescriptors: Sort descriptors to sort on
+    - parameter limit:           Maximum number of items to return
+    - parameter offset:          The number of items to skip in the result
 
-    :returns: Result with array of entities found, empty array on no results
+    - returns: Result with array of entities found, empty array on no results
     */
     func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
         let fetchRequest = createFetchRequest(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
@@ -408,12 +445,12 @@ extension NSManagedObjectContext
     /**
     Get the first entity that matched the given parameters
 
-    :param: entity          Type of entity to search for
-    :param: predicate       Predicate to filter on
-    :param: sortDescriptors Sort descriptors to sort on
-    :param: offset          The number of items to skip in the result
+    - parameter entity:          Type of entity to search for
+    - parameter predicate:       Predicate to filter on
+    - parameter sortDescriptors: Sort descriptors to sort on
+    - parameter offset:          The number of items to skip in the result
 
-    :returns: Result with the entity or result with nil if the entity is not found
+    - returns: Result with the entity or result with nil if the entity is not found
     */
     public func findFirst<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, offset: Int? = nil) -> Result<T?> {
         return find(entity, predicate: predicate, sortDescriptors: sortDescriptors, limit: 1, offset: offset).map { $0.first }

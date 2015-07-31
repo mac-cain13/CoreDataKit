@@ -39,7 +39,13 @@ class TestCase: XCTestCase {
 
     private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {
         var optionalError: NSError?
-        let persistentCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model, error: &optionalError)
+        let persistentCoordinator: NSPersistentStoreCoordinator?
+        do {
+            persistentCoordinator = try NSPersistentStoreCoordinator(managedObjectModel: model)
+        } catch var error as NSError {
+            optionalError = error
+            persistentCoordinator = nil
+        }
         XCTAssertNil(optionalError, "ERROR: \(optionalError)")
 
         return CoreDataStack(persistentStoreCoordinator: persistentCoordinator!)

@@ -14,7 +14,7 @@ Simple implementation of NSFetchedResultsControllerDelegate for use with a UITab
 
 :discussion: Be aware that the NSFetchedResultsController will not retain your delegate object. So you have to keep a reference to this object somewhere.
 */
-public class TableViewFetchedResultsControllerDelegate: NSFetchedResultsControllerDelegate {
+public class TableViewFetchedResultsControllerDelegate: NSObject, NSFetchedResultsControllerDelegate {
     var sectionAnimation: UITableViewRowAnimation = .Automatic
     var rowAnimation: UITableViewRowAnimation = .Automatic
 
@@ -23,7 +23,7 @@ public class TableViewFetchedResultsControllerDelegate: NSFetchedResultsControll
     /**
     Initialize a delegate
     
-    :param: tableView The table view to perform the changed the NSFetchedResultsController reports on
+    - parameter tableView: The table view to perform the changed the NSFetchedResultsController reports on
     */
     public init(tableView: UITableView) {
         self.tableView = tableView
@@ -49,7 +49,7 @@ public class TableViewFetchedResultsControllerDelegate: NSFetchedResultsControll
     }
 
     /// Implementation of NSFetchedResultsControllerDelegate
-    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: NSManagedObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
             tableView?.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)

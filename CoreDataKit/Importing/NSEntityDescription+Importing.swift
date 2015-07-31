@@ -13,11 +13,11 @@ extension NSEntityDescription
     /**
     Get the attribute description of this entity description that is marked as identifier in the model
     
-    :returns: Result with the identifying attribute description
+    - returns: Result with the identifying attribute description
     */
     func identifyingAttribute() -> Result<NSAttributeDescription> {
         if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
-            if let identifyingAttribute = self.attributesByName[identifyingAttributeName] as? NSAttributeDescription {
+            if let identifyingAttribute = self.attributesByName[identifyingAttributeName] {
                 return Result(identifyingAttribute)
             }
 

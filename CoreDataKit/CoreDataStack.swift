@@ -24,7 +24,7 @@ public class CoreDataStack: NSObject {
     /**
     Create a stack based on the given `NSPersistentStoreCoordinator`.
 
-    :param: persistentStoreCoordinator The coordinator that will be coordinate the persistent store of this stack
+    - parameter persistentStoreCoordinator: The coordinator that will be coordinate the persistent store of this stack
     */
     public init(persistentStoreCoordinator: NSPersistentStoreCoordinator) {
         self.persistentStoreCoordinator = persistentStoreCoordinator
@@ -51,8 +51,8 @@ public class CoreDataStack: NSObject {
     /**
     Performs the given block on the `backgroundContect`
     
-    :param: block       Block that performs the changes on the given context that should be saved
-    :param: completion  Completion block to run after changes are saved
+    - parameter block:       Block that performs the changes on the given context that should be saved
+    - parameter completion:  Completion block to run after changes are saved
 
     :see: NSManagedObjectContext.performBlock()
     */
