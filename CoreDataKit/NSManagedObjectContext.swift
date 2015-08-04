@@ -82,32 +82,31 @@ extension NSManagedObjectContext
 
             switch (commitAction) {
             case .DoNothing:
-                completionHandler?(Result(commitAction))
+                completionHandler?(arg: { commitAction })
 
             case .SaveToParentContext:
                 do {
                     try self.obtainPermanentIDsForInsertedObjects()
                     try self.save()
-                    completionHandler?(Result(commitAction))
+                    completionHandler?(arg: { commitAction })
                 } catch let error as NSError {
-                    completionHandler?(Result(error))
+                    completionHandler?(arg: { throw error })
                 } catch {
                     fatalError()
                 }
 
             case .SaveToPersistentStore:
-                self.saveToPersistentStore {
-                  let result = $0.map { commitAction }
-                  completionHandler?(result)
+                self.saveToPersistentStore { arg in
+                    completionHandler?(arg: { try arg(); return commitAction })
                 }
 
             case .Undo:
               self.undo()
-              completionHandler?(Result(commitAction))
+              completionHandler?(arg: { commitAction })
 
             case .RollbackAllChanges:
               self.rollback()
-              completionHandler?(Result(commitAction))
+              completionHandler?(arg: { commitAction })
             }
         }
     }
@@ -131,10 +130,10 @@ extension NSManagedObjectContext
                 }
             }
             else {
-                completionHandler?(Result<Void>.withOptionalError(nil))
+                completionHandler?(arg: {})
             }
         } catch let error as NSError {
-            completionHandler?(Result<Void>.withOptionalError(error))
+            completionHandler?(arg: { throw error })
         }
     }
 

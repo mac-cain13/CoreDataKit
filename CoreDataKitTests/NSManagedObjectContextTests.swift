@@ -53,9 +53,14 @@ class NSManagedObjectContextTests: TestCase {
 
             return .SaveToPersistentStore
         }, completionHandler: { (result) -> Void in
-            XCTAssertNil(result.error(), "Unexpected error")
-            XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 1, "Unexpected employee entity count")
-            completionExpectation.fulfill()
+            do {
+                try result()
+                XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 1, "Unexpected employee entity count")
+                completionExpectation.fulfill()
+            }
+            catch {
+                XCTFail("Unexpected error")
+            }
         })
 
         waitForExpectationsWithTimeout(3, handler: nil)
@@ -71,10 +76,18 @@ class NSManagedObjectContextTests: TestCase {
             NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context)
             return .SaveToParentContext
         }, completionHandler: { (result) -> Void in
-            XCTAssertNotNil(result.error(), "Expected error")
-            XCTAssertEqual(result.error()!.code, 1570, "Incorrect error code")
-            XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
-            completionExpectation.fulfill()
+            do {
+                try result()
+                XCTFail("Expected error")
+            }
+            catch let error as NSError {
+                XCTAssertEqual(error.code, 1570, "Incorrect error code")
+                XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+                completionExpectation.fulfill()
+            }
+            catch {
+                XCTFail("Unexpected error")
+            }
         })
 
         waitForExpectationsWithTimeout(3, handler: nil)
