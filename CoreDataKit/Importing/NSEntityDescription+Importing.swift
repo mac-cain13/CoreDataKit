@@ -15,19 +15,19 @@ extension NSEntityDescription
     
     - returns: Result with the identifying attribute description
     */
-    func identifyingAttribute() -> Result<NSAttributeDescription> {
+    func identifyingAttribute() throws -> NSAttributeDescription {
         if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
             if let identifyingAttribute = self.attributesByName[identifyingAttributeName] {
-                return Result(identifyingAttribute)
+                return identifyingAttribute
             }
 
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name"])
-            return Result(error)
+            throw error
         } else if let superEntity = self.superentity {
-            return superEntity.identifyingAttribute()
+            return try superEntity.identifyingAttribute()
         }
 
         let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "No \(IdentifierUserInfoKey) value found on \(name)"])
-        return Result(error)
+        throw error
     }
 }

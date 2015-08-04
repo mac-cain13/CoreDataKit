@@ -85,8 +85,8 @@ extension NSManagedObjectContext
                 completionHandler?(Result(commitAction))
 
             case .SaveToParentContext:
-                self.obtainPermanentIDsForInsertedObjects()
                 do {
+                    try self.obtainPermanentIDsForInsertedObjects()
                     try self.save()
                     completionHandler?(Result(commitAction))
                 } catch let error as NSError {
@@ -121,9 +121,8 @@ extension NSManagedObjectContext
     */
     func saveToPersistentStore(completionHandler: CompletionHandler? = nil)
     {
-        obtainPermanentIDsForInsertedObjects()
-
         do {
+            try obtainPermanentIDsForInsertedObjects()
             try save()
 
             if let parentContext = self.parentContext {
@@ -149,7 +148,11 @@ extension NSManagedObjectContext
 
     func obtainPermanentIDsForInsertedObjectsOnContextWillSave(notification: NSNotification)
     {
-        obtainPermanentIDsForInsertedObjects()
+        do {
+            try obtainPermanentIDsForInsertedObjects()
+        }
+        catch {
+        }
     }
 
     /**
@@ -157,17 +160,10 @@ extension NSManagedObjectContext
 
     @discussion This method is called automatically by `NSManagedObjectContext`s that are created by CoreDataKit right before saving. So usually you don't have to use this yourself if you stay within CoreDataKit created contexts.
     */
-    public func obtainPermanentIDsForInsertedObjects() -> Result<Void>
-    {
+    public func obtainPermanentIDsForInsertedObjects() throws {
         if (self.insertedObjects.count > 0) {
-            do {
-                try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
-            } catch let error as NSError {
-                return Result(error)
-            }
+            try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
         }
-
-        return Result()
     }
 
 // MARK: - Creating
@@ -179,11 +175,10 @@ extension NSManagedObjectContext
     
     - returns: Result with the created entity
     */
-    public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) -> Result<T>
+    public func create<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) throws -> T
     {
-        return entityDescription(entity).flatMap {
-            self.create($0)
-        }
+        let desc = try entityDescription(entity)
+        return try self.create(desc)
     }
 
     /**
@@ -193,14 +188,14 @@ extension NSManagedObjectContext
 
     - returns: Result with the created entity
     */
-    func create<T:NSManagedObject>(entityDescription: NSEntityDescription) -> Result<T>
+    func create<T:NSManagedObject>(entityDescription: NSEntityDescription) throws -> T
     {
         if let entityName = entityDescription.name {
-            return Result(NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as! T)
+            return NSEntityDescription.insertNewObjectForEntityForName(entityName, inManagedObjectContext: self) as! T
         }
 
         let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description '\(entityDescription)' has no name"])
-        return Result(error)
+        throw error
     }
 
     /**
@@ -210,14 +205,14 @@ extension NSManagedObjectContext
 
     - returns: Result with entity description of the given type
     */
-    func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) -> Result<NSEntityDescription>
+    func entityDescription<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type) throws -> NSEntityDescription
     {
         if let entityDescription = NSEntityDescription.entityForName(entity.entityName, inManagedObjectContext: self) {
-            return Result(entityDescription)
+            return entityDescription
         }
 
         let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Entity description for entity name '\(entity.entityName)' not found"])
-        return Result(error)
+        throw error
     }
 
 // MARK: - Deleting
@@ -229,15 +224,9 @@ extension NSManagedObjectContext
 
     - returns: Result wheter the delete was successful
     */
-    public func delete(managedObject: NSManagedObject) -> Result<Void> {
-        do {
-            try obtainPermanentIDsForObjects([managedObject])
-        } catch let error as NSError {
-            return Result(error)
-        }
-
+    public func delete(managedObject: NSManagedObject) throws {
+        try obtainPermanentIDsForObjects([managedObject])
         deleteObject(managedObject)
-        return Result()
     }
 
 // MARK: - Fetching
@@ -253,10 +242,9 @@ extension NSManagedObjectContext
 
     - returns: Result with NSFetchRequest configured with the given parameters
     */
-    public func createFetchRequest<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<NSFetchRequest> {
-        return entityDescription(entity).map {
-            return self.createFetchRequest($0, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit, offset: offset)
-        }
+    public func createFetchRequest<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) throws -> NSFetchRequest {
+        let desc = try entityDescription(entity)
+        return self.createFetchRequest(desc, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit, offset: offset)
     }
 
     /**
@@ -286,19 +274,13 @@ extension NSManagedObjectContext
     Execute a fetch request
     
     - parameter fetchRequest: The request to execute on this context
-    
+
     - returns: Result with array of entities found, empty array on no results
     */
-    public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) -> Result<[T]> {
+    public func executeFetchRequest<T:NSManagedObject>(fetchRequest: NSFetchRequest) throws -> [T] {
 
-        do {
-            let anyObjects = try executeFetchRequest(fetchRequest)
-            let results = anyObjects.map { $0 as! T }
-            return Result(results)
-        }
-        catch let error as NSError {
-            return Result(error)
-        }
+        let anyObjects = try executeFetchRequest(fetchRequest)
+        return anyObjects.map { $0 as! T }
     }
 
 // MARK: Fetched result controller
@@ -315,24 +297,25 @@ extension NSManagedObjectContext
     
     - returns: Fetched results controller that already has performed the fetch
     */
-    public func fetchedResultsController(fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate? = nil, sectionNameKeyPath: String? = nil, cacheName: String? = nil) -> Result<NSFetchedResultsController> {
+    public func fetchedResultsController(fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate? = nil, sectionNameKeyPath: String? = nil, cacheName: String? = nil) throws -> NSFetchedResultsController {
         let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
         resultsController.delegate = delegate
 
-        var result: Result<NSFetchedResultsController>?
+        var error: ErrorType?
 
         performBlockAndWait {
             do {
                 try resultsController.performFetch()
-                result = Result(resultsController)
-            } catch let error as NSError {
-                result = Result(error)
-            } catch {
-                fatalError()
+            } catch let err {
+                error = err
             }
         }
 
-        return result!
+        if let error = error {
+            throw error
+        }
+
+        return resultsController
     }
 
 // MARK: Find helpers
@@ -344,8 +327,7 @@ extension NSManagedObjectContext
 
     - returns: Result with the given object in this context
     */
-    public func find<T:NSManagedObject>(entity: T.Type, managedObjectID: NSManagedObjectID) -> Result<T> {
-        var optionalError: NSError?
+    public func find<T:NSManagedObject>(entity: T.Type, managedObjectID: NSManagedObjectID) throws -> T {
 
         // First make sure we have a permanent ID for this object
 //        if (managedObjectID.temporaryID) {
@@ -356,12 +338,8 @@ extension NSManagedObjectContext
 //            }
 //        }
 
-        do {
-            let managedObjectInContext = try existingObjectWithID(managedObjectID)
-            return Result(managedObjectInContext as! T)
-        } catch let error as NSError {
-            return Result(error)
-        }
+        let managedObjectInContext = try existingObjectWithID(managedObjectID)
+        return managedObjectInContext as! T
     }
 
     /**
@@ -375,10 +353,9 @@ extension NSManagedObjectContext
     
     - returns: Result with array of entities found, empty array on no results
     */
-    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
-        return entityDescription(entity).flatMap {
-            self.find($0, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
-        }
+    public func find<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) throws -> [T] {
+        let desc = try entityDescription(entity)
+        return try self.find(desc, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
     }
 
     /**
@@ -392,9 +369,9 @@ extension NSManagedObjectContext
 
     - returns: Result with array of entities found, empty array on no results
     */
-    func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> Result<[T]> {
+    func find<T:NSManagedObject>(entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) throws -> [T] {
         let fetchRequest = createFetchRequest(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
-        return executeFetchRequest(fetchRequest)
+        return try executeFetchRequest(fetchRequest)
     }
 
     /**
@@ -407,7 +384,8 @@ extension NSManagedObjectContext
 
     - returns: Result with the entity or result with nil if the entity is not found
     */
-    public func findFirst<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, offset: Int? = nil) -> Result<T?> {
-        return find(entity, predicate: predicate, sortDescriptors: sortDescriptors, limit: 1, offset: offset).map { $0.first }
+    public func findFirst<T:NSManagedObject where T:NamedManagedObject>(entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, offset: Int? = nil) throws -> T? {
+        let objects = try find(entity, predicate: predicate, sortDescriptors: sortDescriptors, limit: 1, offset: offset)
+        return objects.first
     }
 }

@@ -46,7 +46,12 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     */
     public init(observeObject _observedObject: T, inContext context: NSManagedObjectContext) {
         // Try to convert the observee to the given context, may fail because it's not yet saved
-        self.observedObject = context.find(T.self, managedObjectID: _observedObject.objectID).value() ?? _observedObject
+        do {
+            self.observedObject = try context.find(T.self, managedObjectID: _observedObject.objectID)
+        }
+        catch {
+            self.observedObject = _observedObject
+        }
 
         self.context = context
         self.subscribers = [Subscriber]()
@@ -58,7 +63,8 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
             return
           }
 
-          if let convertedObject = context.find(T.self, managedObjectID: self.observedObject.objectID).value() {
+          do {
+            let convertedObject = try context.find(T.self, managedObjectID: self.observedObject.objectID)
             if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
               if updatedObjects.containsObject(convertedObject) {
                 self.notifySubscribers(.Updated(convertedObject))
@@ -82,6 +88,8 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
                 self.notifySubscribers(.Deleted)
               }
             }
+          }
+          catch {
           }
         }
       }

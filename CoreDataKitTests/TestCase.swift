@@ -37,12 +37,7 @@ class TestCase: XCTestCase {
         super.tearDown()
     }
 
-    private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {
-        do {
-            let persistentCoordinator = try NSPersistentStoreCoordinator(managedObjectModel: model)
-            return CoreDataStack(persistentStoreCoordinator: persistentCoordinator)
-        } catch let error as NSError {
-            XCTFail("ERROR: \(error)")
-        }
+    private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {let persistentCoordinator = try NSPersistentStoreCoordinator(managedObjectModel: model)
+        return CoreDataStack(persistentStoreCoordinator: persistentCoordinator)
     }
 }

@@ -88,11 +88,12 @@ class NSManagedObjectContextTests: TestCase {
 
         XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
 
-        switch coreDataStack.rootContext.obtainPermanentIDsForInsertedObjects() {
-        case .Failure:
-            XCTFail("Unexpected error")
-        case .Success:
+        do {
+            try coreDataStack.rootContext.obtainPermanentIDsForInsertedObjects()
             XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
+        }
+        catch {
+            XCTFail("Unexpected error")
         }
     }
 
@@ -118,91 +119,85 @@ class NSManagedObjectContextTests: TestCase {
 // MARK: - Creating
 
     func testCreate() {
-        switch coreDataStack.rootContext.create(Employee.self) {
-        case let .Success(boxedEmployee):
-            XCTAssertTrue(boxedEmployee.value.inserted, "Managed object should be inserted")
-            XCTAssertEqual(boxedEmployee.value.managedObjectContext!, coreDataStack.rootContext, "Unexpected managed object context")
-            break
-
-        case .Failure:
+        do {
+            let employee = try coreDataStack.rootContext.create(Employee.self)
+            XCTAssertTrue(employee.inserted, "Managed object should be inserted")
+            XCTAssertEqual(employee.managedObjectContext!, coreDataStack.rootContext, "Unexpected managed object context")
+        }
+        catch {
             XCTFail("Unexpected error")
         }
     }
 
     func testCreateIncorrectEntityName() {
-        switch coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self) {
-        case .Success:
+        do {
+            try coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self)
             XCTFail("Unexpected managed object")
-            break
-
-        case let .Failure(error):
+        }
+        catch let error as NSError {
             XCTAssertEqual(error.domain, CoreDataKitErrorDomain, "Unexpected error domain")
             XCTAssertEqual(error.code, CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, "Unexpected error code")
+        }
+        catch {
+          XCTFail("Unexpected error")
         }
     }
 
 // MARK: - Finding
 
     func testFindAllEmployeesWithOneEmployeeInserted() {
-        switch coreDataStack.rootContext.create(Employee.self) {
-        case .Failure:
-            XCTFail("Unexpected error")
+        do {
+            let employee = try coreDataStack.rootContext.create(Employee.self)
+            employee.name = "Rachel Zane"
 
-        case let .Success(boxedEmployee):
-            boxedEmployee.value.name = "Rachel Zane"
+            let results = try coreDataStack.rootContext.find(Employee.self)
+            XCTAssertEqual(results.count, 1, "Incorrect number of results")
 
-            switch coreDataStack.rootContext.find(Employee.self) {
-            case .Failure:
-                XCTFail("Unexpected error")
-
-            case let .Success(boxedResults):
-                XCTAssertEqual(boxedResults.value.count, 1, "Incorrect number of results")
-
-                if let firstEmployee = boxedResults.value.first {
-                    XCTAssertEqual(firstEmployee.name, "Rachel Zane", "Incorrect employee name")
-                }
+            if let firstEmployee = results.first {
+                XCTAssertEqual(firstEmployee.name, "Rachel Zane", "Incorrect employee name")
             }
-        }
+          }
+          catch {
+              XCTFail("Unexpected error")
+          }
     }
 
     func testFindEmployeesWithoutAnythingInserted() {
-        switch coreDataStack.rootContext.find(Employee.self, predicate: nil, sortDescriptors: nil, limit: nil) {
-        case .Failure:
+        do {
+            let results = try coreDataStack.rootContext.find(Employee.self, predicate: nil, sortDescriptors: nil, limit: nil)
+            XCTAssertEqual(results.count, 0, "Incorrect number of results")
+        }
+        catch {
             XCTFail("Unexpected error")
-
-        case let .Success(boxedResults):
-            XCTAssertEqual(boxedResults.value.count, 0, "Incorrect number of results")
         }
     }
 
     func testFindEmployeesWithFilteringAndSorting() {
-        var optionalError: NSError?
-        let optionalEmployees: (Result<Employee>, Result<Employee>, Result<Employee>) = (
-            coreDataStack.rootContext.create(Employee.self),
-            coreDataStack.rootContext.create(Employee.self),
-            coreDataStack.rootContext.create(Employee.self)
-        )
+        do {
+            let employee0 = try coreDataStack.rootContext.create(Employee.self)
+            let employee1 = try coreDataStack.rootContext.create(Employee.self)
+            let employee2 = try coreDataStack.rootContext.create(Employee.self)
 
-        switch optionalEmployees {
-        case let (.Success(employee0), .Success(employee1), .Success(employee2)):
-            employee0.value.name = "Rachel Zane 2"
-            employee1.value.name = "Rachel Zane 1"
-            employee2.value.name = "Mike Ross"
-
-        default:
+            employee0.name = "Rachel Zane 2"
+            employee1.name = "Rachel Zane 1"
+            employee2.name = "Mike Ross"
+        }
+        catch {
             XCTFail("Missing managed object")
         }
 
         let predicate = NSPredicate(format: "name contains %@", argumentArray: ["Rachel Zane"])
         let sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
-        switch coreDataStack.rootContext.find(Employee.self, predicate: predicate, sortDescriptors: sortDescriptors, limit: nil) {
-        case .Failure:
-            XCTFail("Unexpected error")
 
-        case let .Success(boxedResults):
-            XCTAssertEqual(boxedResults.value.count, 2, "Incorrect number of results")
-            XCTAssertEqual(boxedResults.value[0].name, "Rachel Zane 1", "Incorrect order")
-            XCTAssertEqual(boxedResults.value[1].name, "Rachel Zane 2", "Incorrect order")
+        do {
+            let results = try coreDataStack.rootContext.find(Employee.self, predicate: predicate, sortDescriptors: sortDescriptors, limit: nil)
+
+            XCTAssertEqual(results.count, 2, "Incorrect number of results")
+            XCTAssertEqual(results[0].name, "Rachel Zane 1", "Incorrect order")
+            XCTAssertEqual(results[1].name, "Rachel Zane 2", "Incorrect order")
+        }
+        catch {
+            XCTFail("Unexpected error")
         }
     }
 }
