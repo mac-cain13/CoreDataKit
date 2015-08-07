@@ -29,9 +29,8 @@ public enum ObservedAction<T:NSManagedObject> {
     }
 }
 
-@objc
 public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
-    typealias Subscriber = ObservedAction<T> -> Void
+    public typealias Subscriber = ObservedAction<T> -> Void
 
     public let observedObject: T
     let context: NSManagedObjectContext
@@ -41,8 +40,8 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     /**
     Start observing changes on a `NSManagedObject` in a certain context.
     
-    :param: observeObject   Object to observe
-    :param: inContext       Context to observe the object in
+    - parameter observeObject:   Object to observe
+    - parameter inContext:       Context to observe the object in
     */
     public init(observeObject _observedObject: T, inContext context: NSManagedObjectContext) {
         // Try to convert the observee to the given context, may fail because it's not yet saved
@@ -102,9 +101,9 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     /**
     Subscribe a block that gets called when the observed object changes
     
-    :param: changeHandler The handler to call on change
+    - parameter changeHandler: The handler to call on change
     
-    :returns: Token you can use to unsubscribe
+    - returns: Token you can use to unsubscribe
     */
     public func subscribe(subscriber: Subscriber) -> Int {
         subscribers.append(subscriber)
@@ -114,7 +113,7 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     /**
     Unsubscribe a previously subscribed block
     
-    :param: token The token obtained when subscribing
+    - parameter token: The token obtained when subscribing
     */
     public func unsubscribe(token: Int) {
         subscribers[token] = { _ in }

@@ -13,9 +13,9 @@ extension NSManagedObject
     /**
     Import a dictionary into this managed object
 
-    :param: dictionary The dictionary to import
+    - parameter dictionary: The dictionary to import
     
-    :returns: Result wheter the import was performed
+    - returns: Result wheter the import was performed
     */
     public func importDictionary(dictionary: [String: AnyObject]) -> Result<Void> {
         if shouldImport(dictionary) {
@@ -38,7 +38,7 @@ extension NSManagedObject
     
     :discusion: Default implementation just returns true
     
-    :param: dictionary The dictionary that will be imported
+    - parameter dictionary: The dictionary that will be imported
 
     :return: Wheter to import or not
     */
@@ -51,7 +51,7 @@ extension NSManagedObject
 
     :discusion: Default implementation just returns the given dictionary
 
-    :param: dictionary The dictionary that is given to the import method
+    - parameter dictionary: The dictionary that is given to the import method
 
     :return: The dictionary that will be used in the rest of the import process
     */
@@ -62,14 +62,13 @@ extension NSManagedObject
     /**
     Performs the import process
 
-    :param: dictionary The dictionary to import
+    - parameter dictionary: The dictionary to import
     
-    :returns: Result wheter the import succeeded
+    - returns: Result wheter the import succeeded
     */
     private func performImport(dictionary: [String : AnyObject]) -> Result<Void> {
         if let context = managedObjectContext {
-            for _propertyDescription in entity.properties {
-                let propertyDescription = _propertyDescription as! NSPropertyDescription
+            for propertyDescription in entity.properties {
 
                 switch propertyDescription {
                 case let attributeDescription as NSAttributeDescription:
@@ -102,8 +101,8 @@ extension NSManagedObject
     /**
     Called after import is performed
     
-    :param: dictionary The dictionary that was imported, this is the dictionary returned by willImport
-    :param: result Whether the import succeeded
+    - parameter dictionary: The dictionary that was imported, this is the dictionary returned by willImport
+    - parameter result: Whether the import succeeded
     */
     public func didImport(dictionary: [String : AnyObject], result: Result<Void>) {
         // No-op
@@ -114,10 +113,10 @@ extension NSManagedObject
     /**
     Performs the import of one attribute
 
-    :param: attribute The attribute to perform the import on
-    :param: dictionary The dictionary to import from
+    - parameter attribute: The attribute to perform the import on
+    - parameter dictionary: The dictionary to import from
 
-    :returns: Result wheter import succeeded
+    - returns: Result wheter import succeeded
     */
     private func performImportAttribute(attribute: NSAttributeDescription, dictionary: [String: AnyObject]) -> Result<Void> {
         switch attribute.preferredValueFromDictionary(dictionary) {
@@ -143,10 +142,10 @@ extension NSManagedObject
     /**
     Performs the import of one attribute
 
-    :param: relationship The relationship to perform the import on
-    :param: dictionary The dictionary to import from
+    - parameter relationship: The relationship to perform the import on
+    - parameter dictionary: The dictionary to import from
 
-    :returns: Result wheter import succeeded
+    - returns: Result wheter import succeeded
     */
     private func performImportRelationship(relationship: NSRelationshipDescription, dictionary: [String : AnyObject]) -> Result<Void> {
         if let destinationEntity = relationship.destinationEntity {
@@ -172,7 +171,7 @@ extension NSManagedObject
                 self.updateRelationship(relationship, withValue: $0, deleteCurrent: false)
             }
 
-        case let .Some(value as [AnyObject]):
+        case .Some(_ as [AnyObject]):
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)"])
             return Result(error)
 
@@ -189,7 +188,7 @@ extension NSManagedObject
         }
     }
 
-    private func performImportEmbeddingRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription)  -> Result<Void> {
+    private func performImportEmbeddingRelationship(relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription) -> Result<Void> {
         switch importableValue {
         case let .Some(value as [String: AnyObject]):
             let createResult = managedObjectContext!.create(destinationEntity)
@@ -199,11 +198,11 @@ extension NSManagedObject
                 }
             }
 
-        case let .Some(value as [AnyObject]):
+        case .Some(_ as [AnyObject]):
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple nested relationships not yet supported with relation type \(RelationType.Embedding)"])
             return Result(error)
 
-        case let .Some(value):
+        case .Some(_):
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Referenced relationships are not supported with relation type \(RelationType.Embedding)"])
             return Result(error)
 
@@ -218,8 +217,8 @@ extension NSManagedObject
     /**
     Helper to update relationship value, adds or sets the relation to the given value or on nil value clears/deletes the whole relation
 
-    :param: value The value to update the relationship with
-    :param: relationship The relationship to update
+    - parameter value: The value to update the relationship with
+    - parameter relationship: The relationship to update
 
     :return: Wheter the update succeeded
     */

@@ -15,9 +15,9 @@ extension NSPersistentStoreCoordinator
     
     :discussion: Use `NSPersistentStore.URLForSQLiteStoreName(storeName:)` to create the store URL
     
-    :param: automigrating      Whether to enable automigration for the SQLite store
-    :param: URL                URL to save the SQLite store at, pass nil to use default
-    :param: managedObjectModel Managed object model to initialize the store with, pass nil to use all models in the main bundle
+    - parameter automigrating:      Whether to enable automigration for the SQLite store
+    - parameter URL:                URL to save the SQLite store at, pass nil to use default
+    - parameter managedObjectModel: Managed object model to initialize the store with, pass nil to use all models in the main bundle
     */
     public convenience init?(automigrating: Bool, deleteOnMismatch: Bool = false, URL optionalURL: NSURL? = nil, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel? = nil) {
 
@@ -40,10 +40,9 @@ extension NSPersistentStoreCoordinator
     /**
     Creates a `NSPersistentStoreCoordinator` with in memory store as backing store.
 
-    :param: managedObjectModel Managed object model to initialize the store with, pass nil to use all models in the main bundle
-    :param: error              When the initializer fails this will contain error information
+    - parameter managedObjectModel: Managed object model to initialize the store with, pass nil to use all models in the main bundle
     */
-    public convenience init?(managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?, error: NSErrorPointer) {
+    public convenience init(managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?) throws {
         // Fallback on the defaults
         let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
 
@@ -51,12 +50,15 @@ extension NSPersistentStoreCoordinator
         if let managedObjectModel = _managedObjectModel
         {
             self.init(managedObjectModel: managedObjectModel)
-            self.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil, error: error)
+            do {
+                try self.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
+            } catch let error as NSError {
+                throw error
+            }
         }
         else
         {
-            self.init()
-            return nil
+            throw NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: nil)
         }
     }
 
@@ -67,8 +69,8 @@ extension NSPersistentStoreCoordinator
     
     :discussion: Will do a async retry when automigration fails, because of a CoreData bug in serveral iOS versions where migration fails the first time.
     
-    :param: URL           Location of the store
-    :param: automigrating Whether the store should automigrate itself
+    - parameter URL:           Location of the store
+    - parameter automigrating: Whether the store should automigrate itself
     */
     private func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool, deleteOnMismatch: Bool)
     {
@@ -79,19 +81,13 @@ extension NSPersistentStoreCoordinator
                 NSSQLitePragmasOption: ["journal_mode": "WAL"]
             ];
 
-            var optionalError: NSError?
-            let optionalStore = self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options, error: &optionalError)
-
-            switch (optionalStore, optionalError) {
-            case let (.Some(store), .None):
+            do {
+                let store = try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
                 return Result(store)
-
-            case let (.None, .Some(error)):
+            } catch let error as NSError {
                 return Result(error)
-
-            default:
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnknownError.rawValue, userInfo: [NSLocalizedDescriptionKey: "NSPersistentStoreCoordinator.addPersistentStoreWithType returned invalid combination of return value (\(optionalStore)) and error (\(optionalError))"])
-                return Result(error)
+            } catch {
+                fatalError()
             }
         }
 
@@ -100,12 +96,14 @@ extension NSPersistentStoreCoordinator
             if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
                 CDK.sharedLogger(.WARN, "Model mismatch, removing persistent store...")
-                if let urlString = URL.absoluteString {
-                    let shmFile = urlString.stringByAppendingString("-shm")
-                    let walFile = urlString.stringByAppendingString("-wal")
-                    NSFileManager.defaultManager().removeItemAtURL(URL, error: nil)
-                    NSFileManager.defaultManager().removeItemAtPath(shmFile, error: nil)
-                    NSFileManager.defaultManager().removeItemAtPath(walFile, error: nil)
+                let urlString = URL.absoluteString
+                let shmFile = urlString.stringByAppendingString("-shm")
+                let walFile = urlString.stringByAppendingString("-wal")
+                do {
+                    try NSFileManager.defaultManager().removeItemAtURL(URL)
+                    try NSFileManager.defaultManager().removeItemAtPath(shmFile)
+                    try NSFileManager.defaultManager().removeItemAtPath(walFile)
+                } catch _ {
                 }
 
                 if let error = addStore().error() {
