@@ -203,11 +203,12 @@ class NSManagedObjectTests: TestCase {
         for bundle in NSBundle.allBundles() {
             if let fileURL = bundle.URLForResource(filename, withExtension: "json") {
                 let data = NSData(contentsOfURL: fileURL)!
-                var optionalError: NSError?
-                let json: AnyObject? = NSJSONSerialization.JSONObjectWithData(data, options: .allZeros, error: &optionalError)
-                XCTAssertNil(optionalError, "Unexpected error while decoding JSON")
-                XCTAssertNotNil(json, "Missing decoded JSON")
-                return json
+                do {
+                    let json = try NSJSONSerialization.JSONObjectWithData(data, options: [])
+                    return json
+                } catch let error as NSError {
+                    XCTFail("Unexpected error while decoding JSON: \(error)")
+                }
             }
         }
 

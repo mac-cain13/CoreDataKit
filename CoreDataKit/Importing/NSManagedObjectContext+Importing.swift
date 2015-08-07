@@ -15,10 +15,10 @@ extension NSManagedObjectContext
     
     :see: Importing documentation at [TODO]
 
-    :param: entity      Type of entity to import
-    :param: dictionary  Data to import
+    - parameter entity:      Type of entity to import
+    - parameter dictionary:  Data to import
     
-    :returns: Result with managed object of the given entity type with the data imported on it
+    - returns: Result with managed object of the given entity type with the data imported on it
     */
     public func importEntity<T: NSManagedObject where T:NamedManagedObject>(entity: T.Type, dictionary: [String : AnyObject]) -> Result<T> {
         return entityDescription(entity).flatMap { self.importEntity($0, dictionary: dictionary) }
@@ -29,10 +29,10 @@ extension NSManagedObjectContext
 
     :see: Importing documentation at [TODO]
 
-    :param: entityDescription Description of entity to import
-    :param: dictionary        Data to import
+    - parameter entityDescription: Description of entity to import
+    - parameter dictionary:        Data to import
 
-    :returns: Result with managed object of the given entity type with the data imported on it
+    - returns: Result with managed object of the given entity type with the data imported on it
     */
     func importEntity<T:NSManagedObject>(entityDescription: NSEntityDescription, dictionary: [String : AnyObject]) -> Result<T> {
 
@@ -58,8 +58,8 @@ extension NSManagedObjectContext
     /**
     Find or create an instance of this managed object to use for import
     
-    :param: entityDescription Description of entity to import
-    :param: identifyingValue  The identifying value of the object
+    - parameter entityDescription: Description of entity to import
+    - parameter identifyingValue:  The identifying value of the object
     
     :return: Result with the object to perform the import on
     */
@@ -81,10 +81,10 @@ extension NSManagedObjectContext
     /**
     Find entity based on the identifying attribute
 
-    :param: entityDescription Description of entity to find
-    :param: identifyingValue  The identifying value of the object
+    - parameter entityDescription: Description of entity to find
+    - parameter identifyingValue:  The identifying value of the object
     
-    :returns: Result with the optional object that is found, nil on not found
+    - returns: Result with the optional object that is found, nil on not found
     */
     func findEntityByIdentifyingAttribute<T:NSManagedObject>(entityDescription: NSEntityDescription, identifyingValue: AnyObject) -> Result<T?> {
 

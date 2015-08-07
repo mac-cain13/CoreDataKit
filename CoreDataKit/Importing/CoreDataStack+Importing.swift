@@ -15,31 +15,28 @@ extension CoreDataStack {
     public func dumpImportConfiguration() {
         let entityUserInfoKeys = [IdentifierUserInfoKey]
 
-        for (entityName, _entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
+        for (entityName, entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
             CDK.sharedLogger(.DEBUG, " ")
-
-            let entity = _entity as! NSEntityDescription
             CDK.sharedLogger(.DEBUG, "\(entityName):")
 
             for (_key, value) in entity.userInfo! {
                 let key = _key as! String
 
-                if !contains(entityUserInfoKeys, key) {
+                if !entityUserInfoKeys.contains(key) {
                     CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
                 }
             }
 
-            let optionalIdentifyingAttribute = entity.identifyingAttribute().value()
-            if let identifyingAttibute = optionalIdentifyingAttribute {
+            if let identifyingAttibute = entity.identifyingAttribute().value() {
                 dumpPropertyDescription(identifyingAttibute, asIdentifyingAttribute: true)
             }
 
             for (_, attribute) in entity.attributesByName {
-                dumpPropertyDescription(attribute as! NSPropertyDescription)
+                dumpPropertyDescription(attribute)
             }
 
             for (_, relationship) in entity.relationshipsByName {
-                dumpPropertyDescription(relationship as! NSPropertyDescription)
+                dumpPropertyDescription(relationship)
             }
         }
     }
@@ -64,9 +61,9 @@ extension CoreDataStack {
         for (_key, value) in property.userInfo! {
             let key = _key as! String
 
-            if !contains(propertyUserInfoKeys, key) {
-                if (property is NSAttributeDescription && !contains(attributeUserInfoKeys, key)) ||
-                    (property is NSRelationshipDescription && !contains(relationshipUserInfoKeys, key)) {
+            if !propertyUserInfoKeys.contains(key) {
+                if (property is NSAttributeDescription && !attributeUserInfoKeys.contains(key)) ||
+                    (property is NSRelationshipDescription && !relationshipUserInfoKeys.contains(key)) {
                     CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
                 }
             }

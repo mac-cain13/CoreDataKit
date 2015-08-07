@@ -24,7 +24,7 @@ public class CDK : NSObject
 {
     private struct Holder {
         static var sharedStack: CoreDataStack?
-        static var sharedLogger: Logger = { _, message in println("[CoreDataKit] \(message)") }
+        static var sharedLogger: Logger = { _, message in print("[CoreDataKit] \(message)") }
     }
 
     /**
@@ -77,8 +77,8 @@ public class CDK : NSObject
     /**
     Performs the given block on the `backgroundContect`
 
-    :param: block       Block that performs the changes on the given context that should be saved
-    :param: completion  Completion block to run after changes are saved
+    - parameter block:       Block that performs the changes on the given context that should be saved
+    - parameter completion:  Completion block to run after changes are saved
 
     :see: NSManagedObjectContext.performBlock()
     */

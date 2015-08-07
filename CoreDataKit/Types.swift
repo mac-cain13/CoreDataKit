@@ -38,9 +38,9 @@ public enum Result<T> {
     /**
     Create Result from optional error, failure with error if optional contains a value. Void success Result otherwise.
     
-    :param: optionalError The error to create result from
+    - parameter optionalError: The error to create result from
     
-    :returns: Result containing the error or Success when no error present
+    - returns: Result containing the error or Success when no error present
     */
     static func withOptionalError(optionalError: NSError?) -> Result<Void> {
         if let error = optionalError {
@@ -53,7 +53,7 @@ public enum Result<T> {
     /**
     Get the unboxed success value
     
-    :returns: The unboxed success value or nil on failure
+    - returns: The unboxed success value or nil on failure
     */
     public func value() -> T? {
         switch self {
@@ -68,7 +68,7 @@ public enum Result<T> {
     /**
     Get the error
 
-    :returns: The unboxed failure value or nil on success
+    - returns: The unboxed failure value or nil on success
     */
     public func error() -> NSError? {
         switch self {
@@ -126,22 +126,22 @@ public enum CommitAction {
 /**
 Blocktype used to perform changes on a `NSManagedObjectContext`.
 
-:param: context The context to perform your changes on
+- parameter context: The context to perform your changes on
 */
 public typealias PerformBlock = NSManagedObjectContext -> CommitAction
 
 /**
 Blocktype used to handle completion.
 
-:param: result Wheter the operation was successful
+- parameter result: Wheter the operation was successful
 */
 public typealias CompletionHandler = Result<Void> -> Void
 
 /**
 Blocktype used to handle completion of `PerformBlock`s.
 
-:param: result       Wheter the operation was successful
-:param: commitAction The type of commit action the block has done
+- parameter result:       Wheter the operation was successful
+- parameter commitAction: The type of commit action the block has done
 */
 public typealias PerformBlockCompletionHandler = Result<CommitAction> -> Void
 

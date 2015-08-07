@@ -28,7 +28,7 @@ extension NSPropertyDescription
     /**
     Keys that could contain data for this property as defined by the model
     
-    :returns: Array of keys to look for when mapping data into this property
+    - returns: Array of keys to look for when mapping data into this property
     */
     var mappings: [String] {
         switch mapStrategy {
@@ -66,9 +66,9 @@ extension NSPropertyDescription
     /**
     Looks at the available mappings and takes the preferred value out of the given dictionary based on those mappings
 
-    :param: dictionary Data to import from
+    - parameter dictionary: Data to import from
     
-    :returns: Value to import
+    - returns: Value to import
     */
     func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> ImportableValue {
         for keyPath in mappings {
