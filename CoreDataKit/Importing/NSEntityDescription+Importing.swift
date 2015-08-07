@@ -13,21 +13,21 @@ extension NSEntityDescription
     /**
     Get the attribute description of this entity description that is marked as identifier in the model
     
-    :returns: Result with the identifying attribute description
+    - returns: Result with the identifying attribute description
     */
-    func identifyingAttribute() -> Result<NSAttributeDescription> {
+    func identifyingAttribute() throws -> NSAttributeDescription {
         if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
-            if let identifyingAttribute = self.attributesByName[identifyingAttributeName] as? NSAttributeDescription {
-                return Result(identifyingAttribute)
+            if let identifyingAttribute = self.attributesByName[identifyingAttributeName] {
+                return identifyingAttribute
             }
 
             let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name"])
-            return Result(error)
+            throw error
         } else if let superEntity = self.superentity {
-            return superEntity.identifyingAttribute()
+            return try superEntity.identifyingAttribute()
         }
 
         let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.IdentifyingAttributeNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "No \(IdentifierUserInfoKey) value found on \(name)"])
-        return Result(error)
+        throw error
     }
 }
