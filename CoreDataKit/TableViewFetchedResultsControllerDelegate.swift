@@ -49,7 +49,7 @@ public class TableViewFetchedResultsControllerDelegate: NSObject, NSFetchedResul
     }
 
     /// Implementation of NSFetchedResultsControllerDelegate
-    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: NSManagedObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+    public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
         switch type {
         case .Insert:
             tableView?.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
