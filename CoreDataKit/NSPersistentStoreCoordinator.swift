@@ -74,24 +74,20 @@ extension NSPersistentStoreCoordinator
     */
     private func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool, deleteOnMismatch: Bool)
     {
-        let addStore: () -> Result<NSPersistentStore> = {
+        func addStore() throws {
             let options: [NSObject: AnyObject] = [
                 NSMigratePersistentStoresAutomaticallyOption: automigrating,
                 NSInferMappingModelAutomaticallyOption: automigrating,
                 NSSQLitePragmasOption: ["journal_mode": "WAL"]
             ];
 
-            do {
-                let store = try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
-                return Result(store)
-            } catch let error as NSError {
-                return Result(error)
-            } catch {
-                fatalError()
-            }
+            try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
         }
 
-        if let error = addStore().error() {
+        do {
+            try addStore()
+        }
+        catch let error as NSError {
             // Check for version mismatch
             if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
@@ -99,6 +95,7 @@ extension NSPersistentStoreCoordinator
                 let urlString = URL.absoluteString
                 let shmFile = urlString.stringByAppendingString("-shm")
                 let walFile = urlString.stringByAppendingString("-wal")
+
                 do {
                     try NSFileManager.defaultManager().removeItemAtURL(URL)
                     try NSFileManager.defaultManager().removeItemAtPath(shmFile)
@@ -106,7 +103,10 @@ extension NSPersistentStoreCoordinator
                 } catch _ {
                 }
 
-                if let error = addStore().error() {
+                do {
+                    try addStore()
+                }
+                catch let error {
                     CDK.sharedLogger(.ERROR, "Failed to add SQLite persistent store: \(error)")
                 }
             }
@@ -114,7 +114,10 @@ extension NSPersistentStoreCoordinator
             else if automigrating {
                 CDK.sharedLogger(.WARN, "[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 2), dispatch_get_main_queue()) {
-                    if let error = addStore().error() {
+                    do {
+                        try addStore()
+                    }
+                    catch let error {
                         CDK.sharedLogger(.ERROR, "Failed to add SQLite persistent store: \(error)")
                     }
                 }

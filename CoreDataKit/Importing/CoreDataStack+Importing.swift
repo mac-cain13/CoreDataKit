@@ -27,8 +27,11 @@ extension CoreDataStack {
                 }
             }
 
-            if let identifyingAttibute = entity.identifyingAttribute().value() {
+            do {
+                let identifyingAttibute = try entity.identifyingAttribute()
                 dumpPropertyDescription(identifyingAttibute, asIdentifyingAttribute: true)
+            }
+            catch {
             }
 
             for (_, attribute) in entity.attributesByName {
