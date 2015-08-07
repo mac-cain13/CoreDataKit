@@ -29,7 +29,6 @@ public enum ObservedAction<T:NSManagedObject> {
     }
 }
 
-@objc
 public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     public typealias Subscriber = ObservedAction<T> -> Void
 
