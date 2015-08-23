@@ -26,6 +26,22 @@ if let persistentStoreCoordinator = NSPersistentStoreCoordinator(automigrating: 
 }
 ```
 
+### Implement NamedManagedObject protocol
+
+For CoreDataKit to be able to use your NSManagedObject subclass, such as Car in the example below, CDK needs to have the subclass implement the NamedManagedObject protocol in order to be able to initialize your class:
+
+```swift
+class Car: NSManagedObject, NamedManagedObject {
+
+  static var entityName = "Car" //corresponding to your Enity name in your xcdatamodeld
+  
+  @NSManaged var color: String
+  @NSManaged var model: String
+
+}
+
+```
+
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```swift
 CDK.performBlockOnBackgroundContext({ context in
