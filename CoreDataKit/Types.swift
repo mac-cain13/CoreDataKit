@@ -8,6 +8,7 @@
 
 import CoreData
 
+
 /// Commit actions that can be taken by CoreDataKit after a block of changes is performed
 public enum CommitAction {
     /// Do not do any save/rollback operation, just leave the changes on the context unsaved
@@ -50,35 +51,76 @@ public typealias PerformBlockCompletionHandler = (arg: () throws -> CommitAction
 
 // MARK: - Errors
 
-/// Error domain used by CoreDataKit when it generates a NSError
+/// All errors that can occure from CoreDataKit
+
+public enum CoreDataKitError : ErrorType {
+    case CoreDataError(NSError)
+
+    case ImportCancelled(entityName: String)
+    case ImportError(description: String)
+    case ContextError(description: String)
+    case UnimplementedMethod(description: String)
+
+    case UnknownError(description: String)
+}
+
+extension CoreDataKitError : CustomStringConvertible {
+    public var description: String {
+        switch self {
+        case .CoreDataError(let error):
+            return "CoreDataError: \(error.localizedDescription)"
+        case .ImportCancelled(let entityName):
+            return "Import of entity \(entityName) cancelled"
+        case .ContextError(let description):
+            return description
+        case .ImportError(let description):
+            return description
+        case .UnimplementedMethod(let description):
+            return description
+        case .UnknownError(let description):
+            return "Unknown error: \(description)"
+        }
+    }
+}
+
+/// Wrapping CoreDataKitError in a NSError for compatibility with older NSError-based code
+
 public let CoreDataKitErrorDomain = "CoreDataKitErrorDomain"
 
-/// Error codes used by CoreDataKit when it generates a NSError
-public enum CoreDataKitErrorCode: Int {
-    case UnknownError = 1
+private let CoreDataKitErrorUserInfoErrorKey = "CoreDataKitErrorUserInfoErrorKey"
 
-    /// The method is unimplemented or should be overridden without calling super
-    case UnimplementedMethod
+public class CoreDataKitErrorBox : CustomStringConvertible {
+    public let unbox: CoreDataKitError
 
-    case ContextNotFound
+    init(value: CoreDataKitError) {
+        self.unbox = value
+    }
 
-    /// Entity description could not be found
-    case EntityDescriptionNotFound
+    public var description: String {
+        return unbox.description
+    }
+}
 
-    /// Idenifying attribute could not be found
-    case IdentifyingAttributeNotFound
+extension CoreDataKitError {
 
-    /// Relationship property could not be found
-    case RelationshipPropertyNotFound
+    public var nsError: NSError {
+        switch self {
+        case .CoreDataError(let error):
+            return error
+        default:
+            return NSError(
+                domain: CoreDataKitErrorDomain,
+                code: 0,
+                userInfo: [CoreDataKitErrorUserInfoErrorKey: CoreDataKitErrorBox(value: self)])
+        }
+    }
+}
 
-    /// Invalid configuration of property for the action you want to perform
-    case InvalidPropertyConfiguration
-
-    case InvalidValue
-
-    /// Number of results was not within the expected range
-    case UnexpectedNumberOfResults
-
-    /// Import was cancelled
-    case ImportCancelled
+extension NSError {
+    public var coreDataKitError: CoreDataKitError? {
+        if let boxed = self.userInfo[CoreDataKitErrorUserInfoErrorKey] as? CoreDataKitErrorBox {
+            return boxed.unbox
+        }
+        return nil
+    }
 }

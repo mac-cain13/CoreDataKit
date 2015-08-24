@@ -33,7 +33,7 @@ extension NSManagedObject
         }
 
         let entityName = self.entity.name ?? "nil"
-        let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ImportCancelled.rawValue, userInfo: [NSLocalizedDescriptionKey: "Import of entity \(entityName) cancelled because shouldImport returned false"])
+        let error = CoreDataKitError.ImportCancelled(entityName: entityName)
         throw error
     }
 
@@ -84,16 +84,16 @@ extension NSManagedObject
                     try performImportRelationship(context, relationship: relationshipDescription, dictionary: dictionary)
 
                 case is NSFetchedPropertyDescription:
-                    let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Importing NSFetchedPropertyDescription is not supported"])
+                    let error = CoreDataKitError.ImportError(description: "Importing NSFetchedPropertyDescription is not supported")
                     throw error
 
                 default:
-                    let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Importing unknown subclass or no subclass of NSPropertyDescription is not supported"])
+                    let error = CoreDataKitError.ImportError(description: "Importing unknown subclass or no subclass of NSPropertyDescription is not supported")
                     throw error
                 }
             }
         } else {
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.ContextNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Managed object not inserted in context, objects must be inserted before importing"])
+            let error = CoreDataKitError.ImportError(description: "Managed object not inserted in context, objects must be inserted before importing")
             throw error
         }
     }
@@ -124,7 +124,7 @@ extension NSManagedObject
             if let transformedValue: AnyObject = attribute.transformValue(value) {
                 setValue(transformedValue, forKeyPath: attribute.name)
             } else {
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidValue.rawValue, userInfo: [NSLocalizedDescriptionKey: "Value '\(value)' could not be transformed to a value compatible with the type of \(entity.name).\(attribute.name)"])
+                let error = CoreDataKitError.ImportError(description: "Value '\(value)' could not be transformed to a value compatible with the type of \(entity.name).\(attribute.name)")
                 throw error
             }
 
@@ -157,8 +157,8 @@ extension NSManagedObject
                 try performImportEmbeddingRelationship(context, relationship: relationship, importableValue: importableValue, destinationEntity: destinationEntity)
             }
         } else {
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Relationship \(self.entity.name).\(relationship.name) has no destination entity defined"])
-            error
+            let error = CoreDataKitError.ImportError(description: "Relationship \(self.entity.name).\(relationship.name) has no destination entity defined")
+            throw error
         }
     }
 
@@ -169,7 +169,7 @@ extension NSManagedObject
             try self.updateRelationship(context, relationship: relationship, withValue: object, deleteCurrent: false)
 
         case .Some(_ as [AnyObject]):
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)"])
+            let error = CoreDataKitError.UnimplementedMethod(description: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)")
             throw error
 
         case let .Some(value):
@@ -191,13 +191,12 @@ extension NSManagedObject
             try destinationObject.importDictionary(value)
             try self.updateRelationship(context, relationship: relationship, withValue: destinationObject, deleteCurrent: true)
 
-
         case .Some(_ as [AnyObject]):
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Multiple nested relationships not yet supported with relation type \(RelationType.Embedding)"])
+            let error = CoreDataKitError.UnimplementedMethod(description: "Multiple nested relationships not yet supported with relation type \(RelationType.Embedding)")
             throw error
 
         case .Some(_):
-            let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.UnimplementedMethod.rawValue, userInfo: [NSLocalizedDescriptionKey: "Referenced relationships are not supported with relation type \(RelationType.Embedding)"])
+            let error = CoreDataKitError.UnimplementedMethod(description: "Referenced relationships are not supported with relation type \(RelationType.Embedding)")
             throw error
 
         case .Null:
@@ -237,7 +236,7 @@ extension NSManagedObject
                     objectSet.removeAllObjects()
                 }
             } else {
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.RelationshipPropertyNotFound.rawValue, userInfo: [NSLocalizedDescriptionKey: "Can't append imported object to to-many relation '\(entity.name).\(relationship.name)' because it's not a NSMutableSet"])
+                let error = CoreDataKitError.ImportError(description: "Can't append imported object to to-many relation '\(entity.name).\(relationship.name)' because it's not a NSMutableSet")
                 throw error
             }
         } else {
@@ -256,7 +255,7 @@ extension NSManagedObject
             } else if (relationship.optional) {
                 setValue(nil, forKeyPath: relationship.name)
             } else {
-                let error = NSError(domain: CoreDataKitErrorDomain, code: CoreDataKitErrorCode.InvalidPropertyConfiguration.rawValue, userInfo: [NSLocalizedDescriptionKey: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null"])
+                let error = CoreDataKitError.ImportError(description: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null")
                 throw error
             }
         }

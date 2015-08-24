@@ -80,7 +80,7 @@ class NSManagedObjectContextTests: TestCase {
                 try result()
                 XCTFail("Expected error")
             }
-            catch let error as NSError {
+            catch CoreDataKitError.CoreDataError(let error) {
                 XCTAssertEqual(error.code, 1570, "Incorrect error code")
                 XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
                 completionExpectation.fulfill()
@@ -147,9 +147,8 @@ class NSManagedObjectContextTests: TestCase {
             try coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self)
             XCTFail("Unexpected managed object")
         }
-        catch let error as NSError {
-            XCTAssertEqual(error.domain, CoreDataKitErrorDomain, "Unexpected error domain")
-            XCTAssertEqual(error.code, CoreDataKitErrorCode.EntityDescriptionNotFound.rawValue, "Unexpected error code")
+        catch CoreDataKitError.ContextError {
+            // Expected error
         }
         catch {
           XCTFail("Unexpected error")
