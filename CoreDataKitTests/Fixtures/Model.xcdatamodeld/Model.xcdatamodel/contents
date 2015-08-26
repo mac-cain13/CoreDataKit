@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6252" systemVersion="14B25" minimumToolsVersion="Xcode 4.3" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="8193.2" systemVersion="14F27" minimumToolsVersion="Xcode 4.3">
     <entity name="Car" representedClassName="CoreDataKitTests.Car" syncable="YES">
         <attribute name="color" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES">
@@ -32,7 +32,7 @@
             <entry key="CDKId" value="name"/>
         </userInfo>
     </entity>
-    <entity name="EmployeeWithRelationEmbedding" representedClassName="CoreDataKitTests.EmployeeWithRelationWithouId" syncable="YES">
+    <entity name="EmployeeWithRelationEmbedding" representedClassName="CoreDataKitTests.EmployeeWithRelationEmbedding" syncable="YES">
         <attribute name="name" attributeType="String" syncable="YES"/>
         <relationship name="salary" maxCount="1" deletionRule="Cascade" destinationEntity="Salary" inverseName="employee" inverseEntity="Salary" syncable="YES">
             <userInfo>
@@ -65,8 +65,8 @@
         <element name="Car" positionX="-36" positionY="18" width="128" height="105"/>
         <element name="Employee" positionX="-63" positionY="-18" width="128" height="60"/>
         <element name="EmployeeImportable" positionX="-63" positionY="-9" width="128" height="90"/>
+        <element name="EmployeeWithRelationEmbedding" positionX="160" positionY="192" width="128" height="75"/>
         <element name="EmployeeWithRelations" positionX="-54" positionY="9" width="128" height="88"/>
-        <element name="EmployeeWithRelationEmbedding" positionX="160" positionY="192" width="128" height="73"/>
         <element name="Salary" positionX="-36" positionY="36" width="128" height="75"/>
     </elements>
 </model>
