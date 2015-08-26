@@ -81,7 +81,7 @@ class NSManagedObjectContextTests: TestCase {
                 XCTFail("Expected error")
             }
             catch CoreDataKitError.CoreDataError(let error) {
-                XCTAssertEqual(error.code, 1570, "Incorrect error code")
+                XCTAssertEqual((error as NSError).code, 1570, "Incorrect error code")
                 XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
                 completionExpectation.fulfill()
             }
