@@ -43,14 +43,10 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     - parameter observeObject:   Object to observe
     - parameter inContext:       Context to observe the object in
     */
-    public init(observeObject _observedObject: T, inContext context: NSManagedObjectContext) {
+    public init(observeObject originalObserveObject: T, inContext context: NSManagedObjectContext) {
         // Try to convert the observee to the given context, may fail because it's not yet saved
-        do {
-            self.observedObject = try context.find(T.self, managedObjectID: _observedObject.objectID)
-        }
-        catch {
-            self.observedObject = _observedObject
-        }
+        let observeObject = try? context.find(T.self, managedObjectID: originalObserveObject.objectID)
+        self.observedObject = observeObject ?? originalObserveObject
 
         self.context = context
         self.subscribers = [Subscriber]()
