@@ -83,7 +83,7 @@ extension NSPersistentStoreCoordinator
             do {
                 try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
             }
-            catch let error as NSError {
+            catch {
                 throw CoreDataKitError.CoreDataError(error)
             }
         }

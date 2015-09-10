@@ -89,10 +89,8 @@ extension NSManagedObjectContext
                     try self.obtainPermanentIDsForInsertedObjects()
                     try self.save()
                     completionHandler?(arg: { commitAction })
-                } catch let error as NSError {
-                    completionHandler?(arg: { throw CoreDataKitError.CoreDataError(error) })
                 } catch {
-                    fatalError()
+                    completionHandler?(arg: { throw CoreDataKitError.CoreDataError(error) })
                 }
 
             case .SaveToPersistentStore:
@@ -164,7 +162,7 @@ extension NSManagedObjectContext
             do {
                 try self.obtainPermanentIDsForObjects(Array(self.insertedObjects))
             }
-            catch let error as NSError {
+            catch {
                 throw CoreDataKitError.CoreDataError(error)
             }
         }
@@ -232,7 +230,7 @@ extension NSManagedObjectContext
         do {
             try self.obtainPermanentIDsForObjects([managedObject])
         }
-        catch let error as NSError {
+        catch {
             throw CoreDataKitError.CoreDataError(error)
         }
 
@@ -292,7 +290,7 @@ extension NSManagedObjectContext
             let anyObjects = try executeFetchRequest(fetchRequest)
             return anyObjects.map { $0 as! T }
         }
-        catch let error as NSError {
+        catch {
             throw CoreDataKitError.CoreDataError(error)
         }
     }
@@ -356,7 +354,7 @@ extension NSManagedObjectContext
             let managedObjectInContext = try existingObjectWithID(managedObjectID)
             return managedObjectInContext as! T
         }
-        catch let error as NSError {
+        catch {
             throw CoreDataKitError.CoreDataError(error)
         }
     }
