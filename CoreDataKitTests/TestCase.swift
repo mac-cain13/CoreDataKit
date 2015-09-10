@@ -11,35 +11,35 @@ import CoreData
 import CoreDataKit
 
 class TestCase: XCTestCase {
-    private struct Holder {
-        static var token: dispatch_once_t = 0
+  private struct Holder {
+    static var token: dispatch_once_t = 0
+  }
+
+  var coreDataStack: CoreDataStack!
+
+  override func setUp() {
+    super.setUp()
+
+    // Fetch model
+    let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())!
+
+    // Setup the shared stack
+    dispatch_once(&Holder.token) {
+      CDK.sharedStack = self.setupCoreDataStack(managedObjectModel)
     }
 
-    var coreDataStack: CoreDataStack!
+    // Setup the stack for this test
+    coreDataStack = setupCoreDataStack(managedObjectModel)
+  }
 
-    override func setUp() {
-        super.setUp()
+  override func tearDown() {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
+    super.tearDown()
+  }
 
-        // Fetch model
-        let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())!
-
-        // Setup the shared stack
-        dispatch_once(&Holder.token) {
-            CDK.sharedStack = self.setupCoreDataStack(managedObjectModel)
-        }
-
-        // Setup the stack for this test
-        coreDataStack = setupCoreDataStack(managedObjectModel)
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-        super.tearDown()
-    }
-
-    private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {
-      let persistentCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
-      try! persistentCoordinator.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
-      return CoreDataStack(persistentStoreCoordinator: persistentCoordinator)
-    }
+  private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {
+    let persistentCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+    try! persistentCoordinator.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
+    return CoreDataStack(persistentStoreCoordinator: persistentCoordinator)
+  }
 }

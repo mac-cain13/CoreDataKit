@@ -12,8 +12,8 @@ import CoreDataKit
 
 class Salary: NSManagedObject, NamedManagedObject {
 
-    @NSManaged var amount: NSDecimalNumber
-    @NSManaged var employee: EmployeeWithRelationEmbedding
+  @NSManaged var amount: NSDecimalNumber
+  @NSManaged var employee: EmployeeWithRelationEmbedding
 
-    class var entityName: String { return "Salary" }
+  class var entityName: String { return "Salary" }
 }

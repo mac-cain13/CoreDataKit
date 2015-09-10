@@ -12,8 +12,8 @@ import CoreDataKit
 
 class EmployeeWithRelationEmbedding: NSManagedObject, NamedManagedObject {
 
-    @NSManaged var name: String
-    @NSManaged var salary: Salary
+  @NSManaged var name: String
+  @NSManaged var salary: Salary
 
-    class var entityName: String { return "EmployeeWithRelationEmbedding" }
+  class var entityName: String { return "EmployeeWithRelationEmbedding" }
 }

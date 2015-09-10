@@ -9,117 +9,117 @@
 import CoreData
 
 public enum ObservedAction<T:NSManagedObject> {
-    case Updated(T)
-    case Refreshed(T)
-    case Inserted(T)
-    case Deleted
+  case Updated(T)
+  case Refreshed(T)
+  case Inserted(T)
+  case Deleted
 
-    public func value() -> T? {
-        switch self {
-        case let .Updated(val):
-            return val
-        case let .Refreshed(val):
-            return val
-        case let .Inserted(val):
-            return val
+  public func value() -> T? {
+    switch self {
+    case let .Updated(val):
+      return val
+    case let .Refreshed(val):
+      return val
+    case let .Inserted(val):
+      return val
 
-        case .Deleted:
-            return nil
-        }
+    case .Deleted:
+      return nil
     }
+  }
 }
 
 public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
-    public typealias Subscriber = ObservedAction<T> -> Void
+  public typealias Subscriber = ObservedAction<T> -> Void
 
-    public let observedObject: T
-    let context: NSManagedObjectContext
-    var notificationObserver: NSObjectProtocol?
-    var subscribers: [Subscriber]
+  public let observedObject: T
+  let context: NSManagedObjectContext
+  var notificationObserver: NSObjectProtocol?
+  var subscribers: [Subscriber]
 
-    /**
-    Start observing changes on a `NSManagedObject` in a certain context.
-    
-    - parameter observeObject:   Object to observe
-    - parameter inContext:       Context to observe the object in
-    */
-    public init(observeObject originalObserveObject: T, inContext context: NSManagedObjectContext) {
-        // Try to convert the observee to the given context, may fail because it's not yet saved
-        let observeObject = try? context.find(T.self, managedObjectID: originalObserveObject.objectID)
-        self.observedObject = observeObject ?? originalObserveObject
+  /**
+  Start observing changes on a `NSManagedObject` in a certain context.
 
-        self.context = context
-        self.subscribers = [Subscriber]()
-        super.init()
+  - parameter observeObject:   Object to observe
+  - parameter inContext:       Context to observe the object in
+  */
+  public init(observeObject originalObserveObject: T, inContext context: NSManagedObjectContext) {
+    // Try to convert the observee to the given context, may fail because it's not yet saved
+    let observeObject = try? context.find(T.self, managedObjectID: originalObserveObject.objectID)
+    self.observedObject = observeObject ?? originalObserveObject
 
-      notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: nil) { [unowned self] notification in
-        context.performBlock {
-          if self.subscribers.isEmpty {
-            return
-          }
+    self.context = context
+    self.subscribers = [Subscriber]()
+    super.init()
 
-          do {
-            let convertedObject = try context.find(T.self, managedObjectID: self.observedObject.objectID)
-            if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
-              if updatedObjects.containsObject(convertedObject) {
-                self.notifySubscribers(.Updated(convertedObject))
-              }
-            }
+    notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: nil) { [unowned self] notification in
+      context.performBlock {
+        if self.subscribers.isEmpty {
+          return
+        }
 
-            if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
-              if refreshedObjects.containsObject(convertedObject) {
-                self.notifySubscribers(.Refreshed(convertedObject))
-              }
-            }
-
-            if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
-              if insertedObjects.containsObject(convertedObject) {
-                self.notifySubscribers(.Inserted(convertedObject))
-              }
-            }
-
-            if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
-              if deletedObjects.containsObject(convertedObject) {
-                self.notifySubscribers(.Deleted)
-              }
+        do {
+          let convertedObject = try context.find(T.self, managedObjectID: self.observedObject.objectID)
+          if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
+            if updatedObjects.containsObject(convertedObject) {
+              self.notifySubscribers(.Updated(convertedObject))
             }
           }
-          catch {
+
+          if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
+            if refreshedObjects.containsObject(convertedObject) {
+              self.notifySubscribers(.Refreshed(convertedObject))
+            }
           }
+
+          if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
+            if insertedObjects.containsObject(convertedObject) {
+              self.notifySubscribers(.Inserted(convertedObject))
+            }
+          }
+
+          if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
+            if deletedObjects.containsObject(convertedObject) {
+              self.notifySubscribers(.Deleted)
+            }
+          }
+        }
+        catch {
         }
       }
     }
+  }
 
-    deinit {
-        if let notificationObserver = notificationObserver {
-            NSNotificationCenter.defaultCenter().removeObserver(notificationObserver)
-        }
+  deinit {
+    if let notificationObserver = notificationObserver {
+      NSNotificationCenter.defaultCenter().removeObserver(notificationObserver)
     }
+  }
 
-    private func notifySubscribers(action: ObservedAction<T>) {
-        for subscriber in self.subscribers {
-            subscriber(action)
-        }
+  private func notifySubscribers(action: ObservedAction<T>) {
+    for subscriber in self.subscribers {
+      subscriber(action)
     }
+  }
 
-    /**
-    Subscribe a block that gets called when the observed object changes
-    
-    - parameter changeHandler: The handler to call on change
-    
-    - returns: Token you can use to unsubscribe
-    */
-    public func subscribe(subscriber: Subscriber) -> Int {
-        subscribers.append(subscriber)
-        return subscribers.count - 1
-    }
+  /**
+  Subscribe a block that gets called when the observed object changes
 
-    /**
-    Unsubscribe a previously subscribed block
-    
-    - parameter token: The token obtained when subscribing
-    */
-    public func unsubscribe(token: Int) {
-        subscribers[token] = { _ in }
-    }
+  - parameter changeHandler: The handler to call on change
+
+  - returns: Token you can use to unsubscribe
+  */
+  public func subscribe(subscriber: Subscriber) -> Int {
+    subscribers.append(subscriber)
+    return subscribers.count - 1
+  }
+
+  /**
+  Unsubscribe a previously subscribed block
+
+  - parameter token: The token obtained when subscribing
+  */
+  public func unsubscribe(token: Int) {
+    subscribers[token] = { _ in }
+  }
 }

@@ -12,7 +12,7 @@ import CoreDataKit
 
 class EmployeeIncorrectEntityName: NSManagedObject, NamedManagedObject {
 
-    @NSManaged var name: String
+  @NSManaged var name: String
 
-    class var entityName: String { return "EmployeeIncorrectEntityName" }
+  class var entityName: String { return "EmployeeIncorrectEntityName" }
 }

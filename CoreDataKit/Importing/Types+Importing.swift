@@ -26,11 +26,11 @@ let MapStrategyUserInfoKey = "CDKMapStrategy"
 
 /// Type of mapping to use
 enum MapStrategy: String {
-    /// Stategy to use default mapping behaviour with the available MappingUserInfoKey and fallbacks
-    case Mapping = "CDKStandardMapping"
+  /// Stategy to use default mapping behaviour with the available MappingUserInfoKey and fallbacks
+  case Mapping = "CDKStandardMapping"
 
-    /// Strategy to disable all mapping behaviour
-    case NoMapping = "CDKNoMapping"
+  /// Strategy to disable all mapping behaviour
+  case NoMapping = "CDKNoMapping"
 }
 
 // MARK: Relations
@@ -40,23 +40,23 @@ let RelationTypeUserInfoKey = "CDKRelationType"
 
 /// Values used with RelationTypeUserInfoKey to alter relation type
 enum RelationType: String {
-    /// Relation that is referenced by a primary key like ID
-    case Reference = "CDKReference"
+  /// Relation that is referenced by a primary key like ID
+  case Reference = "CDKReference"
 
-    /// Relation that doesn't use a ID of some sort
-    case Embedding = "CDKEmbedding"
+  /// Relation that doesn't use a ID of some sort
+  case Embedding = "CDKEmbedding"
 }
 
 // MARK: - Importable value
 
 /// Value extracted from source that can be imported into a managed object
 enum ImportableValue {
-    // Some value is found
-    case Some(AnyObject)
+  // Some value is found
+  case Some(AnyObject)
 
-    // Value should be set to null
-    case Null
+  // Value should be set to null
+  case Null
 
-    // No value is found
-    case None
+  // No value is found
+  case None
 }

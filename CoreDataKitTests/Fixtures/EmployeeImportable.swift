@@ -12,9 +12,9 @@ import CoreDataKit
 
 class EmployeeImportable: NSManagedObject, NamedManagedObject {
 
-    @NSManaged var name: String
-    @NSManaged var age: Int
-    @NSManaged var haircolor: String?
+  @NSManaged var name: String
+  @NSManaged var age: Int
+  @NSManaged var haircolor: String?
 
-    class var entityName: String { return "EmployeeImportable" }
+  class var entityName: String { return "EmployeeImportable" }
 }

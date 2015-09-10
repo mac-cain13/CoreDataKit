@@ -10,24 +10,24 @@ import CoreData
 
 extension NSEntityDescription
 {
-    /**
-    Get the attribute description of this entity description that is marked as identifier in the model
-    
-    - returns: Result with the identifying attribute description
-    */
-    func identifyingAttribute() throws -> NSAttributeDescription {
-        if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
-            if let identifyingAttribute = self.attributesByName[identifyingAttributeName] {
-                return identifyingAttribute
-            }
+  /**
+  Get the attribute description of this entity description that is marked as identifier in the model
 
-            let error = CoreDataKitError.ImportError(description: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name")
-            throw error
-        } else if let superEntity = self.superentity {
-            return try superEntity.identifyingAttribute()
-        }
+  - returns: Result with the identifying attribute description
+  */
+  func identifyingAttribute() throws -> NSAttributeDescription {
+    if let identifyingAttributeName = userInfo?[IdentifierUserInfoKey] as? String {
+      if let identifyingAttribute = self.attributesByName[identifyingAttributeName] {
+        return identifyingAttribute
+      }
 
-        let error = CoreDataKitError.ImportError(description: "No \(IdentifierUserInfoKey) value found on \(name)")
-        throw error
+      let error = CoreDataKitError.ImportError(description: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name")
+      throw error
+    } else if let superEntity = self.superentity {
+      return try superEntity.identifyingAttribute()
     }
+
+    let error = CoreDataKitError.ImportError(description: "No \(IdentifierUserInfoKey) value found on \(name)")
+    throw error
+  }
 }

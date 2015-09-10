@@ -11,7 +11,7 @@ import CoreData
 import CoreDataKit
 
 class CoreDataStackImportingTests: TestCase {
-    func testDumpImportConfiguration() {
-        coreDataStack.dumpImportConfiguration()
-    }
+  func testDumpImportConfiguration() {
+    coreDataStack.dumpImportConfiguration()
+  }
 }

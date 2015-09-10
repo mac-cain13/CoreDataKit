@@ -12,9 +12,9 @@ import CoreDataKit
 
 class EmployeeWithRelations: NSManagedObject, NamedManagedObject {
 
-    @NSManaged var name: String
-    @NSManaged var age: NSNumber
-    @NSManaged var cars: NSMutableSet
+  @NSManaged var name: String
+  @NSManaged var age: NSNumber
+  @NSManaged var cars: NSMutableSet
 
-    class var entityName: String { return "EmployeeWithRelations" }
+  class var entityName: String { return "EmployeeWithRelations" }
 }
