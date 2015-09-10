@@ -18,7 +18,7 @@ extension NSAttributeDescription
     - returns: The transformed value or nil if the value can't for into this attribute
     */
     func transformValue(value: AnyObject) -> AnyObject? {
-        switch (attributeType) {
+        switch attributeType {
         case .Integer16AttributeType:
             fallthrough
         case .Integer32AttributeType:

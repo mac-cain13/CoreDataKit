@@ -80,7 +80,7 @@ extension NSManagedObjectContext
             let commitAction = block(self)
             self.undoManager?.endUndoGrouping()
 
-            switch (commitAction) {
+            switch commitAction {
             case .DoNothing:
                 completionHandler?(arg: { commitAction })
 
