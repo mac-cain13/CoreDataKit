@@ -54,7 +54,7 @@ public typealias PerformBlockCompletionHandler = (arg: () throws -> CommitAction
 /// All errors that can occure from CoreDataKit
 
 public enum CoreDataKitError : ErrorType {
-    case CoreDataError(NSError)
+    case CoreDataError(ErrorType)
 
     case ImportCancelled(entityName: String)
     case ImportError(description: String)
@@ -68,7 +68,7 @@ extension CoreDataKitError : CustomStringConvertible {
     public var description: String {
         switch self {
         case .CoreDataError(let error):
-            return "CoreDataError: \(error.localizedDescription)"
+            return "CoreDataError: \(error)"
         case .ImportCancelled(let entityName):
             return "Import of entity \(entityName) cancelled"
         case .ContextError(let description):
@@ -106,7 +106,7 @@ extension CoreDataKitError {
     public var nsError: NSError {
         switch self {
         case .CoreDataError(let error):
-            return error
+            return error as NSError
         default:
             return NSError(
                 domain: CoreDataKitErrorDomain,

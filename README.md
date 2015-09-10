@@ -13,7 +13,7 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'CoreDataKit', '~> 0.6'
+pod 'CoreDataKit', '~> 0.8'
 ```
 
 ## Usage
@@ -33,11 +33,10 @@ For CoreDataKit to be able to use your NSManagedObject subclass, such as Car in 
 ```swift
 class Car: NSManagedObject, NamedManagedObject {
 
-  static var entityName = "Car" //corresponding to your Enity name in your xcdatamodeld
+  static var entityName = "Car" // corresponding to your Entity name in your xcdatamodeld
   
   @NSManaged var color: String
   @NSManaged var model: String
-
 }
 
 ```
@@ -45,20 +44,24 @@ class Car: NSManagedObject, NamedManagedObject {
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```swift
 CDK.performBlockOnBackgroundContext({ context in
-	if let car = context.create(Car.self).value() {
-		car.color = "Hammerhead Silver"
-		car.model = "Aston Martin DB9"
-	}
+  do {
+    let car = try context.create(Car.self)
+    car.color = "Hammerhead Silver"
+    car.model = "Aston Martin DB9"
 
-	return .SaveToPersistentStore
-}, completionHandler: { result, _ in
-    switch result {
-    case .Success:
-    	println("Car saved, time to update the interface!")
-      
-    case let .Failure(error):
-      	println("Saving Harvey Specters car failed with error: \(error)")
-    }
+    return .SaveToPersistentStore
+  }
+  catch {
+    return .DoNothing
+  }
+}, completionHandler: { result in
+  do {
+    try result()
+    print("Car saved, time to update the interface!")
+  }
+  catch {
+    print("Saving Harvey Specters car failed with error: \(error)")
+  }
 })
 ```
 
@@ -67,19 +70,25 @@ CDK.performBlockOnBackgroundContext({ context in
 If you prefer using promises, instead of the callback style of this library, you can use the  [Promissum](https://github.com/tomlokhorst/Promissum) library with CoreDataKit. Using the [CoreDataKit+Promise](https://github.com/tomlokhorst/Promissum/blob/develop/extensions/PromissumExtensions/CoreDataKit%2BPromise.swift) extension, the example from above can be rewritten as such:
 ```swift
 let createPromise = CDK.performBlockOnBackgroundContextPromise { context in
-	if let car = context.create(Car.self).value() {
-		car.color = "Hammerhead Silver"
-		car.model = "Aston Martin DB9"
-	}
+  do {
+    let car = try context.create(Car.self)
+    car.color = "Hammerhead Silver"
+    car.model = "Aston Martin DB9"
 
-	return .SaveToPersistentStore
+    return .SaveToPersistentStore
+  }
+  catch {
+    return .DoNothing
+  }
 }
 
-createPromise.then { _ in
-	println("Car saved, time to update the interface!")
-}.catch { error in
-	println("Saving Harvey Specters car failed with error: \(error)")
-}
+createPromise
+  .then { _ in
+    print("Car saved, time to update the interface!")
+  }
+  .trap { error in
+    print("Saving Harvey Specters car failed with error: \(error)")
+  }
 ```
 
 ## Contributing

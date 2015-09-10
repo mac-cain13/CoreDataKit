@@ -326,12 +326,7 @@ extension NSManagedObjectContext
         }
 
         if let error = error {
-            if let error = error as? NSError {
-                throw CoreDataKitError.CoreDataError(error)
-            }
-            else {
-                throw error
-            }
+            throw CoreDataKitError.CoreDataError(error)
         }
 
         return resultsController
