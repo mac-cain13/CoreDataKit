@@ -213,8 +213,7 @@ extension NSManagedObjectContext
       return entityDescription
     }
 
-    let error = CoreDataKitError.ContextError(description: "Entity description for entity name '\(entity.entityName)' not found")
-    throw error
+    throw CoreDataKitError.ContextError(description: "Entity description for entity name '\(entity.entityName)' not found")
   }
 
   // MARK: - Deleting
@@ -226,7 +225,7 @@ extension NSManagedObjectContext
 
   - returns: Result wheter the delete was successful
   */
-  public func delete(managedObject: NSManagedObject) throws {
+  public func deleteWithPermanentID(managedObject: NSManagedObject) throws {
     do {
       try self.obtainPermanentIDsForObjects([managedObject])
     }
