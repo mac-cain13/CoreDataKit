@@ -222,7 +222,7 @@ extension NSManagedObject
           for object in objectSet {
             if let managedObject = object as? NSManagedObject {
               do {
-                try context.delete(managedObject)
+                try context.deleteWithPermanentID(managedObject)
               }
               catch {
               }
@@ -243,7 +243,7 @@ extension NSManagedObject
       if (deleteCurrent) {
         if let currentRelatedObject = self.valueForKeyPath(relationship.name) as? NSManagedObject {
           do {
-            try context.delete(currentRelatedObject)
+            try context.deleteWithPermanentID(currentRelatedObject)
           }
           catch {
           }
