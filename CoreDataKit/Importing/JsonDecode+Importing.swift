@@ -51,6 +51,7 @@ extension NSDate {
     static let withTimeZone : NSDateFormatter = {
       let formatter = NSDateFormatter()
       formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+      formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
 
       return formatter
       }()
