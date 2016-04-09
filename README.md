@@ -1,4 +1,8 @@
-# CoreDataKit
+# 2016-04-09: End of life
+
+CoreDataKit is no longer being updated with new features. It is used in several projects, and probably will be updated with new Swift versions. But it is no longer actively developed.
+
+## CoreDataKit
 
 **CoreDataKit takes care of the hard and verbose parts of CoreData. It manages child contexts for you and helps to easily fetch, create and delete objects.**
 
