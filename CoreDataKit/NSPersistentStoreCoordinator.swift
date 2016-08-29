@@ -96,7 +96,7 @@ extension NSPersistentStoreCoordinator
       if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
         CDK.sharedLogger(.WARN, "Model mismatch, removing persistent store...")
-        let urlString = URL.absoluteString
+        let urlString = URL.absoluteString!
         let shmFile = urlString.stringByAppendingString("-shm")
         let walFile = urlString.stringByAppendingString("-wal")
 
