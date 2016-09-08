@@ -16,14 +16,14 @@ extension CoreDataStack {
     let entityUserInfoKeys = [IdentifierUserInfoKey]
 
     for (entityName, entity) in persistentStoreCoordinator.managedObjectModel.entitiesByName {
-      CDK.sharedLogger(.DEBUG, " ")
-      CDK.sharedLogger(.DEBUG, "\(entityName):")
+      CDK.sharedLogger(.debug, " ")
+      CDK.sharedLogger(.debug, "\(entityName):")
 
       for (_key, value) in entity.userInfo! {
         let key = _key as! String
 
         if !entityUserInfoKeys.contains(key) {
-          CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
+          CDK.sharedLogger(.debug, "  ⚠ \(key) → \(value)")
         }
       }
 
@@ -44,7 +44,7 @@ extension CoreDataStack {
     }
   }
 
-  private func dumpPropertyDescription(property: NSPropertyDescription, asIdentifyingAttribute: Bool = false) {
+  fileprivate func dumpPropertyDescription(_ property: NSPropertyDescription, asIdentifyingAttribute: Bool = false) {
     var propertyUserInfoKeys = [MappingUserInfoKey]
     for i in 0...MaxNumberedMappings+1 {
       propertyUserInfoKeys.append(MappingUserInfoKey + ".\(i)")
@@ -54,12 +54,12 @@ extension CoreDataStack {
     let relationshipUserInfoKeys = [RelationTypeUserInfoKey]
 
     let identifying = asIdentifyingAttribute ? "★" : " "
-    let indexed = property.indexed ? "⚡" : ""
-    let optional = property.optional ? "?" : ""
+    let indexed = property.isIndexed ? "⚡" : ""
+    let optional = property.isOptional ? "?" : ""
     let relationshipType = (property as? NSRelationshipDescription)?.relationType.rawValue
     let relationshipTypeDescription = relationshipType == nil ? "" : " → \(relationshipType!)"
 
-    CDK.sharedLogger(.DEBUG, "\(identifying)\(indexed)\(property.name)\(optional) → \(property.mappings)\(relationshipTypeDescription)")
+    CDK.sharedLogger(.debug, "\(identifying)\(indexed)\(property.name)\(optional) → \(property.mappings)\(relationshipTypeDescription)")
 
     for (_key, value) in property.userInfo! {
       let key = _key as! String
@@ -67,7 +67,7 @@ extension CoreDataStack {
       if !propertyUserInfoKeys.contains(key) {
         if (property is NSAttributeDescription && !attributeUserInfoKeys.contains(key)) ||
           (property is NSRelationshipDescription && !relationshipUserInfoKeys.contains(key)) {
-            CDK.sharedLogger(.DEBUG, "  ⚠ \(key) → \(value)")
+            CDK.sharedLogger(.debug, "  ⚠ \(key) → \(value)")
         }
       }
     }

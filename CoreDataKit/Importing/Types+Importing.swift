@@ -52,11 +52,11 @@ enum RelationType: String {
 /// Value extracted from source that can be imported into a managed object
 enum ImportableValue {
   // Some value is found
-  case Some(AnyObject)
+  case some(AnyObject)
 
   // Value should be set to null
-  case Null
+  case null
 
   // No value is found
-  case None
+  case none
 }

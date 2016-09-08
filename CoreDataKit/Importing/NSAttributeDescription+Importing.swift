@@ -17,45 +17,50 @@ extension NSAttributeDescription
 
   - returns: The transformed value or nil if the value can't for into this attribute
   */
-  func transformValue(value: AnyObject) -> AnyObject? {
+  func transform(value: AnyObject) -> AnyObject? {
     switch attributeType {
-    case .Integer16AttributeType:
+    case .integer16AttributeType:
       fallthrough
-    case .Integer32AttributeType:
+    case .integer32AttributeType:
       return Int.decode(value)
 
-    case .Integer64AttributeType:
+    case .integer64AttributeType:
       if let int64 = Int64.decode(value) {
-        return NSNumber(longLong: int64)
+        return NSNumber(value: int64 as Int64)
       } else {
         return nil
       }
 
-    case .DecimalAttributeType:
+    case .decimalAttributeType:
       fallthrough
-    case .DoubleAttributeType:
+    case .doubleAttributeType:
       fallthrough
-    case .FloatAttributeType:
+    case .floatAttributeType:
       return Double.decode(value)
 
-    case .StringAttributeType:
+    case .stringAttributeType:
       return String.decode(value)
 
-    case .BooleanAttributeType:
+    case .booleanAttributeType:
       return Bool.decode(value)
 
-    case .DateAttributeType:
-      return NSDate.decode(value)
+    case .dateAttributeType:
+      return Date.decode(value)
 
-    case .BinaryDataAttributeType:
-      return NSData.decode(value)
+    case .binaryDataAttributeType:
+      return Data.decode(value)
 
-    case .UndefinedAttributeType:
+    case .undefinedAttributeType:
       fallthrough
-    case .TransformableAttributeType:
+    case .transformableAttributeType:
       fallthrough
-    case .ObjectIDAttributeType:
+    case .objectIDAttributeType:
       return nil
     }
+  }
+
+  @available(*, unavailable, renamed: "transform(value:)")
+  func transformValue(_ value: AnyObject) -> AnyObject? {
+    fatalError()
   }
 }

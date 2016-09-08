@@ -9,10 +9,10 @@
 import CoreData
 
 public enum CDKLogLevel {
-  case DEBUG
-  case INFO
-  case WARN
-  case ERROR
+  case debug
+  case info
+  case warn
+  case error
 }
 
 public typealias Logger = (CDKLogLevel, String) -> Void
@@ -22,7 +22,7 @@ public typealias Logger = (CDKLogLevel, String) -> Void
 */
 public class CDK : NSObject
 {
-  private struct Holder {
+  fileprivate struct Holder {
     static var sharedStack: CoreDataStack?
     static var sharedLogger: Logger = { _, message in print("[CoreDataKit] \(message)") }
   }
@@ -82,11 +82,21 @@ public class CDK : NSObject
 
   :see: NSManagedObjectContext.performBlock()
   */
-  public class func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+  public class func performOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
     sharedStack!.performBlockOnBackgroundContext(block, completionHandler: completionHandler)
   }
 
-  public class func performBlockOnBackgroundContext(block: PerformBlock) {
+  @available(*, unavailable, renamed: "performOnBackgroundContext(block:completionHandler:)")
+  public class func performBlockOnBackgroundContext(_ block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+    fatalError()
+  }
+
+  public class func performOnBackgroundContext(_ block: PerformBlock) {
     sharedStack!.performBlockOnBackgroundContext(block, completionHandler: nil)
+  }
+
+  @available(*, unavailable, renamed: "performOnBackgroundContext(block:)")
+  public class func performBlockOnBackgroundContext(_ block: PerformBlock) {
+    fatalError()
   }
 }

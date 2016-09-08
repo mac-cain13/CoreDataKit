@@ -17,7 +17,7 @@ extension NSPropertyDescription
       if let strategy = MapStrategy(rawValue: mappingStrategyString) {
         return strategy
       } else {
-        CDK.sharedLogger(.ERROR, "Unsupported \(MappingUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackStrategy.rawValue) strategy")
+        CDK.sharedLogger(.error, "Unsupported \(MappingUserInfoKey) given for \(entity.name).\(name), falling back to \(fallbackStrategy.rawValue) strategy")
         return fallbackStrategy
       }
     }
@@ -49,7 +49,7 @@ extension NSPropertyDescription
           _mappings.append(numberedMapping)
 
           if i == MaxNumberedMappings+1 {
-            CDK.sharedLogger(.WARN, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported all others are ignored, you defined more for \(entity.name).\(name)")
+            CDK.sharedLogger(.warn, "Only mappings up to \(MappingUserInfoKey).\(MaxNumberedMappings) mappings are supported all others are ignored, you defined more for \(entity.name).\(name)")
           }
         }
       }
@@ -70,17 +70,17 @@ extension NSPropertyDescription
 
   - returns: Value to import
   */
-  func preferredValueFromDictionary(dictionary: [String: AnyObject]) -> ImportableValue {
+  func preferredValueFromDictionary(_ dictionary: [String: AnyObject]) -> ImportableValue {
     for keyPath in mappings {
-      if let value: AnyObject = (dictionary as NSDictionary).valueForKeyPath(keyPath) {
+      if let value: AnyObject = (dictionary as NSDictionary).value(forKeyPath: keyPath) as AnyObject? {
         if value is NSNull {
-          return .Null
+          return .null
         } else {
-          return .Some(value)
+          return .some(value)
         }
       }
     }
 
-    return .None
+    return .none
   }
 }

@@ -14,9 +14,9 @@ Simple implementation of NSFetchedResultsControllerDelegate for use with a UITab
 
 :discussion: Be aware that the NSFetchedResultsController will not retain your delegate object. So you have to keep a reference to this object somewhere.
 */
-public class TableViewFetchedResultsControllerDelegate: NSObject, NSFetchedResultsControllerDelegate {
-  var sectionAnimation: UITableViewRowAnimation = .Automatic
-  var rowAnimation: UITableViewRowAnimation = .Automatic
+open class TableViewFetchedResultsControllerDelegate: NSObject, NSFetchedResultsControllerDelegate {
+  var sectionAnimation: UITableViewRowAnimation = .automatic
+  var rowAnimation: UITableViewRowAnimation = .automatic
 
   weak var tableView: UITableView?
 
@@ -30,18 +30,18 @@ public class TableViewFetchedResultsControllerDelegate: NSObject, NSFetchedResul
   }
 
   /// Implementation of NSFetchedResultsControllerDelegate
-  public func controllerWillChangeContent(controller: NSFetchedResultsController) {
+  open func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
     tableView?.beginUpdates()
   }
 
   /// Implementation of NSFetchedResultsControllerDelegate
-  public func controller(controller: NSFetchedResultsController, didChangeSection sectionInfo: NSFetchedResultsSectionInfo, atIndex sectionIndex: Int, forChangeType type: NSFetchedResultsChangeType) {
+  open func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange sectionInfo: NSFetchedResultsSectionInfo, atSectionIndex sectionIndex: Int, for type: NSFetchedResultsChangeType) {
     switch type {
-    case .Insert:
-      tableView?.insertSections(NSIndexSet(index: sectionIndex), withRowAnimation: sectionAnimation)
+    case .insert:
+      tableView?.insertSections(IndexSet(integer: sectionIndex), with: sectionAnimation)
 
-    case .Delete:
-      tableView?.deleteSections(NSIndexSet(index: sectionIndex), withRowAnimation: sectionAnimation)
+    case .delete:
+      tableView?.deleteSections(IndexSet(integer: sectionIndex), with: sectionAnimation)
 
     default:
       break // Noop
@@ -49,25 +49,25 @@ public class TableViewFetchedResultsControllerDelegate: NSObject, NSFetchedResul
   }
 
   /// Implementation of NSFetchedResultsControllerDelegate
-  public func controller(controller: NSFetchedResultsController, didChangeObject anObject: AnyObject, atIndexPath indexPath: NSIndexPath?, forChangeType type: NSFetchedResultsChangeType, newIndexPath: NSIndexPath?) {
+  open func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
     switch type {
-    case .Insert:
-      tableView?.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
+    case .insert:
+      tableView?.insertRows(at: [newIndexPath!], with: rowAnimation)
 
-    case .Delete:
-      tableView?.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
+    case .delete:
+      tableView?.deleteRows(at: [indexPath!], with: rowAnimation)
 
-    case .Move:
-      tableView?.deleteRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
-      tableView?.insertRowsAtIndexPaths([newIndexPath!], withRowAnimation: rowAnimation)
+    case .move:
+      tableView?.deleteRows(at: [indexPath!], with: rowAnimation)
+      tableView?.insertRows(at: [newIndexPath!], with: rowAnimation)
 
-    case .Update:
-      tableView?.reloadRowsAtIndexPaths([indexPath!], withRowAnimation: rowAnimation)
+    case .update:
+      tableView?.reloadRows(at: [indexPath!], with: rowAnimation)
     }
   }
 
   /// Implementation of NSFetchedResultsControllerDelegate
-  public func controllerDidChangeContent(controller: NSFetchedResultsController) {
+  open func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
     tableView?.endUpdates()
   }
 }

@@ -10,58 +10,58 @@ import Foundation
 
 // We use the decode functions from the JsonDecode+Importing.swift file
 extension String {
-  static func decode(json : AnyObject) -> String? {
+  static func decode(_ json : AnyObject) -> String? {
     return json as? String
   }
 }
 
 extension Bool {
-  static func decode(json : AnyObject) -> Bool? {
+  static func decode(_ json : AnyObject) -> Bool? {
     return json as? Bool
   }
 }
 
 extension Int {
-  static func decode(json : AnyObject) -> Int? {
+  static func decode(_ json : AnyObject) -> Int? {
     return json as? Int
   }
 }
 
 extension Int64 {
-  static func decode(json : AnyObject) -> Int64? {
+  static func decode(_ json : AnyObject) -> Int64? {
     let number = json as? NSNumber
-    return number.map { $0.longLongValue }
+    return number.map { $0.int64Value }
   }
 }
 
 extension Double {
-  static func decode(json : AnyObject) -> Double? {
+  static func decode(_ json : AnyObject) -> Double? {
     return json as? Double
   }
 }
 
-extension NSData {
-  class func decode(json: AnyObject) -> NSData? {
-    return json as? NSData
+extension Data {
+  static func decode(_ json: AnyObject) -> Data? {
+    return json as? Data
   }
 }
 
-extension NSDate {
+extension Date {
   struct DateFormatter {
-    static let withTimeZone : NSDateFormatter = {
-      let formatter = NSDateFormatter()
+    static let withTimeZone : Foundation.DateFormatter = {
+      let formatter = Foundation.DateFormatter()
       formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
-      formatter.locale = NSLocale(localeIdentifier: "en_US_POSIX")
+      formatter.locale = Locale(identifier: "en_US_POSIX")
 
       return formatter
       }()
   }
 
-  class func decode(json : AnyObject) -> NSDate? {
-    if let date = json as? NSDate {
+  static func decode(_ json : AnyObject) -> Date? {
+    if let date = json as? Date {
       return date
     } else if let dateString = json as? String {
-      return DateFormatter.withTimeZone.dateFromString(dateString)
+      return DateFormatter.withTimeZone.date(from: dateString)
     }
 
     return nil
