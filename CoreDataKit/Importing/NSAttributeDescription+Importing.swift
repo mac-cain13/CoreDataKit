@@ -22,7 +22,7 @@ extension NSAttributeDescription
     case .integer16AttributeType:
       fallthrough
     case .integer32AttributeType:
-      return Int.decode(value)
+      return Int.decode(value) as AnyObject?
 
     case .integer64AttributeType:
       if let int64 = Int64.decode(value) {
@@ -36,19 +36,19 @@ extension NSAttributeDescription
     case .doubleAttributeType:
       fallthrough
     case .floatAttributeType:
-      return Double.decode(value)
+      return Double.decode(value) as AnyObject?
 
     case .stringAttributeType:
-      return String.decode(value)
+      return String.decode(value) as AnyObject?
 
     case .booleanAttributeType:
-      return Bool.decode(value)
+      return Bool.decode(value) as AnyObject?
 
     case .dateAttributeType:
-      return Date.decode(value)
+      return Date.decode(value) as AnyObject?
 
     case .binaryDataAttributeType:
-      return Data.decode(value)
+      return Data.decode(value) as AnyObject?
 
     case .undefinedAttributeType:
       fallthrough

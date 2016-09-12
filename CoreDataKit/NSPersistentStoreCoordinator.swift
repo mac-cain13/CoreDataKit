@@ -23,7 +23,7 @@ extension NSPersistentStoreCoordinator
 
     // Fallback on the defaults
     let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModel(from: nil)
-    let _URL = optionalURL ?? NSPersistentStore.URLForSQLiteStoreName("CoreDataKit")
+    let _URL = optionalURL ?? NSPersistentStore.url(forSQLiteStoreName: "CoreDataKit")
 
     // Initialize coordinator if we have all data
     if let managedObjectModel = _managedObjectModel, let URL = _URL {

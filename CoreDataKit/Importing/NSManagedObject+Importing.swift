@@ -18,14 +18,14 @@ extension NSManagedObject
   - returns: Result wheter the import was performed
   */
   public func importDictionary(_ dictionary: [String: AnyObject]) throws {
-    if shouldImport(dictionary) {
-      let transformedDictionary = willImport(dictionary)
+    if shouldImport(dictionary: dictionary) {
+      let transformedDictionary = willImport(dictionary: dictionary)
       do {
         try performImport(dictionary: transformedDictionary)
-        didImport(transformedDictionary, error: nil)
+        didImport(dictionary: transformedDictionary, error: nil)
       }
       catch let err {
-        didImport(transformedDictionary, error: err)
+        didImport(dictionary: transformedDictionary, error: err)
         throw err
       }
 
@@ -136,7 +136,7 @@ extension NSManagedObject
   fileprivate func performImportAttribute(_ attribute: NSAttributeDescription, dictionary: [String: AnyObject]) throws {
     switch attribute.preferredValueFromDictionary(dictionary) {
     case let .some(value):
-      if let transformedValue: AnyObject = attribute.transformValue(value) {
+      if let transformedValue: AnyObject = attribute.transform(value: value) {
         setValue(transformedValue, forKeyPath: attribute.name)
       } else {
         let error = CoreDataKitError.importError(description: "Value '\(value)' could not be transformed to a value compatible with the type of \(entity.name).\(attribute.name)")

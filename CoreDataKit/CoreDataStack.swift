@@ -56,8 +56,8 @@ public class CoreDataStack: NSObject {
 
   :see: NSManagedObjectContext.performBlock()
   */
-  public func performOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
-    backgroundContext.performBlock(block, completionHandler: completionHandler)
+  public func performOnBackgroundContext(block: @escaping PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+    backgroundContext.perform(block: block, completionHandler: completionHandler)
   }
 
   @available(*, unavailable, renamed: "performOnBackgroundContext(block:completionHandler:)")
@@ -65,12 +65,12 @@ public class CoreDataStack: NSObject {
     fatalError()
   }
 
-  public func performOnBackgroundContext(block: PerformBlock) {
-    backgroundContext.performBlock(block, completionHandler: nil)
+  public func performOnBackgroundContext(block: @escaping PerformBlock) {
+    backgroundContext.perform(block: block, completionHandler: nil)
   }
 
   @available(*, unavailable, renamed: "performOnBackgroundContext(block:)")
-  public func performBlockOnBackgroundContext(_ block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+  public func performBlockOnBackgroundContext(_ block: PerformBlock) {
     fatalError()
   }
 

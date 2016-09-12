@@ -253,7 +253,7 @@ extension NSManagedObjectContext
 
   - returns: Result with NSFetchRequest configured with the given parameters
   */
-  public func createFetchRequest<T:NSManagedObject>(_ entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) throws -> NSFetchRequest<AnyObject> where T:NamedManagedObject {
+  public func createFetchRequest<T : NSManagedObject>(_ entity: T.Type, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) throws -> NSFetchRequest<T> where T:NamedManagedObject {
     let desc = try entityDescription(entity)
     return self.createFetchRequest(desc, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit, offset: offset)
   }
@@ -269,8 +269,8 @@ extension NSManagedObjectContext
 
   - returns: NSFetchRequest configured with the given parameters
   */
-  public func createFetchRequest(_ entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> NSFetchRequest<AnyObject> {
-    let fetchRequest = NSFetchRequest()
+  public func createFetchRequest<ResultType : NSFetchRequestResult>(_ entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) -> NSFetchRequest<ResultType> {
+    let fetchRequest = NSFetchRequest<ResultType>()
     fetchRequest.entity = entityDescription
     fetchRequest.predicate = predicate
     fetchRequest.sortDescriptors = sortDescriptors
@@ -288,10 +288,9 @@ extension NSManagedObjectContext
 
   - returns: Result with array of entities found, empty array on no results
   */
-  public func executeFetchRequest<T:NSManagedObject>(_ fetchRequest: NSFetchRequest<AnyObject>) throws -> [T] {
+  public func executeFetchRequest<T : NSManagedObject>(_ fetchRequest: NSFetchRequest<T>) throws -> [T] {
     do {
-      let anyObjects = try fetch(fetchRequest)
-      return anyObjects.map { $0 as! T }
+      return try fetch(fetchRequest)
     }
     catch {
       throw CoreDataKitError.coreDataError(error)
@@ -312,7 +311,7 @@ extension NSManagedObjectContext
 
   - returns: Fetched results controller that already has performed the fetch
   */
-  public func fetchedResultsController(_ fetchRequest: NSFetchRequest, delegate: NSFetchedResultsControllerDelegate? = nil, sectionNameKeyPath: String? = nil, cacheName: String? = nil) throws -> NSFetchedResultsController<AnyObject> {
+  public func fetchedResultsController<ResultType : NSFetchRequestResult>(_ fetchRequest: NSFetchRequest<ResultType>, delegate: NSFetchedResultsControllerDelegate? = nil, sectionNameKeyPath: String? = nil, cacheName: String? = nil) throws -> NSFetchedResultsController<ResultType> {
     let resultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: self, sectionNameKeyPath: sectionNameKeyPath, cacheName: cacheName)
     resultsController.delegate = delegate
 
@@ -390,7 +389,7 @@ extension NSManagedObjectContext
   - returns: Result with array of entities found, empty array on no results
   */
   func find<T:NSManagedObject>(_ entityDescription: NSEntityDescription, predicate: NSPredicate? = nil, sortDescriptors: [NSSortDescriptor]? = nil, limit: Int? = nil, offset: Int? = nil) throws -> [T] {
-    let fetchRequest = createFetchRequest(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
+    let fetchRequest: NSFetchRequest<T> = createFetchRequest(entityDescription, predicate: predicate, sortDescriptors: sortDescriptors, limit: limit)
     return try executeFetchRequest(fetchRequest)
   }
 

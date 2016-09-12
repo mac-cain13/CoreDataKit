@@ -82,8 +82,8 @@ public class CDK : NSObject
 
   :see: NSManagedObjectContext.performBlock()
   */
-  public class func performOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
-    sharedStack!.performBlockOnBackgroundContext(block, completionHandler: completionHandler)
+  public class func performOnBackgroundContext(block: @escaping PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+    sharedStack!.performOnBackgroundContext(block: block, completionHandler: completionHandler)
   }
 
   @available(*, unavailable, renamed: "performOnBackgroundContext(block:completionHandler:)")
@@ -91,8 +91,8 @@ public class CDK : NSObject
     fatalError()
   }
 
-  public class func performOnBackgroundContext(_ block: PerformBlock) {
-    sharedStack!.performBlockOnBackgroundContext(block, completionHandler: nil)
+  public class func performOnBackgroundContext(block: @escaping PerformBlock) {
+    sharedStack!.performOnBackgroundContext(block: block, completionHandler: nil)
   }
 
   @available(*, unavailable, renamed: "performOnBackgroundContext(block:)")
