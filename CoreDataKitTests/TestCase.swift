@@ -10,10 +10,18 @@ import XCTest
 import CoreData
 import CoreDataKit
 
+
+var sharedManagedObjectModel: NSManagedObjectModel = {
+  return NSManagedObjectModel.mergedModel(from: Bundle.allBundles)!
+}()
+
 class TestCase: XCTestCase {
-  private struct Holder {
-    static var token: dispatch_once_t = 0
-  }
+
+  lazy var sharedStack: CoreDataStack = {
+    let stack = self.setupCoreDataStack(model: sharedManagedObjectModel)
+
+    return stack
+  }()
 
   var coreDataStack: CoreDataStack!
 
@@ -21,15 +29,13 @@ class TestCase: XCTestCase {
     super.setUp()
 
     // Fetch model
-    let managedObjectModel = NSManagedObjectModel.mergedModelFromBundles(NSBundle.allBundles())!
+    let managedObjectModel = sharedManagedObjectModel
 
     // Setup the shared stack
-    dispatch_once(&Holder.token) {
-      CDK.sharedStack = self.setupCoreDataStack(managedObjectModel)
-    }
+    CDK.sharedStack = sharedStack
 
     // Setup the stack for this test
-    coreDataStack = setupCoreDataStack(managedObjectModel)
+    coreDataStack = setupCoreDataStack(model: managedObjectModel)
   }
 
   override func tearDown() {
@@ -39,7 +45,7 @@ class TestCase: XCTestCase {
 
   private func setupCoreDataStack(model: NSManagedObjectModel) -> CoreDataStack {
     let persistentCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
-    try! persistentCoordinator.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
+    try! persistentCoordinator.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
     return CoreDataStack(persistentStoreCoordinator: persistentCoordinator)
   }
 }

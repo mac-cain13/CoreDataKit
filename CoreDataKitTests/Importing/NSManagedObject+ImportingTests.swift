@@ -12,7 +12,7 @@ import CoreDataKit
 
 class NSManagedObjectTests: TestCase {
   func testImportDictionary() {
-    guard let jsonArray = loadJSONFile("Employees") as? [[String: AnyObject]] else {
+    guard let jsonArray = loadJSONFile(filename: "Employees") as? [[String: AnyObject]] else {
       XCTFail("Missing Employees.json fixture")
       return
     }
@@ -32,7 +32,7 @@ class NSManagedObjectTests: TestCase {
 
   func testImportDictionaryWithNull() {
 
-    guard let jsonObject = loadJSONFile("EmployeesWithNull") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesWithNull") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesWithNull.json fixture")
       return
     }
@@ -55,7 +55,7 @@ class NSManagedObjectTests: TestCase {
 
   func testImportDictionaryWithOmittedField() {
 
-    guard let jsonObject = loadJSONFile("EmployeesWithOmittedField") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesWithOmittedField") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesWithOmittedField.json fixture")
       return
     }
@@ -82,7 +82,7 @@ class NSManagedObjectTests: TestCase {
 
   func testImportWithNestedRelation() {
 
-    guard let jsonObject = loadJSONFile("EmployeesNestedRelation") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesNestedRelation") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesNestedRelation.json fixture")
       return
     }
@@ -105,7 +105,7 @@ class NSManagedObjectTests: TestCase {
 
   func testImportWithExistingReferencedRelation() {
 
-    guard let jsonObject = loadJSONFile("EmployeesReferencedRelation") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesReferencedRelation") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesReferencedRelation.json fixture")
       return
     }
@@ -133,7 +133,7 @@ class NSManagedObjectTests: TestCase {
 
   func testImportWithUnexistingReferencedRelation() {
 
-    guard let jsonObject = loadJSONFile("EmployeesReferencedRelation") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesReferencedRelation") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesReferencedRelation.json fixture")
       return
     }
@@ -156,7 +156,7 @@ class NSManagedObjectTests: TestCase {
 
   func testImportNestedEmbeddingRelation() {
 
-    guard let jsonObject = loadJSONFile("EmployeesNestedEmbeddingRelation") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesNestedEmbeddingRelation") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesNestedEmbeddingRelation.json fixture")
       return
     }
@@ -174,14 +174,14 @@ class NSManagedObjectTests: TestCase {
   /// This test covers https://github.com/mac-cain13/CoreDataKit/issues/4
   func testOldValueIsDeletedWhenEmbeddingRelationIsUpdated() {
 
-    guard let jsonObject = loadJSONFile("EmployeesNestedEmbeddingRelation") as? [String: AnyObject] else {
+    guard let jsonObject = loadJSONFile(filename: "EmployeesNestedEmbeddingRelation") as? [String: AnyObject] else {
       XCTFail("Missing EmployeesNestedEmbeddingRelation.json fixture")
       return
     }
 
     do {
-      try coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject)
-      try coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject)
+      _ = try coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject)
+      _ = try coreDataStack.rootContext.importEntity(EmployeeWithRelationEmbedding.self, dictionary: jsonObject)
 
       let results = try coreDataStack.rootContext.find(Salary.self)
       XCTAssertEqual(results.count, 1, "Unexpected Salary count")
@@ -191,12 +191,12 @@ class NSManagedObjectTests: TestCase {
     }
   }
 
-  private func loadJSONFile(filename: String) -> AnyObject? {
-    for bundle in NSBundle.allBundles() {
-      if let fileURL = bundle.URLForResource(filename, withExtension: "json") {
-        let data = NSData(contentsOfURL: fileURL)!
+  private func loadJSONFile(filename: String) -> Any? {
+    for bundle in Bundle.allBundles {
+      if let fileURL = bundle.url(forResource: filename, withExtension: "json") {
         do {
-          let json = try NSJSONSerialization.JSONObjectWithData(data, options: [])
+          let data = try Data(contentsOf: fileURL)
+          let json = try JSONSerialization.jsonObject(with: data, options: [])
           return json
         } catch let error as NSError {
           XCTFail("Unexpected error while decoding JSON: \(error)")

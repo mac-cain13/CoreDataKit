@@ -12,7 +12,7 @@ import CoreDataKit
 
 class CoreDataStackTests: TestCase {
   func testRootContext() {
-    XCTAssertNil(coreDataStack.rootContext.parentContext, "Unexpected parent context")
+    XCTAssertNil(coreDataStack.rootContext.parent, "Unexpected parent context")
     XCTAssertNotNil(coreDataStack.rootContext.persistentStoreCoordinator, "Missing persistent coordinator")
     XCTAssertEqual(coreDataStack.rootContext.persistentStoreCoordinator!, coreDataStack.persistentStoreCoordinator, "Incorrect persistent coordinator")
   }
@@ -20,8 +20,8 @@ class CoreDataStackTests: TestCase {
   func testMainThreadContext() {
     XCTAssertNotNil(coreDataStack.mainThreadContext.persistentStoreCoordinator, "Missing persistent coordinator")
     XCTAssertEqual(coreDataStack.mainThreadContext.persistentStoreCoordinator!, coreDataStack.persistentStoreCoordinator, "Incorrect persistent coordinator")
-    XCTAssertNotNil(coreDataStack.mainThreadContext.parentContext, "Missing parent context")
-    XCTAssertEqual(coreDataStack.mainThreadContext.parentContext!, coreDataStack.rootContext, "Incorrect parent context")
+    XCTAssertNotNil(coreDataStack.mainThreadContext.parent, "Missing parent context")
+    XCTAssertEqual(coreDataStack.mainThreadContext.parent!, coreDataStack.rootContext, "Incorrect parent context")
   }
 
   func testDumpStack() {

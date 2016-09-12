@@ -12,6 +12,6 @@ import CoreDataKit
 
 class NSPersistentStoreTests: TestCase {
   func testURLForSQLiteStoreName() {
-    XCTAssertNotNil(NSPersistentStore.URLForSQLiteStoreName("SuitsStore"), "Store URL missing")
+    XCTAssertNotNil(NSPersistentStore.url(forSQLiteStoreName: "SuitsStore"), "Store URL missing")
   }
 }
