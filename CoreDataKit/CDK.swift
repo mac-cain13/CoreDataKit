@@ -34,7 +34,7 @@ public class CDK : NSObject
   */
   public class var sharedStack: CoreDataStack? {
     get {
-    return Holder.sharedStack
+      return Holder.sharedStack
     }
 
     set {
@@ -49,7 +49,7 @@ public class CDK : NSObject
   */
   public class var sharedLogger: Logger {
     get {
-    return Holder.sharedLogger
+      return Holder.sharedLogger
     }
 
     set {

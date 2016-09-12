@@ -23,12 +23,12 @@ extension NSPersistentStoreCoordinator
 
     // Fallback on the defaults
     let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModel(from: nil)
-    let _URL = optionalURL ?? NSPersistentStore.url(forSQLiteStoreName: "CoreDataKit")
+    let _url = optionalURL ?? NSPersistentStore.url(forSQLiteStoreName: "CoreDataKit")
 
     // Initialize coordinator if we have all data
-    if let managedObjectModel = _managedObjectModel, let URL = _URL {
+    if let managedObjectModel = _managedObjectModel, let url = _url {
       self.init(managedObjectModel: managedObjectModel)
-      self.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating, deleteOnMismatch: deleteOnMismatch)
+      self.addSQLitePersistentStore(at: url, automigrating: automigrating, deleteOnMismatch: deleteOnMismatch)
     }
     else {
       self.init()
@@ -71,7 +71,7 @@ extension NSPersistentStoreCoordinator
   - parameter URL:           Location of the store
   - parameter automigrating: Whether the store should automigrate itself
   */
-  fileprivate func addSQLitePersistentStoreWithURL(_ URL: Foundation.URL, automigrating: Bool, deleteOnMismatch: Bool)
+  fileprivate func addSQLitePersistentStore(at url: Foundation.URL, automigrating: Bool, deleteOnMismatch: Bool)
   {
     func addStore() throws {
       let options: [AnyHashable: Any] = [
@@ -81,7 +81,7 @@ extension NSPersistentStoreCoordinator
       ];
 
       do {
-        try self.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: URL, options: options)
+        try self.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: options)
       }
       catch {
         throw CoreDataKitError.coreDataError(error)
@@ -96,12 +96,12 @@ extension NSPersistentStoreCoordinator
       if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
         CDK.sharedLogger(.warn, "Model mismatch, removing persistent store...")
-        let urlString = URL.absoluteString
+        let urlString = url.absoluteString
         let shmFile = urlString + "-shm"
         let walFile = urlString + "-wal"
 
         do {
-          try FileManager.default.removeItem(at: URL)
+          try FileManager.default.removeItem(at: url)
           try FileManager.default.removeItem(atPath: shmFile)
           try FileManager.default.removeItem(atPath: walFile)
         } catch _ {

@@ -119,7 +119,12 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
 
   - parameter token: The token obtained when subscribing
   */
-  public func unsubscribe(_ token: Int) {
+  public func unsubscribe(token: Int) {
     subscribers[token] = { _ in }
+  }
+
+  @available(*, unavailable, renamed: "unsubscribe(token:)")
+  public func unsubscribe(_ token: Int) {
+    fatalError()
   }
 }
