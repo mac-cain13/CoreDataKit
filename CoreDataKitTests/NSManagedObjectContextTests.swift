@@ -45,7 +45,7 @@ class NSManagedObjectContextTests: TestCase {
     let completionExpectation = expectationWithDescription("Expected completion handler call")
 
     let countFRq = NSFetchRequest(entityName: "Employee")
-    XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+    XCTAssertEqual(try coreDataStack.rootContext.countForFetchRequest(countFRq), 0, "Unexpected employee entities")
 
     coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
       let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
@@ -55,7 +55,7 @@ class NSManagedObjectContextTests: TestCase {
       }, completionHandler: { (result) -> Void in
         do {
           try result()
-          XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 1, "Unexpected employee entity count")
+          XCTAssertEqual(try self.coreDataStack.rootContext.countForFetchRequest(countFRq), 1, "Unexpected employee entity count")
           completionExpectation.fulfill()
         }
         catch {
@@ -70,7 +70,7 @@ class NSManagedObjectContextTests: TestCase {
     let completionExpectation = expectationWithDescription("Expected completion handler call")
 
     let countFRq = NSFetchRequest(entityName: "Employee")
-    XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+    XCTAssertEqual(try coreDataStack.rootContext.countForFetchRequest(countFRq), 0, "Unexpected employee entities")
 
     coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
       NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context)
@@ -82,7 +82,7 @@ class NSManagedObjectContextTests: TestCase {
         }
         catch CoreDataKitError.CoreDataError(let error) {
           XCTAssertEqual((error as NSError).code, 1570, "Incorrect error code")
-          XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+          XCTAssertEqual(try! self.coreDataStack.rootContext.countForFetchRequest(countFRq), 0, "Unexpected employee entities")
           completionExpectation.fulfill()
         }
         catch {
