@@ -26,7 +26,7 @@ extension NSPersistentStoreCoordinator
     let _URL = optionalURL ?? NSPersistentStore.URLForSQLiteStoreName("CoreDataKit")
 
     // Initialize coordinator if we have all data
-    if let managedObjectModel = _managedObjectModel, URL = _URL {
+    if let managedObjectModel = _managedObjectModel, let URL = _URL {
       self.init(managedObjectModel: managedObjectModel)
       self.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating, deleteOnMismatch: deleteOnMismatch)
     }
@@ -78,7 +78,7 @@ extension NSPersistentStoreCoordinator
         NSMigratePersistentStoresAutomaticallyOption: automigrating,
         NSInferMappingModelAutomaticallyOption: automigrating,
         NSSQLitePragmasOption: ["journal_mode": "WAL"]
-      ];
+      ]
 
       do {
         try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
@@ -96,16 +96,17 @@ extension NSPersistentStoreCoordinator
       if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
         CDK.sharedLogger(.WARN, "Model mismatch, removing persistent store...")
-        let urlString = URL.absoluteString!
-        let shmFile = urlString.stringByAppendingString("-shm")
-        let walFile = urlString.stringByAppendingString("-wal")
 
         do {
           try NSFileManager.defaultManager().removeItemAtURL(URL)
-          try NSFileManager.defaultManager().removeItemAtPath(shmFile)
-          try NSFileManager.defaultManager().removeItemAtPath(walFile)
-        } catch _ {
-        }
+          let urlString = URL.absoluteString
+          if let shmFile = urlString?.stringByAppendingString("-shm") {
+            try NSFileManager.defaultManager().removeItemAtPath(shmFile)
+          }
+          if let walFile = urlString?.stringByAppendingString("-wal") {
+            try NSFileManager.defaultManager().removeItemAtPath(walFile)
+          }
+        } catch _ { }
 
         do {
           try addStore()
@@ -132,3 +133,4 @@ extension NSPersistentStoreCoordinator
     }
   }
 }
+
