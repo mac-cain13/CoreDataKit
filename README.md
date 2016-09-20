@@ -20,6 +20,12 @@ use_frameworks!
 pod 'CoreDataKit'
 ```
 
+### Version guide
+
+- Swift 3: Use 0.12 and up
+- Swift 2.3: Use 0.11
+- Swift 2.2: Use 0.10
+
 ## Usage
 
 The most basic and most used variant to setup a stack backed by an automigrating SQLite store is this:
