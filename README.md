@@ -47,16 +47,16 @@ class Car: NSManagedObject, NamedManagedObject {
 
 From here you are able to use the shared stack. For example to create and save an entity, this example performs a block an a background context, saves it to the persistent store and executes a completion handler:
 ```swift
-CDK.performBlockOnBackgroundContext({ context in
+CDK.performOnBackgroundContext(block: { context in
   do {
     let car = try context.create(Car.self)
     car.color = "Hammerhead Silver"
     car.model = "Aston Martin DB9"
 
-    return .SaveToPersistentStore
+    return .saveToPersistentStore
   }
   catch {
-    return .DoNothing
+    return .doNothing
   }
 }, completionHandler: { result in
   do {
@@ -73,16 +73,16 @@ CDK.performBlockOnBackgroundContext({ context in
 
 If you prefer using promises, instead of the callback style of this library, you can use the  [Promissum](https://github.com/tomlokhorst/Promissum) library with CoreDataKit. Using the [CoreDataKit+Promise](https://github.com/tomlokhorst/Promissum/blob/develop/extensions/PromissumExtensions/CoreDataKit%2BPromise.swift) extension, the example from above can be rewritten as such:
 ```swift
-let createPromise = CDK.performBlockOnBackgroundContextPromise { context in
+let createPromise = CDK.performOnBackgroundContextPromise { context in
   do {
     let car = try context.create(Car.self)
     car.color = "Hammerhead Silver"
     car.model = "Aston Martin DB9"
 
-    return .SaveToPersistentStore
+    return .saveToPersistentStore
   }
   catch {
-    return .DoNothing
+    return .doNothing
   }
 }
 

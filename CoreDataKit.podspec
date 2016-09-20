@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "CoreDataKit"
-  s.version      = "0.11.0"
+  s.version      = "0.12.0"
   s.license      = "MIT"
 
   s.summary      = "CoreDataKit makes common operations on objects and importing into CoreData a breeze."
