@@ -12,19 +12,19 @@ import CoreData
 /// Commit actions that can be taken by CoreDataKit after a block of changes is performed
 public enum CommitAction {
   /// Do not do any save/rollback operation, just leave the changes on the context unsaved
-  case DoNothing
+  case doNothing
 
   /// Save all changes in this context to the parent context
-  case SaveToParentContext
+  case saveToParentContext
 
   /// Save all changes in this and all parent contexts to the persistent store
-  case SaveToPersistentStore
+  case saveToPersistentStore
 
   /// Undo changes done in the related PerformBlock, all other changes will remain untouched
-  case Undo
+  case undo
 
   /// Rollback all changes on the context, this will revert all unsaved changes in the context
-  case RollbackAllChanges
+  case rollbackAllChanges
 }
 
 /**
@@ -32,14 +32,14 @@ Blocktype used to perform changes on a `NSManagedObjectContext`.
 
 - parameter context: The context to perform your changes on
 */
-public typealias PerformBlock = NSManagedObjectContext -> CommitAction
+public typealias PerformBlock = (NSManagedObjectContext) -> CommitAction
 
 /**
 Blocktype used to handle completion.
 
 - parameter result: Wheter the operation was successful
 */
-public typealias CompletionHandler = (arg: () throws -> Void) -> Void
+public typealias CompletionHandler = (_ arg: () throws -> Void) -> Void
 
 /**
 Blocktype used to handle completion of `PerformBlock`s.
@@ -47,37 +47,37 @@ Blocktype used to handle completion of `PerformBlock`s.
 - parameter result:       Wheter the operation was successful
 - parameter commitAction: The type of commit action the block has done
 */
-public typealias PerformBlockCompletionHandler = (arg: () throws -> CommitAction) -> Void
+public typealias PerformBlockCompletionHandler = (_ arg: () throws -> CommitAction) -> Void
 
 // MARK: - Errors
 
 /// All errors that can occure from CoreDataKit
 
-public enum CoreDataKitError : ErrorType {
-  case CoreDataError(ErrorType)
+public enum CoreDataKitError : Error {
+  case coreDataError(Error)
 
-  case ImportCancelled(entityName: String)
-  case ImportError(description: String)
-  case ContextError(description: String)
-  case UnimplementedMethod(description: String)
+  case importCancelled(entityName: String)
+  case importError(description: String)
+  case contextError(description: String)
+  case unimplementedMethod(description: String)
 
-  case UnknownError(description: String)
+  case unknownError(description: String)
 }
 
 extension CoreDataKitError : CustomStringConvertible {
   public var description: String {
     switch self {
-    case .CoreDataError(let error):
+    case .coreDataError(let error):
       return "CoreDataError: \(error)"
-    case .ImportCancelled(let entityName):
+    case .importCancelled(let entityName):
       return "Import of entity \(entityName) cancelled"
-    case .ContextError(let description):
+    case .contextError(let description):
       return description
-    case .ImportError(let description):
+    case .importError(let description):
       return description
-    case .UnimplementedMethod(let description):
+    case .unimplementedMethod(let description):
       return description
-    case .UnknownError(let description):
+    case .unknownError(let description):
       return "Unknown error: \(description)"
     }
   }
@@ -105,7 +105,7 @@ extension CoreDataKitError {
 
   public var nsError: NSError {
     switch self {
-    case .CoreDataError(let error):
+    case .coreDataError(let error):
       return error as NSError
     default:
       return NSError(

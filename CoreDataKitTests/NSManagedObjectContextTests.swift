@@ -14,48 +14,48 @@ class NSManagedObjectContextTests: TestCase {
   func testInitWithPersistentStore() {
     let context = NSManagedObjectContext(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
 
-    XCTAssertNil(context.parentContext, "Unexpected parent context")
+    XCTAssertNil(context.parent, "Unexpected parent context")
     XCTAssertNotNil(context.persistentStoreCoordinator, "Missing persistent coordinator")
     XCTAssertEqual(context.persistentStoreCoordinator!, coreDataStack.persistentStoreCoordinator, "Incorrect persistent coordinator")
-    XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType, "Incorrect concurrency type")
+    XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType, "Incorrect concurrency type")
   }
 
   func testInitWithPersistentStoreObtainsPermanentIDs() {
     let context = NSManagedObjectContext(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
-    testContextObtainsPermanentIDs(context)
+    testContextObtainsPermanentIDs(context: context)
   }
 
   func testInitWithParentContext() {
-    let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: coreDataStack.rootContext)
+    let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType, parentContext: coreDataStack.rootContext)
 
-    XCTAssertNotNil(context.parentContext, "Missing parent context")
-    XCTAssertEqual(context.parentContext!, coreDataStack.rootContext, "Incorrect parent context")
-    XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.PrivateQueueConcurrencyType, "Incorrect concurrency type")
+    XCTAssertNotNil(context.parent, "Missing parent context")
+    XCTAssertEqual(context.parent!, coreDataStack.rootContext, "Incorrect parent context")
+    XCTAssertEqual(context.concurrencyType, NSManagedObjectContextConcurrencyType.privateQueueConcurrencyType, "Incorrect concurrency type")
   }
 
   func testInitWithParentContextObtainsPermanentIDs() {
     let parentContext = NSManagedObjectContext(persistentStoreCoordinator: coreDataStack.persistentStoreCoordinator)
-    let context = NSManagedObjectContext(concurrencyType: .PrivateQueueConcurrencyType, parentContext: parentContext)
-    testContextObtainsPermanentIDs(context)
+    let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType, parentContext: parentContext)
+    testContextObtainsPermanentIDs(context: context)
   }
 
   // MARK: - Saving
 
   func testPerformBlockAndSaveToPersistentStore() {
-    let completionExpectation = expectationWithDescription("Expected completion handler call")
+    let completionExpectation = expectation(description: "Expected completion handler call")
 
-    let countFRq = NSFetchRequest(entityName: "Employee")
-    XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+    let countFRq = NSFetchRequest<NSManagedObject>(entityName: "Employee")
+    XCTAssertEqual(try? coreDataStack.rootContext.count(for: countFRq), 0, "Unexpected employee entities")
 
-    coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
-      let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
+    coreDataStack.backgroundContext.perform(block: { (context) -> CommitAction in
+      let employee: Employee = NSEntityDescription.insertNewObject(forEntityName: "Employee", into: context) as! Employee
       employee.name = "Mike Ross"
 
-      return .SaveToPersistentStore
+      return .saveToPersistentStore
       }, completionHandler: { (result) -> Void in
         do {
-          try result()
-          XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 1, "Unexpected employee entity count")
+          _ = try result()
+          XCTAssertEqual(try self.coreDataStack.rootContext.count(for: countFRq), 1, "Unexpected employee entity count")
           completionExpectation.fulfill()
         }
         catch {
@@ -63,26 +63,26 @@ class NSManagedObjectContextTests: TestCase {
         }
     })
 
-    waitForExpectationsWithTimeout(3, handler: nil)
+    waitForExpectations(timeout: 3, handler: nil)
   }
 
   func testFailingPerformBlockAndSaveToPersistentStore() {
-    let completionExpectation = expectationWithDescription("Expected completion handler call")
+    let completionExpectation = expectation(description: "Expected completion handler call")
 
-    let countFRq = NSFetchRequest(entityName: "Employee")
-    XCTAssertEqual(coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+    let countFRq = NSFetchRequest<NSManagedObject>(entityName: "Employee")
+    XCTAssertEqual(try? coreDataStack.rootContext.count(for: countFRq), 0, "Unexpected employee entities")
 
-    coreDataStack.backgroundContext.performBlock({ (context) -> CommitAction in
-      NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context)
-      return .SaveToParentContext
+    coreDataStack.backgroundContext.perform(block: { (context) -> CommitAction in
+      NSEntityDescription.insertNewObject(forEntityName: "Employee", into: context)
+      return .saveToParentContext
       }, completionHandler: { (result) -> Void in
         do {
-          try result()
+          _ = try result()
           XCTFail("Expected error")
         }
-        catch CoreDataKitError.CoreDataError(let error) {
+        catch CoreDataKitError.coreDataError(let error) {
           XCTAssertEqual((error as NSError).code, 1570, "Incorrect error code")
-          XCTAssertEqual(self.coreDataStack.rootContext.countForFetchRequest(countFRq, error: nil), 0, "Unexpected employee entities")
+          XCTAssertEqual(try? self.coreDataStack.rootContext.count(for: countFRq), 0, "Unexpected employee entities")
           completionExpectation.fulfill()
         }
         catch {
@@ -90,20 +90,20 @@ class NSManagedObjectContextTests: TestCase {
         }
     })
 
-    waitForExpectationsWithTimeout(3, handler: nil)
+    waitForExpectations(timeout: 3, handler: nil)
   }
 
   // MARK: Obtaining permanent IDs
 
   func testObtainPermanentIDsForInsertedObjects() {
-    let employee: Employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: coreDataStack.rootContext) as! Employee
+    let employee: Employee = NSEntityDescription.insertNewObject(forEntityName: "Employee", into: coreDataStack.rootContext) as! Employee
     employee.name = "Harvey Specter"
 
-    XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
+    XCTAssertTrue(employee.objectID.isTemporaryID, "Object ID must be temporary")
 
     do {
       try coreDataStack.rootContext.obtainPermanentIDsForInsertedObjects()
-      XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
+      XCTAssertFalse(employee.objectID.isTemporaryID, "Object ID must be permanent")
     }
     catch {
       XCTFail("Unexpected error")
@@ -111,22 +111,22 @@ class NSManagedObjectContextTests: TestCase {
   }
 
   private func testContextObtainsPermanentIDs(context: NSManagedObjectContext) {
-    let saveExpectation = expectationWithDescription("Await save result")
+    let saveExpectation = expectation(description: "Await save result")
 
     var employee: Employee!
-    context.performBlock({ context in
-      employee = NSEntityDescription.insertNewObjectForEntityForName("Employee", inManagedObjectContext: context) as! Employee
+    context.perform(block: { context in
+      employee = NSEntityDescription.insertNewObject(forEntityName: "Employee", into: context) as! Employee
       employee.name = "Harvey Specter"
 
-      XCTAssertTrue(employee.objectID.temporaryID, "Object ID must be temporary")
+      XCTAssertTrue(employee.objectID.isTemporaryID, "Object ID must be temporary")
 
-      return .SaveToParentContext
+      return .saveToParentContext
       }, completionHandler: { _ in
-        XCTAssertFalse(employee.objectID.temporaryID, "Object ID must be permanent")
+        XCTAssertFalse(employee.objectID.isTemporaryID, "Object ID must be permanent")
         saveExpectation.fulfill()
     })
 
-    waitForExpectationsWithTimeout(3, handler: nil)
+    waitForExpectations(timeout: 3, handler: nil)
   }
 
   // MARK: - Creating
@@ -134,7 +134,7 @@ class NSManagedObjectContextTests: TestCase {
   func testCreate() {
     do {
       let employee = try coreDataStack.rootContext.create(Employee.self)
-      XCTAssertTrue(employee.inserted, "Managed object should be inserted")
+      XCTAssertTrue(employee.isInserted, "Managed object should be inserted")
       XCTAssertEqual(employee.managedObjectContext!, coreDataStack.rootContext, "Unexpected managed object context")
     }
     catch {
@@ -144,10 +144,10 @@ class NSManagedObjectContextTests: TestCase {
 
   func testCreateIncorrectEntityName() {
     do {
-      try coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self)
+      _ = try coreDataStack.rootContext.create(EmployeeIncorrectEntityName.self)
       XCTFail("Unexpected managed object")
     }
-    catch CoreDataKitError.ContextError {
+    catch CoreDataKitError.contextError {
       // Expected error
     }
     catch {

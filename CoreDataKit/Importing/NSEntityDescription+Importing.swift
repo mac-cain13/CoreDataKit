@@ -21,13 +21,13 @@ extension NSEntityDescription
         return identifyingAttribute
       }
 
-      let error = CoreDataKitError.ImportError(description: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name")
+      let error = CoreDataKitError.importError(description: "Found \(IdentifierUserInfoKey) with value '\(identifyingAttributeName)' but that isn't a valid attribute name")
       throw error
     } else if let superEntity = self.superentity {
       return try superEntity.identifyingAttribute()
     }
 
-    let error = CoreDataKitError.ImportError(description: "No \(IdentifierUserInfoKey) value found on \(name)")
+    let error = CoreDataKitError.importError(description: "No \(IdentifierUserInfoKey) value found on \(name)")
     throw error
   }
 }

@@ -32,7 +32,7 @@ public class CoreDataStack: NSObject {
     self.rootContext = NSManagedObjectContext(persistentStoreCoordinator: self.persistentStoreCoordinator)
     self.rootContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
-    self.mainThreadContext = NSManagedObjectContext(concurrencyType: .MainQueueConcurrencyType, parentContext: rootContext)
+    self.mainThreadContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType, parentContext: rootContext)
 
     self.backgroundContext = self.mainThreadContext.createChildContext()
 
@@ -56,23 +56,33 @@ public class CoreDataStack: NSObject {
 
   :see: NSManagedObjectContext.performBlock()
   */
-  public func performBlockOnBackgroundContext(block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
-    backgroundContext.performBlock(block, completionHandler: completionHandler)
+  public func performOnBackgroundContext(block: @escaping PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+    backgroundContext.perform(block: block, completionHandler: completionHandler)
   }
 
-  public func performBlockOnBackgroundContext(block: PerformBlock) {
-    backgroundContext.performBlock(block, completionHandler: nil)
+  @available(*, unavailable, renamed: "performOnBackgroundContext(block:completionHandler:)")
+  public func performBlockOnBackgroundContext(_ block: PerformBlock, completionHandler: PerformBlockCompletionHandler?) {
+    fatalError()
+  }
+
+  public func performOnBackgroundContext(block: @escaping PerformBlock) {
+    backgroundContext.perform(block: block, completionHandler: nil)
+  }
+
+  @available(*, unavailable, renamed: "performOnBackgroundContext(block:)")
+  public func performBlockOnBackgroundContext(_ block: PerformBlock) {
+    fatalError()
   }
 
   /**
   Dumps some debug info about this stack to the console
   */
   public func dumpStack() {
-    CDK.sharedLogger(.DEBUG, "Stores: \(persistentStoreCoordinator.persistentStores)")
-    CDK.sharedLogger(.DEBUG, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
-    CDK.sharedLogger(.DEBUG, "   |- Root context: \(rootContext.debugDescription)")
-    CDK.sharedLogger(.DEBUG, "      |- Main thread context: \(mainThreadContext.debugDescription)")
-    CDK.sharedLogger(.DEBUG, "         |- Background context: \(backgroundContext.debugDescription)")
+    CDK.sharedLogger(.debug, "Stores: \(persistentStoreCoordinator.persistentStores)")
+    CDK.sharedLogger(.debug, " - Store coordinator: \(persistentStoreCoordinator.debugDescription)")
+    CDK.sharedLogger(.debug, "   |- Root context: \(rootContext.debugDescription)")
+    CDK.sharedLogger(.debug, "      |- Main thread context: \(mainThreadContext.debugDescription)")
+    CDK.sharedLogger(.debug, "         |- Background context: \(backgroundContext.debugDescription)")
   }
 
   // MARK: Notification observers

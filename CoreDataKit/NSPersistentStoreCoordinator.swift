@@ -19,16 +19,16 @@ extension NSPersistentStoreCoordinator
   - parameter URL:                URL to save the SQLite store at, pass nil to use default
   - parameter managedObjectModel: Managed object model to initialize the store with, pass nil to use all models in the main bundle
   */
-  public convenience init?(automigrating: Bool, deleteOnMismatch: Bool = false, URL optionalURL: NSURL? = nil, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel? = nil) {
+  public convenience init?(automigrating: Bool, deleteOnMismatch: Bool = false, URL optionalURL: URL? = nil, managedObjectModel optionalManagedObjectModel: NSManagedObjectModel? = nil) {
 
     // Fallback on the defaults
-    let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
-    let _URL = optionalURL ?? NSPersistentStore.URLForSQLiteStoreName("CoreDataKit")
+    let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModel(from: nil)
+    let _url = optionalURL ?? NSPersistentStore.url(forSQLiteStoreName: "CoreDataKit")
 
     // Initialize coordinator if we have all data
-    if let managedObjectModel = _managedObjectModel, URL = _URL {
+    if let managedObjectModel = _managedObjectModel, let url = _url {
       self.init(managedObjectModel: managedObjectModel)
-      self.addSQLitePersistentStoreWithURL(URL, automigrating: automigrating, deleteOnMismatch: deleteOnMismatch)
+      self.addSQLitePersistentStore(at: url, automigrating: automigrating, deleteOnMismatch: deleteOnMismatch)
     }
     else {
       self.init()
@@ -43,21 +43,21 @@ extension NSPersistentStoreCoordinator
   */
   public convenience init(managedObjectModel optionalManagedObjectModel: NSManagedObjectModel?) throws {
     // Fallback on the defaults
-    let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModelFromBundles(nil)
+    let _managedObjectModel = optionalManagedObjectModel ?? NSManagedObjectModel.mergedModel(from: nil)
 
     // Initialize coordinator if we have all data
     if let managedObjectModel = _managedObjectModel
     {
       self.init(managedObjectModel: managedObjectModel)
       do {
-        try self.addPersistentStoreWithType(NSInMemoryStoreType, configuration: nil, URL: nil, options: nil)
+        try self.addPersistentStore(ofType: NSInMemoryStoreType, configurationName: nil, at: nil, options: nil)
       } catch let error as NSError {
         throw error
       }
     }
     else
     {
-      throw CoreDataKitError.UnknownError(description: "NSMangedObjectModel should be available")
+      throw CoreDataKitError.unknownError(description: "NSMangedObjectModel should be available")
     }
   }
 
@@ -71,20 +71,20 @@ extension NSPersistentStoreCoordinator
   - parameter URL:           Location of the store
   - parameter automigrating: Whether the store should automigrate itself
   */
-  private func addSQLitePersistentStoreWithURL(URL: NSURL, automigrating: Bool, deleteOnMismatch: Bool)
+  fileprivate func addSQLitePersistentStore(at url: Foundation.URL, automigrating: Bool, deleteOnMismatch: Bool)
   {
     func addStore() throws {
-      let options: [NSObject: AnyObject] = [
+      let options: [AnyHashable: Any] = [
         NSMigratePersistentStoresAutomaticallyOption: automigrating,
         NSInferMappingModelAutomaticallyOption: automigrating,
         NSSQLitePragmasOption: ["journal_mode": "WAL"]
       ];
 
       do {
-        try self.addPersistentStoreWithType(NSSQLiteStoreType, configuration: nil, URL: URL, options: options)
+        try self.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: options)
       }
       catch {
-        throw CoreDataKitError.CoreDataError(error)
+        throw CoreDataKitError.coreDataError(error)
       }
     }
 
@@ -95,15 +95,15 @@ extension NSPersistentStoreCoordinator
       // Check for version mismatch
       if (deleteOnMismatch && NSCocoaErrorDomain == error.domain && (NSPersistentStoreIncompatibleVersionHashError == error.code || NSMigrationMissingSourceModelError == error.code)) {
 
-        CDK.sharedLogger(.WARN, "Model mismatch, removing persistent store...")
-        let urlString = URL.absoluteString!
-        let shmFile = urlString.stringByAppendingString("-shm")
-        let walFile = urlString.stringByAppendingString("-wal")
+        CDK.sharedLogger(.warn, "Model mismatch, removing persistent store...")
+        let urlString = url.absoluteString
+        let shmFile = urlString + "-shm"
+        let walFile = urlString + "-wal"
 
         do {
-          try NSFileManager.defaultManager().removeItemAtURL(URL)
-          try NSFileManager.defaultManager().removeItemAtPath(shmFile)
-          try NSFileManager.defaultManager().removeItemAtPath(walFile)
+          try FileManager.default.removeItem(at: url)
+          try FileManager.default.removeItem(atPath: shmFile)
+          try FileManager.default.removeItem(atPath: walFile)
         } catch _ {
         }
 
@@ -111,23 +111,23 @@ extension NSPersistentStoreCoordinator
           try addStore()
         }
         catch let error {
-          CDK.sharedLogger(.ERROR, "Failed to add SQLite persistent store: \(error)")
+          CDK.sharedLogger(.error, "Failed to add SQLite persistent store: \(error)")
         }
       }
         // Workaround for "Migration failed after first pass" error
       else if automigrating {
-        CDK.sharedLogger(.WARN, "[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, Int64(NSEC_PER_SEC) / 2), dispatch_get_main_queue()) {
+        CDK.sharedLogger(.warn, "[CoreDataKit] Applying workaround for 'Migration failed after first pass' bug, retrying...")
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(NSEC_PER_SEC) / 2) / Double(NSEC_PER_SEC)) {
           do {
             try addStore()
           }
           catch let error {
-            CDK.sharedLogger(.ERROR, "Failed to add SQLite persistent store: \(error)")
+            CDK.sharedLogger(.error, "Failed to add SQLite persistent store: \(error)")
           }
         }
       }
       else {
-        CDK.sharedLogger(.ERROR, "Failed to add SQLite persistent store: \(error)")
+        CDK.sharedLogger(.error, "Failed to add SQLite persistent store: \(error)")
       }
     }
   }

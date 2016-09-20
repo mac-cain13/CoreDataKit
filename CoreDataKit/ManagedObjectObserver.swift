@@ -9,28 +9,28 @@
 import CoreData
 
 public enum ObservedAction<T:NSManagedObject> {
-  case Updated(T)
-  case Refreshed(T)
-  case Inserted(T)
-  case Deleted
+  case updated(T)
+  case refreshed(T)
+  case inserted(T)
+  case deleted
 
   public func value() -> T? {
     switch self {
-    case let .Updated(val):
+    case let .updated(val):
       return val
-    case let .Refreshed(val):
+    case let .refreshed(val):
       return val
-    case let .Inserted(val):
+    case let .inserted(val):
       return val
 
-    case .Deleted:
+    case .deleted:
       return nil
     }
   }
 }
 
 public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
-  public typealias Subscriber = ObservedAction<T> -> Void
+  public typealias Subscriber = (ObservedAction<T>) -> Void
 
   public let observedObject: T
   let context: NSManagedObjectContext
@@ -52,35 +52,35 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     self.subscribers = [Subscriber]()
     super.init()
 
-    notificationObserver = NSNotificationCenter.defaultCenter().addObserverForName(NSManagedObjectContextObjectsDidChangeNotification, object: context, queue: nil) { [unowned self] notification in
-      context.performBlock {
+    notificationObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: context, queue: nil) { [unowned self] notification in
+      context.perform {
         if self.subscribers.isEmpty {
           return
         }
 
         do {
           let convertedObject = try context.find(T.self, managedObjectID: self.observedObject.objectID)
-          if let updatedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? NSSet {
-            if updatedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Updated(convertedObject))
+          if let updatedObjects = (notification as NSNotification).userInfo?[NSUpdatedObjectsKey] as? NSSet {
+            if updatedObjects.contains(convertedObject) {
+              self.notifySubscribers(.updated(convertedObject))
             }
           }
 
-          if let refreshedObjects = notification.userInfo?[NSRefreshedObjectsKey] as? NSSet {
-            if refreshedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Refreshed(convertedObject))
+          if let refreshedObjects = (notification as NSNotification).userInfo?[NSRefreshedObjectsKey] as? NSSet {
+            if refreshedObjects.contains(convertedObject) {
+              self.notifySubscribers(.refreshed(convertedObject))
             }
           }
 
-          if let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? NSSet {
-            if insertedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Inserted(convertedObject))
+          if let insertedObjects = (notification as NSNotification).userInfo?[NSInsertedObjectsKey] as? NSSet {
+            if insertedObjects.contains(convertedObject) {
+              self.notifySubscribers(.inserted(convertedObject))
             }
           }
 
-          if let deletedObjects = notification.userInfo?[NSDeletedObjectsKey] as? NSSet {
-            if deletedObjects.containsObject(convertedObject) {
-              self.notifySubscribers(.Deleted)
+          if let deletedObjects = (notification as NSNotification).userInfo?[NSDeletedObjectsKey] as? NSSet {
+            if deletedObjects.contains(convertedObject) {
+              self.notifySubscribers(.deleted)
             }
           }
         }
@@ -92,11 +92,11 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
 
   deinit {
     if let notificationObserver = notificationObserver {
-      NSNotificationCenter.defaultCenter().removeObserver(notificationObserver)
+      NotificationCenter.default.removeObserver(notificationObserver)
     }
   }
 
-  private func notifySubscribers(action: ObservedAction<T>) {
+  fileprivate func notifySubscribers(_ action: ObservedAction<T>) {
     for subscriber in self.subscribers {
       subscriber(action)
     }
@@ -109,7 +109,7 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
 
   - returns: Token you can use to unsubscribe
   */
-  public func subscribe(subscriber: Subscriber) -> Int {
+  public func subscribe(_ subscriber: @escaping Subscriber) -> Int {
     subscribers.append(subscriber)
     return subscribers.count - 1
   }
@@ -121,5 +121,10 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
   */
   public func unsubscribe(token: Int) {
     subscribers[token] = { _ in }
+  }
+
+  @available(*, unavailable, renamed: "unsubscribe(token:)")
+  public func unsubscribe(_ token: Int) {
+    fatalError()
   }
 }

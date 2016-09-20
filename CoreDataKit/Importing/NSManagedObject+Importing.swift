@@ -17,15 +17,15 @@ extension NSManagedObject
 
   - returns: Result wheter the import was performed
   */
-  public func importDictionary(dictionary: [String: AnyObject]) throws {
-    if shouldImport(dictionary) {
-      let transformedDictionary = willImport(dictionary)
+  public func importDictionary(_ dictionary: [String: AnyObject]) throws {
+    if shouldImport(dictionary: dictionary) {
+      let transformedDictionary = willImport(dictionary: dictionary)
       do {
-        try performImport(transformedDictionary)
-        didImport(transformedDictionary, error: nil)
+        try performImport(dictionary: transformedDictionary)
+        didImport(dictionary: transformedDictionary, error: nil)
       }
       catch let err {
-        didImport(transformedDictionary, error: err)
+        didImport(dictionary: transformedDictionary, error: err)
         throw err
       }
 
@@ -33,7 +33,7 @@ extension NSManagedObject
     }
 
     let entityName = self.entity.name ?? "nil"
-    let error = CoreDataKitError.ImportCancelled(entityName: entityName)
+    let error = CoreDataKitError.importCancelled(entityName: entityName)
     throw error
   }
 
@@ -48,8 +48,13 @@ extension NSManagedObject
 
   :return: Wheter to import or not
   */
-  public func shouldImport(dictionary: [String: AnyObject]) -> Bool {
+  open func shouldImport(dictionary: [String: AnyObject]) -> Bool {
     return true
+  }
+
+  @available(*, unavailable, renamed: "shouldImport(dictionary:)")
+  public func shouldImport(_ dictionary: [String: AnyObject]) -> Bool {
+    fatalError()
   }
 
   /**
@@ -61,8 +66,13 @@ extension NSManagedObject
 
   :return: The dictionary that will be used in the rest of the import process
   */
-  public func willImport(dictionary: [String: AnyObject]) -> [String: AnyObject] {
+  open func willImport(dictionary: [String: AnyObject]) -> [String: AnyObject] {
     return dictionary
+  }
+
+  @available(*, unavailable, renamed: "willImport(dictionary:)")
+  open func willImport(_ dictionary: [String: AnyObject]) -> [String: AnyObject] {
+    fatalError()
   }
 
   /**
@@ -72,7 +82,7 @@ extension NSManagedObject
 
   - returns: Result wheter the import succeeded
   */
-  private func performImport(dictionary: [String : AnyObject]) throws {
+  fileprivate func performImport(dictionary: [String : AnyObject]) throws {
     if let context = managedObjectContext {
       for propertyDescription in entity.properties {
 
@@ -84,16 +94,16 @@ extension NSManagedObject
           try performImportRelationship(context, relationship: relationshipDescription, dictionary: dictionary)
 
         case is NSFetchedPropertyDescription:
-          let error = CoreDataKitError.ImportError(description: "Importing NSFetchedPropertyDescription is not supported")
+          let error = CoreDataKitError.importError(description: "Importing NSFetchedPropertyDescription is not supported")
           throw error
 
         default:
-          let error = CoreDataKitError.ImportError(description: "Importing unknown subclass or no subclass of NSPropertyDescription is not supported")
+          let error = CoreDataKitError.importError(description: "Importing unknown subclass or no subclass of NSPropertyDescription is not supported")
           throw error
         }
       }
     } else {
-      let error = CoreDataKitError.ImportError(description: "Managed object not inserted in context, objects must be inserted before importing")
+      let error = CoreDataKitError.importError(description: "Managed object not inserted in context, objects must be inserted before importing")
       throw error
     }
   }
@@ -104,8 +114,13 @@ extension NSManagedObject
   - parameter dictionary: The dictionary that was imported, this is the dictionary returned by willImport
   - parameter error: Optional error if import failed
   */
-  public func didImport(dictionary: [String : AnyObject], error: ErrorType?) {
+  open func didImport(dictionary: [String : AnyObject], error: Error?) {
     // No-op
+  }
+
+  @available(*, unavailable, renamed: "didImport(dictionary:)")
+  open func didImport(_ dictionary: [String : AnyObject], error: Error?) {
+    fatalError()
   }
 
   // MARK: Import helpers
@@ -118,20 +133,20 @@ extension NSManagedObject
 
   - returns: Result wheter import succeeded
   */
-  private func performImportAttribute(attribute: NSAttributeDescription, dictionary: [String: AnyObject]) throws {
+  fileprivate func performImportAttribute(_ attribute: NSAttributeDescription, dictionary: [String: AnyObject]) throws {
     switch attribute.preferredValueFromDictionary(dictionary) {
-    case let .Some(value):
-      if let transformedValue: AnyObject = attribute.transformValue(value) {
+    case let .some(value):
+      if let transformedValue: AnyObject = attribute.transform(value: value) {
         setValue(transformedValue, forKeyPath: attribute.name)
       } else {
-        let error = CoreDataKitError.ImportError(description: "Value '\(value)' could not be transformed to a value compatible with the type of \(entity.name).\(attribute.name)")
+        let error = CoreDataKitError.importError(description: "Value '\(value)' could not be transformed to a value compatible with the type of \(entity.name).\(attribute.name)")
         throw error
       }
 
-    case .Null:
+    case .null:
       setValue(nil, forKeyPath: attribute.name) // We just set it to nil, maybe there is a default value in the model
 
-    case .None:
+    case .none:
       // Not found in dictionary, do not change value
       break;
     }
@@ -145,7 +160,7 @@ extension NSManagedObject
 
   - returns: Result wheter import succeeded
   */
-  private func performImportRelationship(context: NSManagedObjectContext, relationship: NSRelationshipDescription, dictionary: [String : AnyObject]) throws {
+  fileprivate func performImportRelationship(_ context: NSManagedObjectContext, relationship: NSRelationshipDescription, dictionary: [String : AnyObject]) throws {
     if let destinationEntity = relationship.destinationEntity {
       let importableValue = relationship.preferredValueFromDictionary(dictionary)
 
@@ -157,52 +172,52 @@ extension NSManagedObject
         try performImportEmbeddingRelationship(context, relationship: relationship, importableValue: importableValue, destinationEntity: destinationEntity)
       }
     } else {
-      let error = CoreDataKitError.ImportError(description: "Relationship \(self.entity.name).\(relationship.name) has no destination entity defined")
+      let error = CoreDataKitError.importError(description: "Relationship \(self.entity.name).\(relationship.name) has no destination entity defined")
       throw error
     }
   }
 
-  private func performImportReferenceRelationship(context: NSManagedObjectContext, relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription) throws {
+  fileprivate func performImportReferenceRelationship(_ context: NSManagedObjectContext, relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription) throws {
     switch importableValue {
-    case let .Some(value as [String: AnyObject]):
+    case let .some(value as [String: AnyObject]):
       let object = try context.importEntity(destinationEntity, dictionary: value)
       try self.updateRelationship(context, relationship: relationship, withValue: object, deleteCurrent: false)
 
-    case .Some(_ as [AnyObject]):
-      let error = CoreDataKitError.UnimplementedMethod(description: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)")
+    case .some(_ as [AnyObject]):
+      let error = CoreDataKitError.unimplementedMethod(description: "Multiple referenced / nested relationships not yet supported with relation type \(RelationType.Reference)")
       throw error
 
-    case let .Some(value):
+    case let .some(value):
       let object = try context.findEntityByIdentifyingAttribute(destinationEntity, identifyingValue: value)
       try self.updateRelationship(context, relationship: relationship, withValue: object, deleteCurrent: false)
 
-    case .Null:
+    case .null:
       return try updateRelationship(context, relationship: relationship, withValue: nil, deleteCurrent: false)
 
-    case .None:
+    case .none:
       return // Not found in dictionary, do not change value
     }
   }
 
-  private func performImportEmbeddingRelationship(context: NSManagedObjectContext, relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription) throws {
+  fileprivate func performImportEmbeddingRelationship(_ context: NSManagedObjectContext, relationship: NSRelationshipDescription, importableValue: ImportableValue, destinationEntity: NSEntityDescription) throws {
     switch importableValue {
-    case let .Some(value as [String: AnyObject]):
+    case let .some(value as [String: AnyObject]):
       let destinationObject = try context.create(destinationEntity)
       try destinationObject.importDictionary(value)
       try self.updateRelationship(context, relationship: relationship, withValue: destinationObject, deleteCurrent: true)
 
-    case .Some(_ as [AnyObject]):
-      let error = CoreDataKitError.UnimplementedMethod(description: "Multiple nested relationships not yet supported with relation type \(RelationType.Embedding)")
+    case .some(_ as [AnyObject]):
+      let error = CoreDataKitError.unimplementedMethod(description: "Multiple nested relationships not yet supported with relation type \(RelationType.Embedding)")
       throw error
 
-    case .Some(_):
-      let error = CoreDataKitError.UnimplementedMethod(description: "Referenced relationships are not supported with relation type \(RelationType.Embedding)")
+    case .some(_):
+      let error = CoreDataKitError.unimplementedMethod(description: "Referenced relationships are not supported with relation type \(RelationType.Embedding)")
       throw error
 
-    case .Null:
+    case .null:
       try self.updateRelationship(context, relationship: relationship, withValue: nil, deleteCurrent: true)
 
-    case .None:
+    case .none:
       return // Not found in dictionary, do not change value
     }
   }
@@ -215,9 +230,9 @@ extension NSManagedObject
 
   :return: Wheter the update succeeded
   */
-  private func updateRelationship(context: NSManagedObjectContext, relationship: NSRelationshipDescription, withValue _value: NSManagedObject?, deleteCurrent: Bool) throws {
-    if (relationship.toMany) {
-      if let objectSet = valueForKeyPath(relationship.name) as? NSMutableSet {
+  fileprivate func updateRelationship(_ context: NSManagedObjectContext, relationship: NSRelationshipDescription, withValue _value: NSManagedObject?, deleteCurrent: Bool) throws {
+    if (relationship.isToMany) {
+      if let objectSet = value(forKeyPath: relationship.name) as? NSMutableSet {
         if (deleteCurrent) {
           for object in objectSet {
             if let managedObject = object as? NSManagedObject {
@@ -231,17 +246,17 @@ extension NSManagedObject
         }
 
         if let object = _value {
-          objectSet.addObject(object)
+          objectSet.add(object)
         } else {
           objectSet.removeAllObjects()
         }
       } else {
-        let error = CoreDataKitError.ImportError(description: "Can't append imported object to to-many relation '\(entity.name).\(relationship.name)' because it's not a NSMutableSet")
+        let error = CoreDataKitError.importError(description: "Can't append imported object to to-many relation '\(entity.name).\(relationship.name)' because it's not a NSMutableSet")
         throw error
       }
     } else {
       if (deleteCurrent) {
-        if let currentRelatedObject = self.valueForKeyPath(relationship.name) as? NSManagedObject {
+        if let currentRelatedObject = self.value(forKeyPath: relationship.name) as? NSManagedObject {
           do {
             try context.deleteWithPermanentID(currentRelatedObject)
           }
@@ -252,10 +267,10 @@ extension NSManagedObject
 
       if let value = _value {
         setValue(value, forKeyPath: relationship.name)
-      } else if (relationship.optional) {
+      } else if (relationship.isOptional) {
         setValue(nil, forKeyPath: relationship.name)
       } else {
-        let error = CoreDataKitError.ImportError(description: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null")
+        let error = CoreDataKitError.importError(description: "Relationship \(self.entity.name).\(relationship.name) is not optional, cannot set to null")
         throw error
       }
     }

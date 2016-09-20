@@ -18,14 +18,14 @@ class CoreDataKitTests: TestCase {
   func testBackgroundContext() {
     XCTAssertNotNil(CDK.backgroundContext.persistentStoreCoordinator, "Missing persistent coordinator")
     XCTAssertEqual(CDK.backgroundContext.persistentStoreCoordinator!, CDK.persistentStoreCoordinator, "Incorrect persistent coordinator")
-    XCTAssertNotNil(CDK.backgroundContext.parentContext, "Missing parent context")
-    XCTAssertEqual(CDK.backgroundContext.parentContext!, CDK.sharedStack!.mainThreadContext, "Incorrect parent context")
+    XCTAssertNotNil(CDK.backgroundContext.parent, "Missing parent context")
+    XCTAssertEqual(CDK.backgroundContext.parent!, CDK.sharedStack!.mainThreadContext, "Incorrect parent context")
   }
 
   func testMainThreadContext() {
     XCTAssertNotNil(CDK.mainThreadContext.persistentStoreCoordinator, "Missing persistent coordinator")
     XCTAssertEqual(CDK.mainThreadContext.persistentStoreCoordinator!, CDK.persistentStoreCoordinator, "Incorrect persistent coordinator")
-    XCTAssertNotNil(CDK.mainThreadContext.parentContext, "Missing parent context")
-    XCTAssertEqual(CDK.mainThreadContext.parentContext!, CDK.sharedStack!.rootContext, "Incorrect parent context")
+    XCTAssertNotNil(CDK.mainThreadContext.parent, "Missing parent context")
+    XCTAssertEqual(CDK.mainThreadContext.parent!, CDK.sharedStack!.rootContext, "Incorrect parent context")
   }
 }
