@@ -147,7 +147,7 @@ extension NSManagedObjectContext
     NotificationCenter.default.addObserver(self, selector: #selector(NSManagedObjectContext.obtainPermanentIDsForInsertedObjectsOnContextWillSave(_:)), name: NSNotification.Name.NSManagedObjectContextWillSave, object: self)
   }
 
-  func obtainPermanentIDsForInsertedObjectsOnContextWillSave(_ notification: Notification)
+  @objc func obtainPermanentIDsForInsertedObjectsOnContextWillSave(_ notification: Notification)
   {
     do {
       try obtainPermanentIDsForInsertedObjects()
