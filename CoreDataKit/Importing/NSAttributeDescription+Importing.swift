@@ -54,9 +54,13 @@ extension NSAttributeDescription
       fallthrough
     case .transformableAttributeType:
       fallthrough
+    case .UUIDAttributeType:
+      fallthrough
+    case .URIAttributeType:
+      fallthrough
     case .objectIDAttributeType:
       return nil
-    }
+}
   }
 
   @available(*, unavailable, renamed: "transform(value:)")
