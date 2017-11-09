@@ -22,7 +22,8 @@ pod 'CoreDataKit'
 
 ### Version guide
 
-- Swift 3: Use 0.12 and up
+- Swift 4: Use 0.13 and up
+- Swift 3: Use 0.12
 - Swift 2.3: Use 0.11
 - Swift 2.2: Use 0.10
 
