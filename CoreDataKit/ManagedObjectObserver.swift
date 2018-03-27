@@ -52,35 +52,39 @@ public class ManagedObjectObserver<T:NSManagedObject>: NSObject {
     self.subscribers = [Subscriber]()
     super.init()
 
-    notificationObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: context, queue: nil) { [unowned self] notification in
+    notificationObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: context, queue: nil) { [weak self] notification in
+      guard let strongSelf = self else {
+        return
+      }
+
       context.perform {
-        if self.subscribers.isEmpty {
+        if strongSelf.subscribers.isEmpty {
           return
         }
 
         do {
-          let convertedObject = try context.find(T.self, managedObjectID: self.observedObject.objectID)
+          let convertedObject = try context.find(T.self, managedObjectID: strongSelf.observedObject.objectID)
           if let updatedObjects = (notification as NSNotification).userInfo?[NSUpdatedObjectsKey] as? NSSet {
             if updatedObjects.contains(convertedObject) {
-              self.notifySubscribers(.updated(convertedObject))
+              strongSelf.notifySubscribers(.updated(convertedObject))
             }
           }
 
           if let refreshedObjects = (notification as NSNotification).userInfo?[NSRefreshedObjectsKey] as? NSSet {
             if refreshedObjects.contains(convertedObject) {
-              self.notifySubscribers(.refreshed(convertedObject))
+              strongSelf.notifySubscribers(.refreshed(convertedObject))
             }
           }
 
           if let insertedObjects = (notification as NSNotification).userInfo?[NSInsertedObjectsKey] as? NSSet {
             if insertedObjects.contains(convertedObject) {
-              self.notifySubscribers(.inserted(convertedObject))
+              strongSelf.notifySubscribers(.inserted(convertedObject))
             }
           }
 
           if let deletedObjects = (notification as NSNotification).userInfo?[NSDeletedObjectsKey] as? NSSet {
             if deletedObjects.contains(convertedObject) {
-              self.notifySubscribers(.deleted)
+              strongSelf.notifySubscribers(.deleted)
             }
           }
         }
